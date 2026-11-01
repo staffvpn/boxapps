@@ -1,17 +1,16 @@
-// POST /tg/webhook — бот каталога: разделы, категории, случайный выбор, поиск, заявки и модерация.
-import { BRAND, CATEGORIES, CRITERIA } from '../_catalog.js';
-import { admins, createSubmission, esc, fullCatalog, json, kvGet, kvPut, normalizeLink, tgApi } from '../_lib.js';
+// POST /tg/webhook — бот BOX APPS: разделы, категории, случайный выбор, поиск, заявки.
+// Для админов из ADMIN_IDS: /admin (открывает админку), кнопки «Добавить / Отклонить» на заявках.
+import { BRAND, KINDS } from '../_catalog.js';
+import { admins, getCategories, approveSubmission, createSubmission, esc, fullCatalog, json, kindLabel, kvGet, kvPut, normalizeLink, rejectSubmission, tgApi } from '../_lib.js';
 
 const PAGE = 6;
-const KIND = { game: 'Игры', bot: 'Боты' };
 const ok = () => json({ ok: true });
 
 export async function onRequestPost({ request, env }) {
   if (!env.WEBHOOK_SECRET || request.headers.get('X-Telegram-Bot-Api-Secret-Token') !== env.WEBHOOK_SECRET) return json({ ok: false }, 403);
   let upd;
   try { upd = await request.json(); } catch { return ok(); }
-  const origin = new URL(request.url).origin;
-  const ctx = { env, origin };
+  const ctx = { env, origin: new URL(request.url).origin };
   try {
     if (upd.callback_query) await onCallback(ctx, upd.callback_query);
     else if (upd.message && upd.message.chat.type === 'private') await onMessage(ctx, upd.message);
@@ -21,54 +20,48 @@ export async function onRequestPost({ request, env }) {
   return ok();
 }
 
-// ---------- отправка ----------
 const send = (ctx, chat_id, text, reply_markup) =>
   tgApi(ctx.env, 'sendMessage', { chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup });
 const edit = (ctx, m, text, reply_markup) =>
   tgApi(ctx.env, 'editMessageText', { chat_id: m.chat.id, message_id: m.message_id, text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup });
-
 const btn = (text, data) => ({ text, callback_data: data });
-const menuKb = ctx => ({
-  inline_keyboard: [
-    [{ text: 'Открыть каталог', web_app: { url: ctx.origin } }],
-    [btn('Игры', 'kind:game'), btn('Боты', 'kind:bot')],
-    [btn('Случайно', 'rnd:any'), btn('Поиск', 'search')],
+const isAdmin = (ctx, uid) => admins(ctx.env).includes(uid);
+const visible = async ctx => (await fullCatalog(ctx.env)).filter(x => !x.hidden);
+
+function menuKb(ctx, uid) {
+  const rows = [
+    [{ text: 'Открыть BOX APPS', web_app: { url: ctx.origin } }],
+    [btn('Игры', 'kind:game'), btn('Боты', 'kind:bot'), btn('Каналы', 'kind:channel')],
+    [btn('Категории', 'cats'), btn('Поиск', 'search')],
     [btn('Предложить проект', 'submit')],
-  ],
-});
+  ];
+  if (uid && isAdmin(ctx, uid)) rows.push([{ text: 'Админка', web_app: { url: ctx.origin + '/#admin' } }]);
+  return { inline_keyboard: rows };
+}
+const welcome = () => `<b>${BRAND}</b>\nИгры, боты и каналы для Telegram в одном каталоге.`;
 
 async function setState(ctx, uid, st) { await kvPut(ctx.env, 'st:' + uid, st, 3600); }
 async function getState(ctx, uid) { return kvGet(ctx.env, 'st:' + uid, null); }
 async function clearState(ctx, uid) { if (ctx.env.STORE) await ctx.env.STORE.delete('st:' + uid); }
 
-// ---------- экраны ----------
-function welcome() {
-  return `<b>${BRAND}</b>\nИгры и боты для Telegram, отобранные вручную.\n\nЗдесь нет тапалок, казино, «заработка» и обязательных подписок. Только то, чем действительно хочется пользоваться.`;
-}
-
 async function categoriesView(ctx, kind) {
-  const items = await fullCatalog(ctx.env);
+  const items = await visible(ctx);
+  const cats = (await getCategories(ctx.env))[kind];
   const rows = [];
-  const cats = CATEGORIES[kind];
   for (let i = 0; i < cats.length; i += 2) {
-    rows.push(cats.slice(i, i + 2).map((c, j) => {
-      const n = items.filter(x => x.kind === kind && x.categories.includes(c)).length;
-      return btn(`${c} · ${n}`, `cat:${kind}:${i + j}:0`);
-    }));
+    rows.push(cats.slice(i, i + 2).map((c, j) => btn(`${c} · ${items.filter(x => x.kind === kind && x.categories.includes(c)).length}`, `cat:${kind}:${i + j}:0`)));
   }
-  rows.push([btn(`Все ${KIND[kind].toLowerCase()}`, `cat:${kind}:all:0`)]);
+  rows.push([btn(`Все ${KINDS[kind].toLowerCase()} · ${items.filter(x => x.kind === kind).length}`, `cat:${kind}:all:0`)]);
   rows.push([btn('← Меню', 'menu')]);
-  return { text: `<b>${KIND[kind]}</b>\nВыберите категорию.`, kb: { inline_keyboard: rows } };
+  return { text: `<b>${KINDS[kind]}</b>\nВыберите категорию.`, kb: { inline_keyboard: rows } };
 }
 
 async function listView(ctx, kind, cat, page) {
-  let items = (await fullCatalog(ctx.env)).filter(x => x.kind === kind);
-  const title = cat === 'all' ? `Все ${KIND[kind].toLowerCase()}` : CATEGORIES[kind][Number(cat)];
+  let items = (await visible(ctx)).filter(x => x.kind === kind);
+  const title = cat === 'all' ? `Все ${KINDS[kind].toLowerCase()}` : (await getCategories(ctx.env))[kind][Number(cat)];
   if (cat !== 'all') items = items.filter(x => x.categories.includes(title));
   items.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-  if (!items.length) {
-    return { text: `<b>${esc(title)}</b>\n\nЗдесь пока пусто. Знаете что-то достойное?`, kb: { inline_keyboard: [[btn('Предложить проект', 'submit')], [btn('← Категории', 'kind:' + kind)]] } };
-  }
+  if (!items.length) return { text: `<b>${esc(title)}</b>\n\nЗдесь пока пусто.`, kb: { inline_keyboard: [[btn('Предложить проект', 'submit')], [btn('← Категории', 'kind:' + kind)]] } };
   const rows = items.slice(page * PAGE, (page + 1) * PAGE).map(x => [btn(`${x.title}${x.rating ? '  ·  ' + x.rating : ''}`, 'item:' + x.id)]);
   const nav = [];
   if (page > 0) nav.push(btn('←', `cat:${kind}:${cat}:${page - 1}`));
@@ -79,36 +72,49 @@ async function listView(ctx, kind, cat, page) {
 }
 
 function itemText(x) {
-  const lines = [`<b>${esc(x.title)}</b>`, `<i>${x.kind === 'bot' ? 'Бот' : 'Игра'} · ${esc(x.categories.join(' · '))}</i>`, '', esc(x.description || '')];
-  if (x.note) lines.push('', `<i>«${esc(x.note)}»</i>`);
+  const lines = [`<b>${esc(x.title)}</b>`, `<i>${kindLabel(x.kind)} · ${esc(x.categories.join(' · '))}</i>`];
+  if (x.description) lines.push('', esc(x.description));
+  if (x.note) lines.push('', `<i>${esc(x.note)}</i>`);
   const facts = [];
   if (x.rating) facts.push(`оценка ${x.rating}`);
   if (x.session) facts.push(`сессия ~${esc(x.session)}`);
+  if (x.subscribers) facts.push(`${esc(x.subscribers)} подписчиков`);
+  if (x.price) facts.push(esc(x.price));
   if (facts.length) lines.push('', facts.join(' · '));
-  lines.push('', 'Проверено: без фарма, казино и обязательных подписок.');
-  if (x.example) lines.push('', '<i>Образец карточки.</i>');
   return lines.join('\n');
 }
 function itemKb(ctx, x) {
   const rows = [];
-  if (x.link) rows.push([{ text: x.kind === 'bot' ? 'Открыть бота' : 'Играть', url: x.link }]);
+  const label = { game: 'Играть', bot: 'Открыть бота', channel: 'Перейти в канал' }[x.kind];
+  if (x.link) rows.push([{ text: label, url: x.link }]);
   rows.push([{ text: 'Страница в каталоге', web_app: { url: `${ctx.origin}/#item-${x.id}` } }]);
   if (x.channel) rows.push([{ text: 'Канал проекта', url: x.channel }]);
-  rows.push([btn('Ещё случайное', 'rnd:' + x.kind), btn('← Категории', 'kind:' + x.kind)]);
+  rows.push([btn('← Категории', 'kind:' + x.kind), btn('Меню', 'menu')]);
   return { inline_keyboard: rows };
 }
-
-async function randomItem(ctx, chat, kind) {
-  const items = (await fullCatalog(ctx.env)).filter(x => kind === 'any' || x.kind === kind);
-  if (!items.length) return send(ctx, chat, 'Каталог пока пуст.');
-  const x = items[Math.floor(Math.random() * items.length)];
+async function sendItem(ctx, chat, x) {
+  if (x.image) {
+    const photo = x.image.startsWith('/') ? ctx.origin + x.image : x.image;
+    const r = await tgApi(ctx.env, 'sendPhoto', { chat_id: chat, photo, caption: itemText(x).slice(0, 1000), parse_mode: 'HTML', reply_markup: itemKb(ctx, x) });
+    if (r.ok) return r;
+  }
   return send(ctx, chat, itemText(x), itemKb(ctx, x));
 }
+async function allCategoriesView(ctx) {
+  const [items, cats] = await Promise.all([visible(ctx), getCategories(ctx.env)]);
+  const rows = [];
+  for (const k of Object.keys(KINDS)) {
+    rows.push([btn(`— ${KINDS[k]} —`, 'kind:' + k)]);
+    const list = cats[k];
+    for (let i = 0; i < list.length; i += 2) rows.push(list.slice(i, i + 2).map((c, j) => btn(`${c} · ${items.filter(x => x.kind === k && x.categories.includes(c)).length}`, `cat:${k}:${i + j}:0`)));
+  }
+  rows.push([btn('← Меню', 'menu')]);
+  return { text: '<b>Категории</b>', kb: { inline_keyboard: rows } };
+}
 
-// ---------- заявка ----------
 async function startSubmit(ctx, chat, uid) {
   await setState(ctx, uid, { step: 'kind' });
-  return send(ctx, chat, '<b>Предложить проект</b>\nЧто хотите предложить?', { inline_keyboard: [[btn('Игру', 'sk:game'), btn('Бота', 'sk:bot')], [btn('Отмена', 'cancel')]] });
+  return send(ctx, chat, '<b>Предложить проект</b>\nЧто это?', { inline_keyboard: [[btn('Игра', 'sk:game'), btn('Бот', 'sk:bot'), btn('Канал', 'sk:channel')], [btn('Отмена', 'cancel')]] });
 }
 
 async function onMessage(ctx, m) {
@@ -116,49 +122,55 @@ async function onMessage(ctx, m) {
   const text = (m.text || '').trim();
   if (!text) return;
   const cmd = text.startsWith('/') ? text.split(/[\s@]/)[0].toLowerCase() : null;
-
   if (cmd) await clearState(ctx, uid);
-  if (cmd === '/start' || cmd === '/menu') return send(ctx, chat, welcome(), menuKb(ctx));
-  if (cmd === '/games' || cmd === '/bots') { const v = await categoriesView(ctx, cmd === '/games' ? 'game' : 'bot'); return send(ctx, chat, v.text, v.kb); }
-  if (cmd === '/random') return randomItem(ctx, chat, 'any');
-  if (cmd === '/search') { await setState(ctx, uid, { step: 'search' }); return send(ctx, chat, 'Напишите название игры или бота.'); }
+
+  if (cmd === '/start' || cmd === '/menu') return send(ctx, chat, welcome(), menuKb(ctx, uid));
+  if (cmd === '/games' || cmd === '/bots' || cmd === '/channels') {
+    const v = await categoriesView(ctx, { '/games': 'game', '/bots': 'bot', '/channels': 'channel' }[cmd]);
+    return send(ctx, chat, v.text, v.kb);
+  }
+  if (cmd === '/categories') { const v = await allCategoriesView(ctx); return send(ctx, chat, v.text, v.kb); }
+  if (cmd === '/search') { await setState(ctx, uid, { step: 'search' }); return send(ctx, chat, 'Напишите название.'); }
   if (cmd === '/submit') return startSubmit(ctx, chat, uid);
   if (cmd === '/myid') return send(ctx, chat, `Ваш ID: <code>${uid}</code>`);
-  if (cmd === '/pending' && admins(ctx.env).includes(uid)) {
+  if (cmd === '/admin') {
+    if (!isAdmin(ctx, uid)) return send(ctx, chat, welcome(), menuKb(ctx, uid));
     const p = await kvGet(ctx.env, 'pending', []);
-    return send(ctx, chat, `Заявок в очереди: ${p.length}` + p.map(s => `\n• ${esc(s.title)} — ${esc(s.link)}`).join(''));
+    const items = await fullCatalog(ctx.env);
+    return send(ctx, chat, `<b>Админка BOX APPS</b>\nПроектов: ${items.length} · заявок в очереди: ${p.length}`,
+      { inline_keyboard: [[{ text: 'Открыть админку', web_app: { url: ctx.origin + '/#admin' } }]] });
   }
-  if (cmd) return send(ctx, chat, welcome(), menuKb(ctx));
+  if (cmd) return send(ctx, chat, welcome(), menuKb(ctx, uid));
 
   const st = await getState(ctx, uid);
-  if (!st) return send(ctx, chat, welcome(), menuKb(ctx));
+  if (!st) return send(ctx, chat, welcome(), menuKb(ctx, uid));
 
   if (st.step === 'search') {
     await clearState(ctx, uid);
     const q = text.toLowerCase();
-    const res = (await fullCatalog(ctx.env)).filter(x => x.title.toLowerCase().includes(q) || (x.description || '').toLowerCase().includes(q));
-    if (!res.length) return send(ctx, chat, 'Ничего не нашлось. Попробуйте другое слово.', { inline_keyboard: [[btn('Поиск', 'search'), btn('Меню', 'menu')]] });
+    const res = (await visible(ctx)).filter(x => x.title.toLowerCase().includes(q) || (x.description || '').toLowerCase().includes(q));
+    if (!res.length) return send(ctx, chat, 'Ничего не нашлось.', { inline_keyboard: [[btn('Поиск', 'search'), btn('Меню', 'menu')]] });
     return send(ctx, chat, `Найдено: ${res.length}`, { inline_keyboard: res.slice(0, 10).map(x => [btn(x.title, 'item:' + x.id)]) });
   }
   if (st.step === 'title') {
     await setState(ctx, uid, { ...st, title: text.slice(0, 64), step: 'link' });
-    return send(ctx, chat, 'Ссылка на проект: <code>t.me/имя_бота</code> или <code>@имя_бота</code>.');
+    return send(ctx, chat, 'Ссылка: <code>t.me/имя</code> или <code>@имя</code>.');
   }
   if (st.step === 'link') {
     const link = normalizeLink(text);
-    if (!link) return send(ctx, chat, 'Нужна ссылка на Telegram: <code>t.me/имя_бота</code> или <code>@имя_бота</code>.');
+    if (!link) return send(ctx, chat, 'Нужна ссылка на Telegram: <code>t.me/имя</code> или <code>@имя</code>.');
     await setState(ctx, uid, { ...st, link, step: 'category' });
-    const cats = CATEGORIES[st.kind];
+    const cats = (await getCategories(ctx.env))[st.kind];
     const rows = [];
     for (let i = 0; i < cats.length; i += 2) rows.push(cats.slice(i, i + 2).map((c, j) => btn(c, 'sc:' + (i + j))));
     return send(ctx, chat, 'Категория:', { inline_keyboard: rows });
   }
   if (st.step === 'desc') {
-    await setState(ctx, uid, { ...st, description: text.slice(0, 600), step: 'criteria' });
-    return send(ctx, chat, 'Последний шаг. Проект соответствует всем правилам?\n\n' + CRITERIA.map(c => '— ' + c).join('\n'),
-      { inline_keyboard: [[btn('Да, всё так', 'sok'), btn('Нет', 'sno')]] });
+    await clearState(ctx, uid);
+    await createSubmission(ctx.env, { kind: st.kind, title: st.title, link: st.link, category: st.category, description: text.slice(0, 600), user_id: uid, username: m.from.username || '', source: 'bot' });
+    return send(ctx, chat, 'Спасибо, заявка отправлена. Ответим здесь.', menuKb(ctx, uid));
   }
-  return send(ctx, chat, welcome(), menuKb(ctx));
+  return send(ctx, chat, welcome(), menuKb(ctx, uid));
 }
 
 async function onCallback(ctx, q) {
@@ -167,59 +179,41 @@ async function onCallback(ctx, q) {
   if (!m) return answer();
   const chat = m.chat.id;
 
-  if (data === 'menu') { await clearState(ctx, uid); await edit(ctx, m, welcome(), menuKb(ctx)); return answer(); }
-  if (data.startsWith('kind:')) { const v = await categoriesView(ctx, data.slice(5)); await edit(ctx, m, v.text, v.kb); return answer(); }
+  if (data === 'menu') { await clearState(ctx, uid); await edit(ctx, m, welcome(), menuKb(ctx, uid)); return answer(); }
+  if (data.startsWith('kind:')) { const k = data.slice(5); if (!KINDS[k]) return answer(); const v = await categoriesView(ctx, k); await edit(ctx, m, v.text, v.kb); return answer(); }
   if (data.startsWith('cat:')) { const [, kind, cat, page] = data.split(':'); const v = await listView(ctx, kind, cat, Number(page)); await edit(ctx, m, v.text, v.kb); return answer(); }
   if (data.startsWith('item:')) {
-    const x = (await fullCatalog(ctx.env)).find(i => i.id === data.slice(5));
-    if (!x) return answer('Проект больше не в каталоге', true);
-    await send(ctx, chat, itemText(x), itemKb(ctx, x)); return answer();
+    const x = (await visible(ctx)).find(i => i.id === data.slice(5));
+    if (!x) return answer('Проекта больше нет в каталоге', true);
+    await sendItem(ctx, chat, x); return answer();
   }
-  if (data.startsWith('rnd:')) { await randomItem(ctx, chat, data.slice(4)); return answer(); }
-  if (data === 'search') { await setState(ctx, uid, { step: 'search' }); await send(ctx, chat, 'Напишите название игры или бота.'); return answer(); }
+  if (data === 'cats') { const v = await allCategoriesView(ctx); await edit(ctx, m, v.text, v.kb); return answer(); }
+  if (data === 'search') { await setState(ctx, uid, { step: 'search' }); await send(ctx, chat, 'Напишите название.'); return answer(); }
   if (data === 'submit') { await startSubmit(ctx, chat, uid); return answer(); }
-  if (data === 'cancel') { await clearState(ctx, uid); await edit(ctx, m, 'Отменено.', menuKb(ctx)); return answer(); }
+  if (data === 'cancel') { await clearState(ctx, uid); await edit(ctx, m, 'Отменено.', menuKb(ctx, uid)); return answer(); }
 
   if (data.startsWith('sk:')) {
-    const st = await getState(ctx, uid);
-    if (!st) return answer('Начните заново: /submit', true);
-    await setState(ctx, uid, { step: 'title', kind: data.slice(3) === 'bot' ? 'bot' : 'game' });
-    await edit(ctx, m, 'Как называется проект?'); return answer();
+    const k = data.slice(3);
+    await setState(ctx, uid, { step: 'title', kind: KINDS[k] ? k : 'game' });
+    await edit(ctx, m, 'Как называется?'); return answer();
   }
   if (data.startsWith('sc:')) {
     const st = await getState(ctx, uid);
     if (!st || st.step !== 'category') return answer('Начните заново: /submit', true);
-    await setState(ctx, uid, { ...st, category: CATEGORIES[st.kind][Number(data.slice(3))], step: 'desc' });
-    await edit(ctx, m, 'Пара строк: что это и чем оно хорошо?'); return answer();
-  }
-  if (data === 'sno') { await clearState(ctx, uid); await edit(ctx, m, 'Тогда добавить не получится: это главное правило каталога.'); return answer(); }
-  if (data === 'sok') {
-    const st = await getState(ctx, uid);
-    if (!st || st.step !== 'criteria') return answer('Начните заново: /submit', true);
-    await clearState(ctx, uid);
-    await createSubmission(ctx.env, { kind: st.kind, title: st.title, link: st.link, category: st.category, description: st.description, user_id: uid, username: q.from.username || '', source: 'bot' });
-    await edit(ctx, m, 'Спасибо. Заявка у редакции: мы сами всё попробуем и ответим здесь.', menuKb(ctx));
-    return answer();
+    await setState(ctx, uid, { ...st, category: (await getCategories(ctx.env))[st.kind][Number(data.slice(3))], step: 'desc' });
+    await edit(ctx, m, 'Пара строк о проекте:'); return answer();
   }
 
   if (data.startsWith('mod:')) {
-    if (!admins(ctx.env).includes(uid)) return answer('Только для редакции', true);
+    if (!isAdmin(ctx, uid)) return answer('Только для админов', true);
     const [, action, sid] = data.split(':');
-    const pending = await kvGet(ctx.env, 'pending', []);
-    const sub = pending.find(s => s.sid === sid);
-    if (!sub) return answer('Уже обработано');
-    await kvPut(ctx.env, 'pending', pending.filter(s => s.sid !== sid));
-    let verdict, note;
-    if (action === 'ok') {
-      const approved = await kvGet(ctx.env, 'approved', []);
-      approved.push({ id: sid, kind: sub.kind, title: sub.title, categories: [sub.category], description: sub.description, link: sub.link, author: sub.username ? '@' + sub.username : '' });
-      await kvPut(ctx.env, 'approved', approved);
-      verdict = 'Добавлено'; note = `«${esc(sub.title)}» теперь в каталоге ${BRAND}. Спасибо!`;
-    } else {
-      verdict = 'Отклонено'; note = `«${esc(sub.title)}» пока не прошёл отбор. Спасибо, что предложили.`;
-    }
-    await tgApi(ctx.env, 'editMessageReplyMarkup', { chat_id: chat, message_id: m.message_id, reply_markup: { inline_keyboard: [[btn(verdict, 'noop')]] } });
-    if (sub.user_id) await send(ctx, sub.user_id, note);
+    const r = action === 'ok' ? await approveSubmission(ctx.env, sid) : await rejectSubmission(ctx.env, sid);
+    if (!r) return answer('Уже обработано');
+    const verdict = action === 'ok' ? 'Добавлено' : 'Отклонено';
+    const rows = [[btn(verdict, 'noop')]];
+    if (r.item) rows.push([{ text: 'Дополнить в админке', web_app: { url: `${ctx.origin}/#admin-edit-${r.item.id}` } }]);
+    await tgApi(ctx.env, 'editMessageReplyMarkup', { chat_id: chat, message_id: m.message_id, reply_markup: { inline_keyboard: rows } });
+    if (r.sub.user_id) await send(ctx, r.sub.user_id, action === 'ok' ? `«${esc(r.sub.title)}» добавлен в каталог ${BRAND}.` : `«${esc(r.sub.title)}» пока не добавлен в каталог.`);
     return answer(verdict);
   }
   return answer();

@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>BOX APPS — игры и боты для Telegram</title>
-<meta name="description" content="Игры и боты для Telegram, отобранные вручную. Без тапалок, казино, «заработка» и обязательных подписок.">
+<title>BOX APPS — игры, боты и каналы для Telegram</title>
+<meta name="description" content="Игры, боты и каналы для Telegram в одном каталоге.">
 <meta name="theme-color" content="#111111">
-<meta property="og:title" content="BOX APPS — игры и боты для Telegram">
-<meta property="og:description" content="Отобранные вручную. Без фарма и мусора.">
+<meta property="og:title" content="BOX APPS">
+<meta property="og:description" content="Игры, боты и каналы для Telegram в одном каталоге.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-/* Панель управления на бумаге: чёрный сайдбар, ячейки в чёрных рамках, острые углы, жирный капс, лайм как единственный акцент. */
+/* Панель на бумаге: чёрный сайдбар, ячейки в чёрных рамках, острые углы, жирный капс, лайм как акцент. */
 :root{
   --paper:#ECECE8; --card:#F6F6F3; --ink:#111111; --ink-2:#2A2A28; --muted:#6E6E69; --hair:#CFCFC9;
-  --lime:#D6FF3B; --violet:#6D4CF6; --b:1.5px solid var(--ink);
+  --lime:#D6FF3B; --violet:#6D4CF6; --red:#C0322A; --b:1.5px solid var(--ink);
   --sans:"Inter Tight", "Helvetica Neue", Arial, sans-serif;
   --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
 }
@@ -29,17 +29,14 @@ button,input,textarea,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--violet);outline-offset:2px}
 ::selection{background:var(--lime);color:var(--ink)}
 svg{display:block}
-
+img{max-width:100%;display:block}
 .lbl{font:800 11px/1.2 var(--sans);letter-spacing:.04em;text-transform:uppercase}
 .sub{font-size:12px;color:var(--muted);font-weight:500}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .ico{width:18px;height:18px;flex:none}
 
-/* каркас */
 .shell{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
 @media (min-width:980px){.shell{grid-template-columns:232px minmax(0,1fr)}}
-
-/* сайдбар */
 .side{display:none;background:var(--ink);color:#fff;padding:26px 0 18px;flex-direction:column;gap:26px;position:sticky;top:0;height:100vh}
 @media (min-width:980px){.side{display:flex}}
 .logo{font:900 22px/1 var(--sans);letter-spacing:-.02em;text-transform:uppercase;padding:0 22px;display:flex;align-items:center;gap:8px}
@@ -48,13 +45,13 @@ svg{display:block}
 .menu a{display:flex;align-items:center;gap:12px;padding:10px 12px;font:800 12px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:#E8E8E3}
 .menu a:hover{background:#1f1f1e}
 .menu a[aria-current="page"]{background:var(--lime);color:var(--ink)}
-.menu a .cnt{margin-left:auto;background:var(--violet);color:#fff;font:700 10px/1 var(--mono);padding:4px 6px}
+.menu .cnt{margin-left:auto;background:var(--violet);color:#fff;font:700 10px/1 var(--mono);padding:4px 6px}
 .menu a[aria-current="page"] .cnt{background:var(--ink)}
+.menu .sep{height:1px;background:#2b2b29;margin:10px 12px}
 .promo{margin:auto 14px 0;border:1px solid #3a3a38;padding:16px;display:flex;flex-direction:column;gap:8px}
 .promo p{margin:0;font-size:12px;color:#B5B5AE}
 .btn-lime{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--lime);color:var(--ink);border:0;padding:10px 14px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;align-self:flex-start}
 
-/* мобильная шапка */
 .mtop{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--ink);color:#fff;
   padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));position:sticky;top:0;z-index:5}
 @media (min-width:980px){.mtop{display:none}}
@@ -65,12 +62,11 @@ svg{display:block}
 .mtabs a{flex:none;padding:11px 12px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:#BDBDB6}
 .mtabs a[aria-current="page"]{color:var(--ink);background:var(--lime)}
 
-/* основная область */
 .main{min-width:0;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 @media (min-width:980px){.main{padding:22px 24px 32px}}
 .frame{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .box{background:var(--card);border:var(--b);min-width:0}
-.box-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:var(--b)}
+.box-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:var(--b);flex-wrap:wrap}
 .box-f{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-top:var(--b);font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
 .box-f:hover{background:var(--lime)}
 
@@ -79,53 +75,48 @@ svg{display:block}
 .hello h1 .tag{background:var(--lime);padding:0 8px}
 .hello p{margin:6px 0 0;font-size:13px}
 .chip{display:inline-flex;align-items:center;gap:8px;border:var(--b);padding:8px 12px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;background:var(--card);cursor:pointer}
+.chip.dark{background:var(--ink);color:#fff}
+.chip.lime{background:var(--lime)}
 
-/* метрики */
 .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 @media (min-width:760px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .stat{padding:14px;display:flex;flex-direction:column;gap:10px}
 .stat .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .stat b{font:900 clamp(30px,6vw,42px)/1 var(--sans);letter-spacing:-.03em}
-.stat .delta{display:flex;justify-content:space-between;align-items:flex-end;font:800 10.5px/1.3 var(--sans);letter-spacing:.04em;text-transform:uppercase}
-.stat .delta span:first-child{color:var(--muted)}
+.stat .delta{font:800 10.5px/1.3 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .stat.hot{background:var(--lime)}
+.stat.hot .delta{color:var(--ink)}
 
 .grid2{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 @media (min-width:860px){.grid2{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}}
-
-/* выбор редакции */
 .pick{display:grid;grid-template-columns:minmax(0,1fr)}
 @media (min-width:620px){.pick{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .pick-b{padding:16px;display:flex;flex-direction:column;gap:10px;justify-content:space-between}
-.pick-b h2{margin:0;font:900 clamp(26px,5vw,36px)/.95 var(--sans);text-transform:uppercase;letter-spacing:-.02em}
+.pick-b h2{margin:0;font:900 clamp(26px,5vw,36px)/.95 var(--sans);text-transform:uppercase;letter-spacing:-.02em;overflow-wrap:anywhere}
 .stars{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}
 .stars i{font-style:normal;letter-spacing:1px}
-.price{font:900 26px/1 var(--sans);letter-spacing:-.02em}
+.price{font:900 24px/1 var(--sans);letter-spacing:-.02em}
 
-/* обложка: полутон + монограмма */
-.cover{position:relative;aspect-ratio:1/1;max-width:100%;overflow:hidden;background:
-  radial-gradient(circle at 70% 30%,rgba(17,17,17,.0) 0,rgba(17,17,17,.0) 30%,transparent 31%),
-  radial-gradient(rgba(17,17,17,.22) 1.1px,transparent 1.3px) 0 0/7px 7px, #DCDCD6;border-right:var(--b)}
-.cover.flat{border-right:0}
+.cover{position:relative;aspect-ratio:1/1;max-width:100%;overflow:hidden;background:radial-gradient(rgba(17,17,17,.22) 1.1px,transparent 1.3px) 0 0/7px 7px, #DCDCD6;border-right:var(--b)}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.15) contrast(1.05)}
 .cover b{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font:900 clamp(120px,30vw,220px)/1 var(--sans);letter-spacing:-.06em;color:var(--ink);text-transform:uppercase}
-.cover .badge{position:absolute;left:12px;top:12px;background:var(--ink);color:#fff;padding:6px 8px;font:800 10.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase}
+.cover .badge{position:absolute;left:12px;top:12px;background:var(--ink);color:#fff;padding:6px 8px;font:800 10.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;z-index:1}
 .cover .badge.lime{background:var(--lime);color:var(--ink)}
 @media (max-width:619px){.pick .cover{border-right:0;border-bottom:var(--b);aspect-ratio:16/10}}
 
-/* активность */
 .feed{list-style:none;margin:0;padding:6px 14px}
 .feed li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair)}
 .feed li:last-child{border-bottom:0}
-.sq{width:32px;height:32px;display:grid;place-items:center;background:var(--ink);color:#fff;font:800 12px/1 var(--sans)}
+.sq{width:32px;height:32px;display:grid;place-items:center;background:var(--ink);color:#fff;font:800 12px/1 var(--sans);overflow:hidden;flex:none}
+.sq img{width:100%;height:100%;object-fit:cover}
 .sq.lime{background:var(--lime);color:var(--ink);border:var(--b)}
 .sq.violet{background:var(--violet)}
 .feed strong{font-size:12.5px;font-weight:800;display:block;line-height:1.2}
 .feed div span{font-size:11.5px;color:var(--muted)}
 .feed time{font-size:11px;color:var(--muted)}
 
-/* вкладки и фильтры */
-.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:var(--b);background:var(--card)}
-.tabs button{border:0;background:none;padding:13px;font:900 14px/1 var(--sans);letter-spacing:.02em;text-transform:uppercase;cursor:pointer}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:var(--b);background:var(--card)}
+.tabs button{border:0;background:none;padding:13px 6px;font:900 13px/1 var(--sans);letter-spacing:.02em;text-transform:uppercase;cursor:pointer}
 .tabs button+button{border-left:var(--b)}
 .tabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .tabs sup{font:700 10px/1 var(--mono);margin-left:4px;vertical-align:top}
@@ -136,15 +127,13 @@ svg{display:block}
 .find input{border:0;background:none;outline:none;width:100%;min-width:0;font:700 12px/1 var(--sans);text-transform:uppercase;letter-spacing:.04em}
 .find input::placeholder{color:var(--muted)}
 
-/* таблица */
 .tbl{width:100%;border-collapse:collapse}
-.tbl th{font:800 10.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:12px 14px;border-bottom:var(--b);color:var(--ink)}
+.tbl th{font:800 10.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:12px 14px;border-bottom:var(--b)}
 .tbl td{padding:12px 14px;border-bottom:1px solid var(--hair);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:0}
-.tbl tbody tr{cursor:pointer}
-.tbl tbody tr:hover td{background:#EEF7C9}
+.tbl tbody tr[data-id]{cursor:pointer}
+.tbl tbody tr[data-id]:hover td{background:#EEF7C9}
 .tbl .name{display:flex;align-items:center;gap:10px;font-weight:800;font-size:13.5px;min-width:0}
-.tbl .name .sq{flex:none}
 .tbl .name small{display:block;font-weight:500;font-size:11.5px;color:var(--muted)}
 .bar{display:flex;align-items:center;gap:8px;font:700 12px/1 var(--mono)}
 .bar span{display:block;width:72px;height:6px;background:var(--hair)}
@@ -152,37 +141,38 @@ svg{display:block}
 .tbl .go{text-align:right;font-size:16px}
 .hide-s{display:none}
 @media (min-width:640px){.hide-s{display:table-cell}}
-.samp{display:inline-block;margin-left:6px;border:1px solid var(--muted);color:var(--muted);font:700 9px/1 var(--mono);padding:2px 4px;vertical-align:middle;text-transform:uppercase}
-.empty{padding:26px 14px;text-align:center;color:var(--muted)}
+.empty{padding:28px 14px;text-align:center;color:var(--muted)}
+.blank{padding:34px 18px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.blank h2{margin:0;font:900 clamp(26px,5vw,36px)/.95 var(--sans);text-transform:uppercase;letter-spacing:-.02em}
 
-/* карточка проекта */
+.cats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:700px){.cats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cats-grid a{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:16px 14px;min-height:92px;border-right:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.cats-grid a:hover{background:var(--lime)}
+.cats-grid b{font:900 17px/1.05 var(--sans);text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.cats-grid span{font:700 12px/1 var(--mono);color:var(--muted)}
+
 .prod{display:grid;grid-template-columns:minmax(0,1fr)}
 @media (min-width:760px){.prod{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
-.prod .cover{aspect-ratio:1/1}
 @media (max-width:759px){.prod .cover{border-right:0;border-bottom:var(--b);aspect-ratio:4/3}}
 .prod-b{padding:18px;display:flex;flex-direction:column;gap:14px}
 .prod-b h1{margin:0;font:900 clamp(30px,6vw,46px)/.92 var(--sans);text-transform:uppercase;letter-spacing:-.02em;overflow-wrap:anywhere}
-.prod-b .desc{margin:0;font-size:14px;line-height:1.55;max-width:56ch}
+.prod-b .desc{margin:0;font-size:14px;line-height:1.55;max-width:56ch;white-space:pre-line}
 .kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:var(--b)}
-.kv div{padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.kv div{padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0;border-top:var(--b)}
+.kv div:nth-child(-n+2){border-top:0}
 .kv div:nth-child(even){border-left:var(--b)}
-.kv div:nth-child(n+3){border-top:var(--b)}
-.kv b{font:900 17px/1 var(--sans);text-transform:uppercase;letter-spacing:-.01em}
+.kv div:last-child:nth-child(odd){grid-column:1/-1}
+.kv b{font:900 16px/1.1 var(--sans);text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
 .note{border-left:4px solid var(--lime);background:var(--ink);color:#fff;padding:12px 14px;font-size:13.5px}
 .note .lbl{color:var(--lime);display:block;margin-bottom:4px}
 .actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:10px}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 16px;border:var(--b);background:var(--card);font:900 12px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
 .btn.dark{background:var(--ink);color:#fff;justify-content:space-between}
 .btn.dark:hover{background:var(--ink-2)}
-.btn[aria-disabled="true"]{background:var(--hair);border-color:var(--hair);color:var(--muted);cursor:default}
-.perks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:var(--b)}
-.perks div{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;min-width:0}
-.perks div+div{border-left:var(--b)}
-.perks b{display:block;font:800 11px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.03em}
-.perks span{font-size:11px;color:var(--muted)}
-@media (max-width:620px){.perks{grid-template-columns:minmax(0,1fr)}.perks div+div{border-left:0;border-top:1px solid var(--hair)}}
+.btn.danger{border-color:var(--red);color:var(--red)}
+.btn[aria-disabled="true"],.btn:disabled{background:var(--hair);border-color:var(--hair);color:var(--muted);cursor:default}
 
-/* график */
 .chart{position:relative;padding:8px 14px 12px}
 .chart svg{width:100%;height:auto;overflow:visible}
 .chart text{font:600 13px var(--sans);fill:var(--ink)}
@@ -190,28 +180,62 @@ svg{display:block}
 .tip{position:absolute;pointer-events:none;background:var(--card);border:var(--b);padding:6px 9px;font:800 12px/1.2 var(--sans);transform:translate(-50%,calc(-100% - 12px));white-space:nowrap;opacity:0}
 .tip small{display:block;font-weight:600;font-size:10px;color:var(--muted)}
 
-/* форма как бронирование */
+/* формы */
 .form{display:flex;flex-direction:column}
 .cells{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:var(--b);margin:14px}
-.cell{display:flex;flex-direction:column;gap:6px;padding:10px 12px;min-width:0}
+.cell{display:flex;flex-direction:column;gap:6px;padding:10px 12px;min-width:0;border-top:var(--b)}
+.cell:nth-child(-n+2){border-top:0}
 .cell:nth-child(even){border-left:var(--b)}
-.cell:nth-child(n+3){border-top:var(--b)}
 .cell.full{grid-column:1/-1;border-left:0!important}
-.cell label{font:800 10px/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.cell input,.cell select,.cell textarea{border:0;background:none;outline:none;padding:0;font:900 16px/1.2 var(--sans);text-transform:uppercase;letter-spacing:-.01em;width:100%;min-width:0;border-radius:0}
-.cell textarea{text-transform:none;font-weight:600;font-size:14px;min-height:64px;resize:vertical}
+.cell.full:nth-child(-n+2){border-top:0}
+.cell label,.cell .lab{font:800 10px/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.cell input,.cell select,.cell textarea{border:0;background:none;outline:none;padding:0;font:900 16px/1.25 var(--sans);letter-spacing:-.01em;width:100%;min-width:0;border-radius:0}
+.cell textarea{font-weight:600;font-size:14px;min-height:72px;resize:vertical}
 .cell input::placeholder,.cell textarea::placeholder{color:#A5A59F}
-@media (max-width:520px){.cells{grid-template-columns:minmax(0,1fr)}.cell:nth-child(even){border-left:0}.cell:nth-child(n+2){border-top:var(--b)}}
-.agree{display:flex;gap:10px;align-items:flex-start;margin:0 14px 14px;font-size:12.5px;cursor:pointer}
-.agree input{appearance:none;flex:none;width:18px;height:18px;border:var(--b);background:var(--card);margin:0;display:grid;place-items:center;cursor:pointer}
-.agree input:checked{background:var(--lime)}
-.agree input:checked::after{content:"";width:8px;height:4px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(-45deg) translate(1px,-1px)}
+.cell small{font-size:11px;color:var(--muted)}
+@media (max-width:560px){.cells{grid-template-columns:minmax(0,1fr)}.cell:nth-child(even){border-left:0}.cell:nth-child(2){border-top:var(--b)}}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:inline-flex;align-items:center;border:var(--b);padding:7px 10px;font:800 11px/1 var(--sans);letter-spacing:.03em;text-transform:uppercase;color:var(--ink);cursor:pointer}
+.checks input{position:absolute;opacity:0;pointer-events:none}
+.checks label:has(input:checked){background:var(--lime)}
+.tog{display:flex;gap:10px;align-items:center;font-weight:700;font-size:13px;cursor:pointer}
+.tog input{appearance:none;flex:none;width:18px;height:18px;border:var(--b);background:var(--card);margin:0;display:grid;place-items:center;cursor:pointer}
+.tog input:checked{background:var(--lime)}
+.tog input:checked::after{content:"";width:8px;height:4px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(-45deg) translate(1px,-1px)}
 .submit{margin:0 14px 14px;height:52px;border:0;background:var(--ink);color:#fff;font:900 13px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
 .submit:hover{background:var(--ink-2)}
-.msg{margin:0 14px 12px;font-weight:700;font-size:12.5px;color:#C0322A}
-.rules{list-style:none;margin:0;padding:0}
-.rules li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--hair);font-weight:700;font-size:14px}
-.rules li:last-child{border-bottom:0}
+.submit:disabled{background:var(--muted)}
+.msg{margin:0 14px 12px;font-weight:700;font-size:12.5px;color:var(--red)}
+.msg.ok{color:var(--ink);background:var(--lime);padding:8px 10px;display:inline-block}
+.upl{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.upl .thumb{width:84px;height:84px;border:var(--b);background:radial-gradient(rgba(17,17,17,.22) 1px,transparent 1.2px) 0 0/6px 6px,#DCDCD6;overflow:hidden;display:grid;place-items:center;font:900 34px/1 var(--sans)}
+.upl .thumb img{width:100%;height:100%;object-fit:cover}
+
+/* админка */
+.adm-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{font:700 10px/1 var(--mono);padding:3px 5px;border:1px solid currentColor;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.pill.feat{background:var(--lime);border-color:var(--ink)}
+.pill.off{color:var(--muted)}
+.row-act{display:flex;gap:6px;justify-content:flex-end}
+.row-act button{border:var(--b);background:var(--card);padding:7px 9px;font:800 10.5px/1 var(--sans);text-transform:uppercase;letter-spacing:.03em;cursor:pointer;white-space:nowrap}
+.row-act button.del{border-color:var(--red);color:var(--red)}
+.row-act button.del.sure{background:var(--red);color:#fff}
+.cat-cols{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:14px}
+@media (min-width:860px){.cat-cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cat-col{border:var(--b);display:flex;flex-direction:column}
+.cat-col h3{margin:0;padding:10px 12px;border-bottom:var(--b);font:900 13px/1 var(--sans);text-transform:uppercase}
+.cat-line{display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--hair)}
+.cat-line input{flex:1;min-width:0;border:0;background:none;outline:none;font:800 13px/1.3 var(--sans);text-transform:uppercase;padding:6px 4px}
+.cat-line input:focus{background:#EEF7C9}
+.cat-line button{border:0;background:none;cursor:pointer;font-size:16px;padding:4px 6px;color:var(--muted)}
+.cat-line button:hover{color:var(--red)}
+.cat-add{display:flex;gap:6px;padding:8px}
+.cat-add input{flex:1;min-width:0;border:var(--b);background:var(--card);padding:8px;font:700 12px/1 var(--sans);text-transform:uppercase}
+.cat-add button{border:0;background:var(--ink);color:#fff;padding:0 12px;font:800 11px/1 var(--sans);text-transform:uppercase;cursor:pointer}
+.pend{list-style:none;margin:0;padding:0}
+.pend li{padding:14px;border-bottom:1px solid var(--hair);display:flex;flex-direction:column;gap:8px}
+.pend li:last-child{border-bottom:0}
+.pend p{margin:0;font-size:13px;white-space:pre-line}
 
 .loading{padding:80px 0;text-align:center;font:900 22px/1 var(--sans);text-transform:uppercase}
 .in{animation:in .35s ease-out both}
@@ -225,15 +249,17 @@ svg{display:block}
     <a class="logo" href="#"><i></i>BOX APPS</a>
     <nav class="menu" aria-label="Разделы">
       <a href="#" data-nav=""><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="5.5" height="5.5"/><rect x="11.5" y="3" width="5.5" height="5.5"/><rect x="3" y="11.5" width="5.5" height="5.5"/><rect x="11.5" y="11.5" width="5.5" height="5.5"/></svg>Обзор</a>
-      <a href="#games" data-nav="games"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="16" height="9" rx="1"/><path d="M6 9v3M4.5 10.5h3M13 10h.01M15 11.5h.01"/></svg>Игры<span class="cnt" id="c-game"></span></a>
-      <a href="#bots" data-nav="bots"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="12" height="10"/><path d="M10 3v3M7.5 10.5h.01M12.5 10.5h.01M8 13.5h4"/></svg>Боты<span class="cnt" id="c-bot"></span></a>
-      <a href="#random" data-nav="random"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="14" height="14"/><circle cx="7" cy="7" r=".8" fill="currentColor"/><circle cx="13" cy="13" r=".8" fill="currentColor"/><circle cx="10" cy="10" r=".8" fill="currentColor"/></svg>Случайное</a>
-      <a href="#rules" data-nav="rules"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h10v14H5zM8 7h4M8 10h4M8 13h2"/></svg>Правила</a>
+      <a href="#games" data-nav="games"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="16" height="9" rx="1"/><path d="M6 9v3M4.5 10.5h3M13 10h.01M15 11.5h.01"/></svg>Игры<span class="cnt" data-cnt="game"></span></a>
+      <a href="#bots" data-nav="bots"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="12" height="10"/><path d="M10 3v3M7.5 10.5h.01M12.5 10.5h.01M8 13.5h4"/></svg>Боты<span class="cnt" data-cnt="bot"></span></a>
+      <a href="#channels" data-nav="channels"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8v4l9 4V4zM12 7h3a2 2 0 010 4h-3"/></svg>Каналы<span class="cnt" data-cnt="channel"></span></a>
+      <a href="#categories" data-nav="categories"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h9"/></svg>Категории</a>
       <a href="#submit" data-nav="submit"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 4v12M4 10h12"/></svg>Предложить</a>
+      <div class="sep admin-only" hidden></div>
+      <a href="#admin" data-nav="admin" class="admin-only" hidden><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="2.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5M4.7 4.7l1.8 1.8M13.5 13.5l1.8 1.8M4.7 15.3l1.8-1.8M13.5 6.5l1.8-1.8"/></svg>Админка<span class="cnt" id="c-pend" hidden></span></a>
     </nav>
     <div class="promo">
       <span class="lbl">Разработчикам</span>
-      <p>Сделали честную игру или полезного бота? Добавим в каталог бесплатно.</p>
+      <p>Добавьте свою игру, бота или канал в каталог.</p>
       <a class="btn-lime" href="#submit">Подать заявку →</a>
     </div>
   </aside>
@@ -241,7 +267,7 @@ svg{display:block}
   <div style="min-width:0">
     <header class="mtop"><a class="logo" href="#"><i></i>BOX APPS</a><a class="btn-lime" href="#submit" style="padding:8px 10px">+ Проект</a></header>
     <nav class="mtabs" aria-label="Разделы">
-      <a href="#" data-nav="">Обзор</a><a href="#games" data-nav="games">Игры</a><a href="#bots" data-nav="bots">Боты</a><a href="#random" data-nav="random">Случайное</a><a href="#rules" data-nav="rules">Правила</a><a href="#submit" data-nav="submit">Предложить</a>
+      <a href="#" data-nav="">Обзор</a><a href="#games" data-nav="games">Игры</a><a href="#bots" data-nav="bots">Боты</a><a href="#channels" data-nav="channels">Каналы</a><a href="#categories" data-nav="categories">Категории</a><a href="#submit" data-nav="submit">Предложить</a><a href="#admin" data-nav="admin" class="admin-only" hidden>Админка</a>
     </nav>
     <main class="main"><div class="frame" id="app"><div class="loading">BOX APPS</div></div></main>
   </div>
@@ -251,85 +277,111 @@ svg{display:block}
 const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ? window.Telegram.WebApp : null;
 if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor('#111111'); tg.setBackgroundColor('#ECECE8'); } catch (e) {} }
 
-const S = { data: null, kind: 'game', cat: 'all', q: '' };
+const KIND_HASH = { game: 'games', bot: 'bots', channel: 'channels' };
+const HASH_KIND = { games: 'game', bots: 'bot', channels: 'channel' };
+const S = { data: null, kind: 'game', cat: 'all', q: '', admin: false, adm: { items: [], pending: [], tab: 'items' } };
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const pad = n => String(n).padStart(2, '0');
-const kindName = k => k === 'bot' ? 'Бот' : 'Игра';
+const kindName = k => ({ game: 'Игра', bot: 'Бот', channel: 'Канал' }[k] || k);
+const kindsName = k => ({ game: 'Игры', bot: 'Боты', channel: 'Каналы' }[k] || k);
+const openLabel = k => ({ game: 'Играть', bot: 'Открыть бота', channel: 'Перейти в канал' }[k]);
 const haptic = () => { try { tg && tg.HapticFeedback.selectionChanged(); } catch (e) {} };
 const ARROW = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11L11 3M5 3h6v6"/></svg>';
 const RARROW = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8h11M9 4l4 4-4 4"/></svg>';
-const glyph = x => esc((x.title.replace(/[«»"]/g, '').trim()[0] || '·'));
-const sq = (x, i) => `<span class="sq ${['', 'lime', 'violet'][i % 3]}">${glyph(x)}</span>`;
+const glyph = x => esc((String(x.title || '').replace(/[«»"]/g, '').trim()[0] || '·'));
+const sq = (x, i) => x.image ? `<span class="sq"><img src="${esc(x.image)}" alt="" loading="lazy"></span>` : `<span class="sq ${['', 'lime', 'violet'][i % 3]}">${glyph(x)}</span>`;
+const coverHTML = x => x.image ? `<img src="${esc(x.image)}" alt="">` : `<b>${glyph(x)}</b>`;
 const starsOf = r => { const n = Math.round(r || 0); return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); };
-const byRating = arr => [...arr].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-const avg = arr => arr.length ? (arr.reduce((s, x) => s + (x.rating || 0), 0) / arr.filter(x => x.rating).length).toFixed(1) : '—';
+const byRating = arr => [...arr].sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.createdAt || 0) - (a.createdAt || 0));
 
+/* ---------- запросы ---------- */
+function authHeaders() {
+  const h = {};
+  if (tg && tg.initData) h['x-tg-init-data'] = tg.initData;
+  try { const k = localStorage.getItem('boxapps-admin-key'); if (k) h['x-admin-key'] = k; } catch (e) {}
+  return h;
+}
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { ...(opts.body && !(opts.body instanceof Blob) ? { 'content-type': 'application/json' } : {}), ...authHeaders(), ...(opts.headers || {}) } });
+  const j = await r.json().catch(() => ({ ok: false, error: 'Сервер не ответил' }));
+  if (!r.ok && j.ok !== false) j.ok = false;
+  return j;
+}
+async function reloadCatalog() { S.data = await (await fetch('/api/catalog', { cache: 'no-store' })).json(); counts(); }
+function counts() {
+  document.querySelectorAll('[data-cnt]').forEach(el => { const n = S.data.items.filter(x => x.kind === el.dataset.cnt).length; el.textContent = n; el.hidden = !n; });
+}
+
+/* ---------- общие куски ---------- */
 function rowsHTML(list) {
-  if (!list.length) return `<tr><td colspan="4" class="empty">Здесь пока пусто. <a href="#submit"><u>Предложите проект</u></a></td></tr>`;
+  if (!list.length) return `<tr><td colspan="4" class="empty">Здесь пока пусто.</td></tr>`;
   return list.map((x, i) => `<tr data-id="${x.id}">
-    <td><div class="name">${sq(x, i)}<div style="min-width:0">${esc(x.title)}${x.example ? '<span class="samp">образец</span>' : ''}<small>${kindName(x.kind)} · ${esc(x.categories.join(' · '))}</small></div></div></td>
-    <td class="hide-s"><div class="bar"><span><i style="width:${(x.rating || 0) / 5 * 100}%"></i></span>${x.rating ? Number(x.rating).toFixed(1) : '—'}</div></td>
-    <td class="hide-s mono" style="font-size:12px">${x.votes || '—'}</td>
+    <td><div class="name">${sq(x, i)}<div style="min-width:0">${esc(x.title)}<small>${kindName(x.kind)} · ${esc(x.categories.join(' · '))}</small></div></div></td>
+    <td class="hide-s">${x.rating ? `<div class="bar"><span><i style="width:${x.rating / 5 * 100}%"></i></span>${Number(x.rating).toFixed(1)}</div>` : '<span class="sub">—</span>'}</td>
+    <td class="hide-s mono" style="font-size:12px">${x.kind === 'channel' ? esc(x.subscribers || '—') : (x.votes || '—')}</td>
     <td class="go">→</td></tr>`).join('');
 }
+const tableHead = `<thead><tr><th>Проект</th><th class="hide-s">Оценка</th><th class="hide-s">Голосов / подписчиков</th><th></th></tr></thead>`;
 function bindRows() { app.querySelectorAll('tr[data-id]').forEach(r => r.onclick = () => { haptic(); location.hash = 'item-' + r.dataset.id; }); }
-const tableHead = `<thead><tr><th>Проект</th><th class="hide-s">Оценка</th><th class="hide-s">Голосов</th><th></th></tr></thead>`;
 
+function emptyCatalog() {
+  return `<section class="box blank in"><span class="sq lime">+</span><h2>Каталог наполняется</h2><p class="sub" style="margin:0">Скоро здесь появятся игры, боты и каналы.</p>
+    ${S.admin ? `<a class="btn dark" href="#admin-new" style="gap:14px">Добавить первый проект ${RARROW}</a>` : `<a class="chip" href="#submit">Предложить проект ${ARROW}</a>`}</section>`;
+}
+
+/* ---------- обзор ---------- */
 function overview() {
   const all = S.data.items;
-  const games = all.filter(x => x.kind === 'game'), bots = all.filter(x => x.kind === 'bot');
-  const pick = all.find(x => x.featured) || all[0];
-  const top = byRating(all).slice(0, 5);
-  const fresh = [...all].reverse().slice(0, 4);
+  const n = k => all.filter(x => x.kind === k).length;
   const h = new Date().getHours();
   const hi = h < 6 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 18 ? 'Добрый день' : 'Добрый вечер';
-  app.innerHTML = `
+  const head = `
   <section class="hello in">
-    <div><h1>${hi}! <span class="tag">Во что играем?</span></h1><p>Игры и боты для Telegram, которые мы проверили сами.</p></div>
-    <a class="chip" href="#random">Случайный выбор ${ARROW}</a>
+    <div><h1>${hi}! <span class="tag">Что откроем?</span></h1><p>Игры, боты и каналы для Telegram в одном каталоге.</p></div>
+    <a class="chip" href="#categories">Категории ${ARROW}</a>
   </section>
-
   <div class="stats">
-    <a class="box stat" href="#games"><div class="top"><span class="lbl">Игр в каталоге</span>${ARROW}</div><b>${games.length}</b><div class="delta"><span>6 категорий</span></div></a>
-    <a class="box stat" href="#bots"><div class="top"><span class="lbl">Ботов</span>${ARROW}</div><b>${bots.length}</b><div class="delta"><span>6 категорий</span></div></a>
-    <a class="box stat" href="#rules"><div class="top"><span class="lbl">Средняя оценка</span>${ARROW}</div><b>${avg(all)}</b><div class="delta"><span>из 5 звёзд</span></div></a>
-    <a class="box stat hot" href="#rules"><div class="top"><span class="lbl">Тапалок</span>${ARROW}</div><b>0</b><div class="delta"><span style="color:var(--ink)">и не будет</span></div></a>
-  </div>
-
+    <a class="box stat" href="#games"><div class="top"><span class="lbl">Игры</span>${ARROW}</div><b>${n('game')}</b><span class="delta">${S.data.categories.game.length} категорий</span></a>
+    <a class="box stat" href="#bots"><div class="top"><span class="lbl">Боты</span>${ARROW}</div><b>${n('bot')}</b><span class="delta">${S.data.categories.bot.length} категорий</span></a>
+    <a class="box stat" href="#channels"><div class="top"><span class="lbl">Каналы</span>${ARROW}</div><b>${n('channel')}</b><span class="delta">${S.data.categories.channel.length} категорий</span></a>
+    <a class="box stat hot" href="#categories"><div class="top"><span class="lbl">Всего</span>${ARROW}</div><b>${all.length}</b><span class="delta">в каталоге</span></a>
+  </div>`;
+  if (!all.length) { app.innerHTML = head + emptyCatalog(); return; }
+  const pick = all.find(x => x.featured);
+  const fresh = [...all].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
+  const top = byRating(all).slice(0, 6);
+  app.innerHTML = head + `
   <div class="grid2">
-    <a class="box pick" href="#item-${pick.id}">
-      <div class="cover"><b>${glyph(pick)}</b><span class="badge lime">Выбор редакции</span></div>
+    ${pick ? `<a class="box pick" href="#item-${pick.id}">
+      <div class="cover">${coverHTML(pick)}<span class="badge lime">Выбор редакции</span></div>
       <div class="pick-b">
         <div style="display:flex;flex-direction:column;gap:8px">
           <span class="lbl" style="color:var(--muted)">${kindName(pick.kind)} · ${esc(pick.categories.join(' · '))}</span>
           <h2>${esc(pick.title)}</h2>
-          <div class="stars"><i>${starsOf(pick.rating)}</i>${pick.rating} ${pick.votes ? `(${pick.votes})` : ''}</div>
-          <p class="sub" style="margin:0;color:var(--ink)">${esc(pick.note || pick.description)}</p>
+          ${pick.rating ? `<div class="stars"><i>${starsOf(pick.rating)}</i>${pick.rating} ${pick.votes ? `(${pick.votes})` : ''}</div>` : ''}
+          <p class="sub" style="margin:0;color:var(--ink)">${esc(pick.note || pick.description || '')}</p>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-          <span class="price">Бесплатно</span><span class="btn dark" style="height:40px;gap:14px">Открыть ${RARROW}</span>
+          <span class="price">${esc(pick.price || '')}</span><span class="btn dark" style="height:40px;gap:14px">Открыть ${RARROW}</span>
         </div>
       </div>
-    </a>
+    </a>` : `<section class="box"><div class="box-h"><span class="lbl">Топ</span></div><div style="overflow-x:auto"><table class="tbl"><tbody>${rowsHTML(top.slice(0, 4))}</tbody></table></div></section>`}
     <section class="box">
       <div class="box-h"><span class="lbl">Новое в каталоге</span></div>
-      <ul class="feed">${fresh.map((x, i) => `<li data-id="${x.id}" style="cursor:pointer">${sq(x, i)}<div><strong>${esc(x.title)}</strong><span>${kindName(x.kind)} · ${esc(x.categories[0])}</span></div><time>${x.rating || ''}</time></li>`).join('')}</ul>
-      <a class="box-f" href="#games">Весь каталог <span>→</span></a>
+      <ul class="feed">${fresh.map((x, i) => `<li data-go="${x.id}" style="cursor:pointer">${sq(x, i)}<div><strong>${esc(x.title)}</strong><span>${kindName(x.kind)} · ${esc(x.categories[0])}</span></div><time>${x.rating || ''}</time></li>`).join('')}</ul>
     </section>
   </div>
-
   <section class="box">
-    <div class="box-h"><span class="lbl">Топ проектов</span><span class="sub">по оценкам игроков</span></div>
+    <div class="box-h"><span class="lbl">Топ проектов</span><span class="sub">по оценкам</span></div>
     <div style="overflow-x:auto"><table class="tbl">${tableHead}<tbody>${rowsHTML(top)}</tbody></table></div>
     <a class="box-f" href="#games">Смотреть все <span>→</span></a>
   </section>`;
   bindRows();
-  app.querySelectorAll('.feed li').forEach(l => l.onclick = () => location.hash = 'item-' + l.dataset.id);
+  app.querySelectorAll('[data-go]').forEach(l => l.onclick = () => location.hash = 'item-' + l.dataset.go);
 }
 
+/* ---------- разделы ---------- */
 function listView(kind) {
-  if (S.kind !== kind) { S.kind = kind; S.cat = 'all'; }
   const all = S.data.items;
   const q = S.q.trim().toLowerCase();
   let list = all.filter(x => x.kind === kind);
@@ -338,144 +390,140 @@ function listView(kind) {
   list = byRating(list);
   const n = k => all.filter(x => x.kind === k).length;
   app.innerHTML = `
-  <section class="hello in"><div><h1>${kind === 'bot' ? 'Боты,' : 'Игры,'} <span class="tag">${kind === 'bot' ? 'которые выручают' : 'ради игры'}</span></h1><p>${kind === 'bot' ? 'Полезные боты без спама, подписок и скрытых платежей.' : 'Без фарма, энергии и «заработка». Просто хорошие игры.'}</p></div></section>
-  <div class="tabs" role="group" aria-label="Раздел">
-    <button data-k="game" aria-pressed="${kind === 'game'}">Игры<sup>${n('game')}</sup></button>
-    <button data-k="bot" aria-pressed="${kind === 'bot'}">Боты<sup>${n('bot')}</sup></button>
-  </div>
+  <section class="hello in"><div><h1>${kindsName(kind)} <span class="tag">${n(kind)}</span></h1></div></section>
+  <div class="tabs" role="group" aria-label="Раздел">${['game', 'bot', 'channel'].map(k => `<button data-k="${k}" aria-pressed="${kind === k}">${kindsName(k)}<sup>${n(k)}</sup></button>`).join('')}</div>
   <div class="tools">
     <button class="cat" data-cat="all" aria-pressed="${S.cat === 'all'}">Все</button>
     ${S.data.categories[kind].map(c => `<button class="cat" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}
     <label class="find"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input id="q" type="search" placeholder="Поиск по названию" value="${esc(S.q)}" autocomplete="off"></label>
   </div>
   <section class="box">
-    <div class="box-h"><span class="lbl">${q ? 'Результаты поиска' : (S.cat === 'all' ? (kind === 'bot' ? 'Все боты' : 'Все игры') : esc(S.cat))}</span><span class="sub mono">${list.length}</span></div>
+    <div class="box-h"><span class="lbl">${q ? 'Результаты поиска' : (S.cat === 'all' ? 'Все ' + kindsName(kind).toLowerCase() : esc(S.cat))}</span><span class="sub mono">${list.length}</span></div>
     <div style="overflow-x:auto"><table class="tbl">${tableHead}<tbody>${rowsHTML(list)}</tbody></table></div>
   </section>`;
   bindRows();
-  app.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { haptic(); S.q = ''; location.hash = b.dataset.k === 'bot' ? 'bots' : 'games'; });
+  app.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { haptic(); S.q = ''; S.cat = 'all'; location.hash = KIND_HASH[b.dataset.k]; });
   app.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { S.cat = b.dataset.cat; haptic(); listView(kind); });
   const qi = app.querySelector('#q');
   qi.oninput = () => { S.q = qi.value; const p = qi.selectionStart; listView(kind); const n2 = app.querySelector('#q'); n2.focus(); n2.setSelectionRange(p, p); };
 }
 
-function chart(week) {
-  const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  const W = 560, H = 220, m = { l: 34, r: 10, t: 14, b: 24 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const max = Math.ceil(Math.max(...week) * 1.15 / 500) * 500;
-  const x = i => m.l + i / (week.length - 1) * iw, y = v => m.t + ih - v / max * ih;
+function categoriesView() {
+  const all = S.data.items;
+  app.innerHTML = `<section class="hello in"><div><h1>Категории</h1><p>Игры, боты и каналы по темам.</p></div></section>` +
+    ['game', 'bot', 'channel'].map(k => `<section class="box">
+      <div class="box-h"><span class="lbl">${kindsName(k)}</span><a class="chip" href="#${KIND_HASH[k]}" style="padding:6px 9px">Все ${ARROW}</a></div>
+      <div class="cats-grid">${S.data.categories[k].map(c => `<a href="#${KIND_HASH[k]}" data-k="${k}" data-c="${esc(c)}"><b>${esc(c)}</b><span>${all.filter(x => x.kind === k && x.categories.includes(c)).length}</span></a>`).join('')}</div>
+    </section>`).join('');
+  app.querySelectorAll('[data-c]').forEach(a => a.onclick = () => { S.cat = a.dataset.c; S.q = ''; haptic(); });
+}
+
+/* ---------- страница проекта ---------- */
+const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+function chartHTML(week) {
+  const W = 560, H = 220, m = { l: 40, r: 10, t: 14, b: 26 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const max = Math.max(10, Math.ceil(Math.max(...week) * 1.15 / 10) * 10);
+  const x = i => m.l + i / 6 * iw, y = v => m.t + ih - v / max * ih;
   const pts = week.map((v, i) => [x(i), y(v)]);
   let d = `M${pts[0][0]},${pts[0][1]}`;
-  for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x0 + x1) / 2; d += ` C${cx},${y0} ${cx},${y1} ${x1},${y1}`; }
-  const ticks = [0, .25, .5, .75, 1].map(f => Math.round(max * f));
-  const peak = week.indexOf(Math.max(...week));
+  for (let i = 1; i < 7; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x0 + x1) / 2; d += ` C${cx},${y0} ${cx},${y1} ${x1},${y1}`; }
+  const ticks = [0, .5, 1].map(f => Math.round(max * f));
   return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Игроки по дням">
     <defs><pattern id="dots" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r=".9" fill="#111"/></pattern></defs>
-    ${ticks.map(t => `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l - 8}" y="${y(t) + 4}" text-anchor="end">${t >= 1000 ? (t / 1000) + 'k' : t}</text>`).join('')}
-    ${days.map((dd, i) => `<text x="${x(i)}" y="${H - 4}" text-anchor="middle">${dd}</text>`).join('')}
-    <path d="${d} L${x(week.length - 1)},${m.t + ih} L${m.l},${m.t + ih}Z" fill="url(#dots)" opacity=".55"/>
+    ${ticks.map(t => `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l - 8}" y="${y(t) + 4}" text-anchor="end">${t >= 1000 ? (t / 1000).toFixed(1).replace('.0', '') + 'k' : t}</text>`).join('')}
+    ${DAYS.map((dd, i) => `<text x="${x(i)}" y="${H - 4}" text-anchor="middle">${dd}</text>`).join('')}
+    <path d="${d} L${x(6)},${m.t + ih} L${m.l},${m.t + ih}Z" fill="url(#dots)" opacity=".55"/>
     <path d="${d}" fill="none" stroke="#111" stroke-width="2.5"/>
-    <line id="cx" y1="${m.t}" y2="${m.t + ih}" x1="${x(peak)}" x2="${x(peak)}" stroke="#111" stroke-dasharray="3 3"/>
-    <circle id="cd" cx="${x(peak)}" cy="${y(week[peak])}" r="6" fill="#111" stroke="#F6F6F3" stroke-width="2.5"/>
+    <line id="cx" y1="${m.t}" y2="${m.t + ih}" stroke="#111" stroke-dasharray="3 3"/>
+    <circle id="cd" r="6" fill="#111" stroke="#F6F6F3" stroke-width="2.5"/>
     <rect id="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/>
   </svg><div class="tip" id="tip"></div></div>`;
 }
 function bindChart(week) {
   const host = app.querySelector('.chart'); if (!host) return;
   const svg = host.querySelector('svg'), tip = host.querySelector('#tip'), cx = host.querySelector('#cx'), cd = host.querySelector('#cd');
-  const days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-  const W = 560, H = 220, m = { l: 34, r: 10, t: 14, b: 24 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const max = Math.ceil(Math.max(...week) * 1.15 / 500) * 500;
+  const W = 560, H = 220, m = { l: 40, r: 10, t: 14, b: 26 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const max = Math.max(10, Math.ceil(Math.max(...week) * 1.15 / 10) * 10);
+  const full = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
   const show = i => {
-    const r = svg.getBoundingClientRect(), X = m.l + i / (week.length - 1) * iw, Y = m.t + ih - week[i] / max * ih;
+    const r = svg.getBoundingClientRect(), X = m.l + i / 6 * iw, Y = m.t + ih - week[i] / max * ih;
     cx.setAttribute('x1', X); cx.setAttribute('x2', X); cd.setAttribute('cx', X); cd.setAttribute('cy', Y);
-    tip.innerHTML = `${week[i].toLocaleString('ru-RU')} игроков<small>${days[i]}</small>`;
+    tip.innerHTML = `${week[i].toLocaleString('ru-RU')} игроков<small>${full[i]}</small>`;
     tip.style.left = (14 + X / W * r.width) + 'px'; tip.style.top = (8 + Y / H * r.height) + 'px'; tip.style.opacity = 1;
   };
   show(week.indexOf(Math.max(...week)));
-  host.querySelector('#hit').addEventListener('pointermove', e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W; show(Math.max(0, Math.min(week.length - 1, Math.round((px - m.l) / iw * (week.length - 1))))); });
+  host.querySelector('#hit').addEventListener('pointermove', e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W; show(Math.max(0, Math.min(6, Math.round((px - m.l) / iw * 6)))); });
 }
 
 function item(id) {
   const x = S.data.items.find(i => i.id === id);
-  if (!x) { app.innerHTML = `<section class="hello"><div><h1>Не найдено</h1><p>Проект убрали из каталога.</p></div><a class="chip" href="#">В каталог</a></section>`; return; }
+  if (!x) { app.innerHTML = `<section class="hello"><div><h1>Не найдено</h1><p>Такого проекта нет в каталоге.</p></div><a class="chip" href="#">На главную</a></section>`; return; }
   const st = x.stats;
+  const facts = [['Формат', kindName(x.kind)], ['Категория', x.categories.join(', ')]];
+  if (x.session) facts.push(['Сессия', '~' + x.session]);
+  if (x.subscribers) facts.push(['Подписчики', x.subscribers]);
+  if (x.author) facts.push(['Автор', x.author]);
+  if (x.price) facts.push(['Цена', x.price]);
   const similar = byRating(S.data.items.filter(y => y.id !== x.id && y.kind === x.kind)).slice(0, 4);
   app.innerHTML = `
-  <div><button class="chip" onclick="history.length>1?history.back():location.hash=''">← Назад</button></div>
+  <div class="adm-bar"><button class="chip" id="back">← Назад</button>${S.admin ? `<a class="chip lime" href="#admin-edit-${x.id}">Редактировать</a>` : ''}</div>
   <section class="box prod in">
-    <div class="cover"><b>${glyph(x)}</b><span class="badge">${kindName(x.kind)} · № ${pad(S.data.items.indexOf(x) + 1)}</span>${x.example ? '<span class="badge lime" style="left:auto;right:12px">образец</span>' : ''}</div>
+    <div class="cover">${coverHTML(x)}<span class="badge">${kindName(x.kind)}</span></div>
     <div class="prod-b">
-      <span class="lbl" style="color:var(--muted)">${esc(x.categories.join(' · '))}${x.author ? ' · ' + esc(x.author) : ''}</span>
+      <span class="lbl" style="color:var(--muted)">${esc(x.categories.join(' · '))}</span>
       <h1>${esc(x.title)}</h1>
-      <div class="stars"><i>${starsOf(x.rating)}</i>${x.rating || '—'} ${x.votes ? `(${x.votes})` : ''}</div>
-      <span class="price">Бесплатно</span>
-      <p class="desc">${esc(x.description)}</p>
-      ${x.note ? `<div class="note"><span class="lbl">Почему мы взяли</span>${esc(x.note)}</div>` : ''}
-      <div class="kv">
-        <div><span class="lbl" style="color:var(--muted)">Формат</span><b>${kindName(x.kind)}</b></div>
-        <div><span class="lbl" style="color:var(--muted)">${x.kind === 'game' ? 'Сессия' : 'Цена'}</span><b>${x.kind === 'game' ? (x.session ? '~' + esc(x.session) : '—') : '0 ₽'}</b></div>
-        <div><span class="lbl" style="color:var(--muted)">Проверка</span><b>Пройдена</b></div>
-        <div><span class="lbl" style="color:var(--muted)">Реклама</span><b>Без навязчивой</b></div>
-      </div>
+      ${x.rating ? `<div class="stars"><i>${starsOf(x.rating)}</i>${x.rating} ${x.votes ? `(${x.votes})` : ''}</div>` : ''}
+      ${x.price ? `<span class="price">${esc(x.price)}</span>` : ''}
+      ${x.description ? `<p class="desc">${esc(x.description)}</p>` : ''}
+      ${x.note ? `<div class="note"><span class="lbl">От редакции</span>${esc(x.note)}</div>` : ''}
+      <div class="kv">${facts.map(([k, v]) => `<div><span class="lbl" style="color:var(--muted)">${k}</span><b>${esc(v)}</b></div>`).join('')}</div>
       <div class="actions">
         <button class="btn" id="share">Поделиться</button>
-        ${x.link ? `<a class="btn dark" href="${esc(x.link)}" target="_blank" rel="noopener" id="open">${x.kind === 'bot' ? 'Открыть бота' : 'Играть'} ${RARROW}</a>` : `<span class="btn" aria-disabled="true">Ссылка скоро</span>`}
+        ${x.link ? `<a class="btn dark" href="${esc(x.link)}" target="_blank" rel="noopener" id="open">${openLabel(x.kind)} ${RARROW}</a>` : `<span class="btn" aria-disabled="true">Нет ссылки</span>`}
       </div>
+      ${x.channel ? `<a class="chip" href="${esc(x.channel)}" target="_blank" rel="noopener" style="align-self:flex-start">Канал проекта ${ARROW}</a>` : ''}
     </div>
   </section>
-  <section class="box perks" style="border-top:var(--b)">
-    <div><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7"/><path d="M5 15L15 5"/></svg><div><b>Без фарма</b><span>Ни токенов, ни «заработка»</span></div></div>
-    <div><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="14" height="14"/><path d="M7 10l2 2 4-4"/></svg><div><b>Без казино</b><span>Никаких ставок и кейсов</span></div></div>
-    <div><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h12M10 4v12"/></svg><div><b>Без подписок</b><span>Не просит каналы</span></div></div>
-  </section>
   ${st ? `<div class="grid2">
-    <section class="box"><div class="box-h"><span class="lbl">Игроки за неделю</span><span class="chip" style="padding:6px 9px;font-size:10px">${x.example ? 'Пример данных' : 'Эта неделя'}</span></div>${st.week ? chart(st.week) : ''}</section>
-    <section class="box">
+    ${st.week ? `<section class="box"><div class="box-h"><span class="lbl">Игроки за неделю</span></div>${chartHTML(st.week)}</section>` : ''}
+    <section class="box" ${st.week ? '' : 'style="grid-column:1/-1"'}>
       <div class="box-h"><span class="lbl">Показатели</span><span class="sub">30 дней</span></div>
       <ul class="feed">
-        <li><span class="sq">И</span><div><strong>Игроков</strong><span>уникальных за месяц</span></div><b style="font-size:18px">${esc(st.players)}</b></li>
-        <li><span class="sq lime">С</span><div><strong>Средняя сессия</strong><span>мин:сек</span></div><b style="font-size:18px">${esc(st.session)}</b></li>
-        <li><span class="sq violet">В</span><div><strong>Вернулись</strong><span>на 7-й день</span></div><b style="font-size:18px">${esc(st.d7)}</b></li>
+        ${st.players ? `<li><span class="sq">И</span><div><strong>Игроков</strong><span>за месяц</span></div><b style="font-size:18px">${esc(st.players)}</b></li>` : ''}
+        ${st.session ? `<li><span class="sq lime">С</span><div><strong>Средняя сессия</strong><span>мин:сек</span></div><b style="font-size:18px">${esc(st.session)}</b></li>` : ''}
+        ${st.d7 ? `<li><span class="sq violet">В</span><div><strong>Вернулись</strong><span>на 7-й день</span></div><b style="font-size:18px">${esc(st.d7)}</b></li>` : ''}
       </ul>
     </section></div>` : ''}
-  ${similar.length ? `<section class="box"><div class="box-h"><span class="lbl">Похожие</span></div>
-    <div style="overflow-x:auto"><table class="tbl"><tbody>${rowsHTML(similar)}</tbody></table></div></section>` : ''}`;
+  ${similar.length ? `<section class="box"><div class="box-h"><span class="lbl">Похожие</span></div><div style="overflow-x:auto"><table class="tbl"><tbody>${rowsHTML(similar)}</tbody></table></div></section>` : ''}`;
   bindRows();
   if (st && st.week) bindChart(st.week);
+  app.querySelector('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '');
   const open = app.querySelector('#open');
   if (open && tg) open.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(x.link); } catch (er) { location.href = x.link; } };
   app.querySelector('#share').onclick = async () => {
     const url = location.origin + '/#item-' + x.id;
-    if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — в каталоге BOX APPS')); return; } catch (e) {} }
+    if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — BOX APPS')); return; } catch (e) {} }
     try { await navigator.clipboard.writeText(url); app.querySelector('#share').textContent = 'Скопировано'; } catch (e) {}
   };
 }
 
-function rules() {
-  app.innerHTML = `
-  <section class="hello in"><div><h1>Правила <span class="tag">без исключений</span></h1><p>Каждым проектом мы пользуемся сами хотя бы неделю. Платное размещение — только для прошедших отбор и всегда с пометкой.</p></div><a class="chip" href="#submit">Предложить ${ARROW}</a></section>
-  <section class="box"><div class="box-h"><span class="lbl">Четыре правила отбора</span></div>
-    <ul class="rules">${S.data.criteria.map((c, i) => `<li><span class="sq ${['', 'lime', 'violet', ''][i]}">${i + 1}</span>${esc(c)}</li>`).join('')}</ul></section>`;
-}
-
+/* ---------- заявка ---------- */
 function submit() {
   let kind = 'game';
   const catOpts = k => S.data.categories[k].map(c => `<option>${esc(c)}</option>`).join('');
   app.innerHTML = `
-  <section class="hello in"><div><h1>Что добавим <span class="tag">в каталог?</span></h1><p>Мы посмотрим каждую заявку и сами всё попробуем. Ответ — в течение недели.</p></div></section>
+  <section class="hello in"><div><h1>Предложить <span class="tag">проект</span></h1><p>Игра, бот или канал. Ответ придёт в течение недели.</p></div></section>
   <form class="box form" id="f" novalidate>
-    <div class="tabs" style="border:0;border-bottom:var(--b)" role="group"><button type="button" data-k="game" aria-pressed="true">Игра</button><button type="button" data-k="bot" aria-pressed="false">Бот</button></div>
+    <div class="tabs" style="border:0;border-bottom:var(--b)" role="group">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${k === 'game'}">${kindName(k)}</button>`).join('')}</div>
     <div class="cells">
-      <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64" placeholder="Тихий маяк"></div>
-      <div class="cell"><label for="f-link">Ссылка</label><input id="f-link" placeholder="t.me/имя_бота"></div>
+      <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64"></div>
+      <div class="cell"><label for="f-link">Ссылка</label><input id="f-link" placeholder="t.me/имя"></div>
       <div class="cell"><label for="f-cat">Категория</label><select id="f-cat">${catOpts('game')}</select></div>
       <div class="cell"><label for="f-contact">Контакт</label><input id="f-contact" placeholder="@username" maxlength="64"></div>
-      <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600" placeholder="Во что играем и чем это хорошо"></textarea></div>
+      <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600"></textarea></div>
     </div>
-    <label class="agree"><input type="checkbox" id="f-ok">Проект проходит все четыре правила: без токенов и «заработка», без казино, без обязательных подписок, интересен дольше пяти минут.</label>
     <p class="msg" id="f-msg" hidden></p>
-    <button class="submit" type="submit">Отправить на проверку ${RARROW}</button>
+    <button class="submit" type="submit">Отправить ${RARROW}</button>
   </form>`;
   const f = app.querySelector('#f');
   if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) f.querySelector('#f-contact').value = '@' + tg.initDataUnsafe.user.username;
@@ -483,43 +531,267 @@ function submit() {
   f.onsubmit = async e => {
     e.preventDefault();
     const msg = f.querySelector('#f-msg'); msg.hidden = true;
-    const body = { kind, title: f.querySelector('#f-title').value, link: f.querySelector('#f-link').value, category: f.querySelector('#f-cat').value,
-      description: f.querySelector('#f-desc').value, contact: f.querySelector('#f-contact').value, criteria: f.querySelector('#f-ok').checked };
-    const btn = f.querySelector('.submit'); btn.disabled = true; btn.textContent = 'Отправляем…';
-    try {
-      const r = await fetch('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-      const j = await r.json();
-      if (!j.ok) throw new Error(j.error || 'Не получилось отправить');
-      f.outerHTML = `<section class="box in" style="padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start"><span class="sq lime">✓</span><h2 style="margin:0;font:900 30px/1 var(--sans);text-transform:uppercase">Заявка принята</h2><p class="sub" style="margin:0">Редакция проверит проект и ответит в течение недели.</p><a class="btn dark" href="#" style="gap:14px">В каталог ${RARROW}</a></section>`;
-    } catch (err) {
-      msg.textContent = err.message === 'Failed to fetch' ? 'Нет соединения. Попробуйте ещё раз.' : err.message;
-      msg.hidden = false; btn.disabled = false; btn.innerHTML = 'Отправить на проверку ' + RARROW;
-    }
+    const btn = f.querySelector('.submit'); btn.disabled = true;
+    const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind, title: f.querySelector('#f-title').value, link: f.querySelector('#f-link').value, category: f.querySelector('#f-cat').value, description: f.querySelector('#f-desc').value, contact: f.querySelector('#f-contact').value }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
+    if (!j.ok) { msg.textContent = j.error || 'Не получилось отправить'; msg.hidden = false; btn.disabled = false; return; }
+    f.outerHTML = `<section class="box blank in"><span class="sq lime">✓</span><h2>Заявка отправлена</h2><p class="sub" style="margin:0">Ответим в течение недели.</p><a class="btn dark" href="#" style="gap:14px">На главную ${RARROW}</a></section>`;
   };
 }
 
+/* ---------- админка ---------- */
+async function adminLogin() {
+  app.innerHTML = `<section class="hello in"><div><h1>Админка</h1><p>${tg ? 'Ваш аккаунт Telegram не в списке админов. Можно войти по ключу.' : 'Откройте BOX APPS из Telegram с админского аккаунта или войдите по ключу.'}</p></div></section>
+  <form class="box form" id="lf" novalidate><div class="cells" style="grid-template-columns:minmax(0,1fr)"><div class="cell full"><label for="lk">Ключ администратора (ADMIN_KEY)</label><input id="lk" type="password" autocomplete="current-password"></div></div>
+  <p class="msg" id="lmsg" hidden></p><button class="submit" type="submit">Войти ${RARROW}</button></form>`;
+  app.querySelector('#lf').onsubmit = async e => {
+    e.preventDefault();
+    try { localStorage.setItem('boxapps-admin-key', app.querySelector('#lk').value.trim()); } catch (er) {}
+    const me = await api('/api/admin/me');
+    if (me.admin) { setAdmin(true); route(); } else { try { localStorage.removeItem('boxapps-admin-key'); } catch (er) {} const m = app.querySelector('#lmsg'); m.textContent = 'Ключ не подошёл'; m.hidden = false; }
+  };
+}
+function setAdmin(on) {
+  S.admin = on;
+  document.querySelectorAll('.admin-only').forEach(el => el.hidden = !on);
+}
+async function loadAdmin() {
+  const [a, p] = await Promise.all([api('/api/admin/items'), api('/api/admin/pending')]);
+  if (!a.ok) throw new Error(a.error || 'Нет доступа');
+  S.adm.items = a.items; S.adm.pending = p.pending || [];
+  const c = document.getElementById('c-pend'); c.textContent = S.adm.pending.length; c.hidden = !S.adm.pending.length;
+}
+
+async function adminView() {
+  if (!S.admin) return adminLogin();
+  app.innerHTML = `<div class="loading">Загружаем…</div>`;
+  try { await loadAdmin(); } catch (e) { setAdmin(false); return adminLogin(); }
+  const t = S.adm.tab;
+  const items = S.adm.items;
+  const n = k => items.filter(x => x.kind === k).length;
+  app.innerHTML = `
+  <section class="hello in"><div><h1>Админка <span class="tag">BOX APPS</span></h1><p>Проектов: ${items.length} · игр ${n('game')} · ботов ${n('bot')} · каналов ${n('channel')}</p></div>
+    <a class="chip dark" href="#admin-new">+ Добавить проект</a></section>
+  <div class="tabs" role="group">
+    <button data-t="items" aria-pressed="${t === 'items'}">Проекты<sup>${items.length}</sup></button>
+    <button data-t="pending" aria-pressed="${t === 'pending'}">Заявки<sup>${S.adm.pending.length}</sup></button>
+    <button data-t="cats" aria-pressed="${t === 'cats'}">Категории</button>
+  </div>
+  <div id="adm"></div>`;
+  app.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { S.adm.tab = b.dataset.t; adminView(); });
+  if (t === 'items') adminItems(); else if (t === 'pending') adminPending(); else adminCats();
+}
+
+function adminItems() {
+  const box = app.querySelector('#adm');
+  const list = [...S.adm.items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  box.innerHTML = `<section class="box"><div class="box-h"><span class="lbl">Все проекты</span><label class="find" style="flex:0 1 260px"><input id="aq" type="search" placeholder="Найти" autocomplete="off"></label></div>
+    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Проект</th><th class="hide-s">Ссылка</th><th></th></tr></thead><tbody id="atb"></tbody></table></div></section>`;
+  const draw = q => {
+    const rows = list.filter(x => !q || x.title.toLowerCase().includes(q));
+    box.querySelector('#atb').innerHTML = rows.length ? rows.map((x, i) => `<tr>
+      <td><div class="name">${sq(x, i)}<div style="min-width:0">${esc(x.title)}${x.featured ? '<span class="pill feat">выбор</span>' : ''}${x.hidden ? '<span class="pill off">скрыт</span>' : ''}<small>${kindName(x.kind)} · ${esc(x.categories.join(' · '))}</small></div></div></td>
+      <td class="hide-s sub" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.link || '')}</td>
+      <td><div class="row-act"><button data-view="${x.id}">Открыть</button><button data-edit="${x.id}">Изменить</button><button class="del" data-del="${x.id}">Удалить</button></div></td></tr>`).join('')
+      : `<tr><td colspan="3" class="empty">${list.length ? 'Ничего не нашлось' : 'Пока пусто. Нажмите «+ Добавить проект».'}</td></tr>`;
+    box.querySelectorAll('[data-view]').forEach(b => b.onclick = () => location.hash = 'item-' + b.dataset.view);
+    box.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => location.hash = 'admin-edit-' + b.dataset.edit);
+    box.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+      if (!b.classList.contains('sure')) { b.classList.add('sure'); b.textContent = 'Точно?'; setTimeout(() => { b.classList.remove('sure'); b.textContent = 'Удалить'; }, 3000); return; }
+      b.disabled = true;
+      const j = await api('/api/admin/items?id=' + encodeURIComponent(b.dataset.del), { method: 'DELETE' });
+      if (j.ok) { await reloadCatalog(); adminView(); }
+    });
+  };
+  draw('');
+  box.querySelector('#aq').oninput = e => draw(e.target.value.trim().toLowerCase());
+}
+
+function adminPending() {
+  const box = app.querySelector('#adm');
+  const list = S.adm.pending;
+  box.innerHTML = `<section class="box"><div class="box-h"><span class="lbl">Заявки</span><span class="sub">с сайта и из бота</span></div>
+    ${list.length ? `<ul class="pend">${list.map(p => `<li>
+      <div class="name" style="display:flex;gap:10px;align-items:center"><span class="sq">${esc((p.title || '·')[0])}</span><div><b>${esc(p.title)}</b><div class="sub">${kindName(p.kind)} · ${esc(p.category)} · от ${esc(p.username ? '@' + p.username : p.contact || 'сайта')} · ${new Date(p.at).toLocaleDateString('ru-RU')}</div></div></div>
+      <a class="sub" href="${esc(p.link)}" target="_blank" rel="noopener" style="color:var(--violet);font-weight:700">${esc(p.link)}</a>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      <div class="row-act" style="justify-content:flex-start"><button data-ok="${p.sid}" style="background:var(--lime)">Добавить</button><button class="del" data-no="${p.sid}">Отклонить</button></div>
+    </li>`).join('')}</ul>` : `<div class="empty">Новых заявок нет.</div>`}</section>`;
+  box.querySelectorAll('[data-ok],[data-no]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    const ok = Boolean(b.dataset.ok);
+    const j = await api('/api/admin/pending', { method: 'POST', body: JSON.stringify({ sid: b.dataset.ok || b.dataset.no, action: ok ? 'ok' : 'no' }) });
+    await reloadCatalog();
+    if (ok && j.item) location.hash = 'admin-edit-' + j.item.id; else adminView();
+  });
+}
+
+function adminCats() {
+  const box = app.querySelector('#adm');
+  const draft = JSON.parse(JSON.stringify(S.data.categories));
+  const renames = [];
+  const orig = JSON.parse(JSON.stringify(S.data.categories));
+  const used = (k, c) => S.adm.items.filter(x => x.kind === k && x.categories.includes(c)).length;
+  const draw = () => {
+    box.innerHTML = `<section class="box"><div class="box-h"><span class="lbl">Категории</span><span class="sub">переименуйте прямо в поле</span></div>
+      <div class="cat-cols">${['game', 'bot', 'channel'].map(k => `<div class="cat-col"><h3>${kindsName(k)}</h3>
+        ${draft[k].map((c, i) => `<div class="cat-line"><input value="${esc(c)}" data-k="${k}" data-i="${i}" aria-label="Категория"><span class="sub mono">${used(k, orig[k][i] ?? c)}</span><button type="button" data-rm="${k}:${i}" aria-label="Удалить">×</button></div>`).join('')}
+        <div class="cat-add"><input placeholder="Новая категория" data-new="${k}"><button type="button" data-add="${k}">+</button></div></div>`).join('')}</div>
+      <p class="msg" id="cmsg" hidden></p>
+      <button class="submit" id="csave">Сохранить категории</button></section>`;
+    box.querySelectorAll('.cat-line input').forEach(inp => inp.oninput = () => { draft[inp.dataset.k][+inp.dataset.i] = inp.value; });
+    box.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { const [k, i] = b.dataset.rm.split(':'); draft[k].splice(+i, 1); orig[k].splice(+i, 1); draw(); });
+    box.querySelectorAll('[data-add]').forEach(b => b.onclick = () => { const inp = box.querySelector(`[data-new="${b.dataset.add}"]`); const v = inp.value.trim(); if (v) { draft[b.dataset.add].push(v); orig[b.dataset.add].push(v); draw(); } });
+    box.querySelectorAll('[data-new]').forEach(inp => inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); box.querySelector(`[data-add="${inp.dataset.new}"]`).click(); } });
+    box.querySelector('#csave').onclick = async () => {
+      renames.length = 0;
+      for (const k of ['game', 'bot', 'channel']) draft[k].forEach((c, i) => { if (orig[k][i] !== undefined && orig[k][i] !== c.trim()) renames.push({ kind: k, from: orig[k][i], to: c.trim() }); });
+      const j = await api('/api/admin/categories', { method: 'POST', body: JSON.stringify({ categories: draft, renames }) });
+      const m = box.querySelector('#cmsg');
+      if (!j.ok) { m.className = 'msg'; m.textContent = j.error || 'Не сохранилось'; m.hidden = false; return; }
+      await reloadCatalog();
+      Object.assign(draft, JSON.parse(JSON.stringify(S.data.categories))); Object.assign(orig, JSON.parse(JSON.stringify(S.data.categories)));
+      draw(); const m2 = box.querySelector('#cmsg'); m2.className = 'msg ok'; m2.textContent = 'Сохранено'; m2.hidden = false;
+    };
+  };
+  draw();
+}
+
+function shrinkImage(file) {
+  return new Promise((res, rej) => {
+    if (file.type === 'image/gif') return res(file);
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1200 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => b ? res(b) : rej(new Error('Не удалось обработать картинку')), 'image/jpeg', .86);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => rej(new Error('Это не картинка'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function adminEdit(id) {
+  if (!S.admin) return adminLogin();
+  if (!S.adm.items.length) { try { await loadAdmin(); } catch (e) { setAdmin(false); return adminLogin(); } }
+  const src = id ? S.adm.items.find(x => x.id === id) : null;
+  if (id && !src) { app.innerHTML = `<section class="hello"><div><h1>Не найдено</h1></div><a class="chip" href="#admin">К админке</a></section>`; return; }
+  const x = src ? JSON.parse(JSON.stringify(src)) : { kind: 'game', categories: [] };
+  const st = x.stats || {};
+  const isNew = !src;
+  const draw = () => {
+    const k = x.kind;
+    app.innerHTML = `
+    <div class="adm-bar"><a class="chip" href="#admin">← Админка</a>${!isNew ? `<a class="chip" href="#item-${x.id}">Открыть страницу ${ARROW}</a>` : ''}</div>
+    <section class="hello in"><div><h1>${isNew ? 'Новый проект' : esc(x.title)}</h1><p>${isNew ? 'Заполните главное: тип, название, ссылку и категорию. Остальное по желанию.' : 'Изменения появятся в каталоге сразу после сохранения.'}</p></div></section>
+    <form class="box form" id="ef" novalidate>
+      <div class="tabs" style="border:0;border-bottom:var(--b)" role="group">${['game', 'bot', 'channel'].map(kk => `<button type="button" data-k="${kk}" aria-pressed="${k === kk}">${kindName(kk)}</button>`).join('')}</div>
+      <div class="cells">
+        <div class="cell"><label for="e-title">Название *</label><input id="e-title" value="${esc(x.title || '')}" maxlength="64"></div>
+        <div class="cell"><label for="e-link">Ссылка *</label><input id="e-link" value="${esc(x.link || '')}" placeholder="t.me/имя"></div>
+        <div class="cell full"><span class="lab">Категории *</span><div class="checks">${S.data.categories[k].map(c => `<label><input type="checkbox" value="${esc(c)}" ${x.categories.includes(c) ? 'checked' : ''}>${esc(c)}</label>`).join('')}</div><small>Новые категории создаются во вкладке «Категории».</small></div>
+        <div class="cell full"><label for="e-desc">Описание</label><textarea id="e-desc" maxlength="1500">${esc(x.description || '')}</textarea></div>
+        <div class="cell"><label for="e-author">Автор / студия</label><input id="e-author" value="${esc(x.author || '')}"></div>
+        <div class="cell"><label for="e-price">Цена</label><input id="e-price" value="${esc(x.price || '')}" placeholder="Бесплатно"></div>
+        ${k === 'game' ? `<div class="cell"><label for="e-session">Средняя сессия</label><input id="e-session" value="${esc(x.session || '')}" placeholder="10 мин"></div>` : ''}
+        ${k === 'channel' ? `<div class="cell"><label for="e-subs">Подписчики</label><input id="e-subs" value="${esc(x.subscribers || '')}" placeholder="12 тыс."></div>` : ''}
+        <div class="cell"><label for="e-channel">Канал проекта</label><input id="e-channel" value="${esc(x.channel || '')}" placeholder="t.me/канал"></div>
+        <div class="cell"><label for="e-rating">Оценка (0–5)</label><input id="e-rating" inputmode="decimal" value="${x.rating ?? ''}"></div>
+        <div class="cell"><label for="e-votes">Голосов</label><input id="e-votes" inputmode="numeric" value="${x.votes ?? ''}"></div>
+        <div class="cell full"><label for="e-note">Комментарий редакции</label><input id="e-note" value="${esc(x.note || '')}" maxlength="400"></div>
+        <div class="cell"><label for="e-id">Адрес страницы</label><input id="e-id" value="${esc(x.id || '')}" placeholder="создастся из названия"><small>/#item-адрес · латиница</small></div>
+        <div class="cell"><span class="lab">Показ</span>
+          <label class="tog"><input type="checkbox" id="e-feat" ${x.featured ? 'checked' : ''}>Выбор редакции на главной</label>
+          <label class="tog"><input type="checkbox" id="e-hid" ${x.hidden ? 'checked' : ''}>Скрыть из каталога</label></div>
+        <div class="cell full"><span class="lab">Обложка</span>
+          <div class="upl"><span class="thumb" id="e-thumb">${x.image ? `<img src="${esc(x.image)}" alt="">` : glyph(x)}</span>
+            <div style="display:flex;flex-direction:column;gap:6px"><label class="chip" style="align-self:flex-start">Загрузить картинку<input type="file" id="e-file" accept="image/*" hidden></label>
+            ${x.image ? `<button type="button" class="chip" id="e-noimg" style="align-self:flex-start">Убрать обложку</button>` : ''}<small class="sub">JPG, PNG или WebP. ${isNew ? 'Загрузится вместе с сохранением.' : ''}</small></div></div></div>
+        ${k === 'game' ? `
+        <div class="cell full" style="background:var(--paper)"><span class="lab">Статистика игры (необязательно)</span></div>
+        <div class="cell"><label for="e-pl">Игроков за месяц</label><input id="e-pl" value="${esc(st.players || '')}"></div>
+        <div class="cell"><label for="e-ss">Средняя сессия, мин:сек</label><input id="e-ss" value="${esc(st.session || '')}"></div>
+        <div class="cell"><label for="e-d7">Вернулись на 7-й день</label><input id="e-d7" value="${esc(st.d7 || '')}" placeholder="19%"></div>
+        <div class="cell"><label for="e-wk">Игроки по дням, пн–вс</label><input id="e-wk" value="${esc((st.week || []).join(', '))}" placeholder="7 чисел через запятую"></div>` : ''}
+      </div>
+      <p class="msg" id="emsg" hidden></p>
+      <button class="submit" type="submit">${isNew ? 'Добавить в каталог' : 'Сохранить'} ${RARROW}</button>
+      ${!isNew ? `<div style="margin:0 14px 14px"><button type="button" class="btn danger" id="e-del" style="width:100%">Удалить проект</button></div>` : ''}
+    </form>`;
+    const f = app.querySelector('#ef');
+    const val = sel => { const el = f.querySelector(sel); return el ? el.value : undefined; };
+    const collect = () => {
+      x.title = val('#e-title'); x.link = val('#e-link'); x.description = val('#e-desc'); x.author = val('#e-author'); x.price = val('#e-price');
+      x.channel = val('#e-channel'); x.rating = val('#e-rating').replace(',', '.'); x.votes = val('#e-votes'); x.note = val('#e-note'); x.id = val('#e-id');
+      if (f.querySelector('#e-session')) x.session = val('#e-session');
+      if (f.querySelector('#e-subs')) x.subscribers = val('#e-subs');
+      x.featured = f.querySelector('#e-feat').checked; x.hidden = f.querySelector('#e-hid').checked;
+      x.categories = [...f.querySelectorAll('.checks input:checked')].map(i => i.value);
+      if (f.querySelector('#e-pl')) x.stats = { players: val('#e-pl'), session: val('#e-ss'), d7: val('#e-d7'), week: val('#e-wk') };
+    };
+    let pendingFile = null;
+    f.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { collect(); x.kind = b.dataset.k; x.categories = x.categories.filter(c => S.data.categories[x.kind].includes(c)); draw(); });
+    f.querySelector('#e-file').onchange = async e => {
+      const file = e.target.files[0]; if (!file) return;
+      try { pendingFile = await shrinkImage(file); } catch (er) { const m = f.querySelector('#emsg'); m.className = 'msg'; m.textContent = er.message; m.hidden = false; return; }
+      f.querySelector('#e-thumb').innerHTML = `<img src="${URL.createObjectURL(pendingFile)}" alt="">`;
+    };
+    const noimg = f.querySelector('#e-noimg');
+    if (noimg) noimg.onclick = () => { collect(); x.image = ''; pendingFile = null; draw(); };
+    const del = f.querySelector('#e-del');
+    if (del) del.onclick = async () => {
+      if (!del.classList.contains('sure')) { del.classList.add('sure'); del.textContent = 'Нажмите ещё раз, чтобы удалить'; return; }
+      const j = await api('/api/admin/items?id=' + encodeURIComponent(src.id), { method: 'DELETE' });
+      if (j.ok) { await reloadCatalog(); S.adm.items = []; location.hash = 'admin'; }
+    };
+    f.onsubmit = async e => {
+      e.preventDefault(); collect();
+      const m = f.querySelector('#emsg'); m.hidden = true;
+      const btn = f.querySelector('.submit'); btn.disabled = true;
+      const fail = t => { m.className = 'msg'; m.textContent = t; m.hidden = false; btn.disabled = false; };
+      if (!x.title.trim()) return fail('Укажите название');
+      if (!x.link.trim()) return fail('Укажите ссылку');
+      let j = await api('/api/admin/items', { method: 'POST', body: JSON.stringify({ ...x, prevId: src ? src.id : null }) });
+      if (!j.ok) return fail(j.error || 'Не сохранилось');
+      if (pendingFile) {
+        const up = await api('/api/admin/upload?id=' + encodeURIComponent(j.item.id), { method: 'POST', body: pendingFile, headers: { 'content-type': pendingFile.type || 'image/jpeg' } });
+        if (!up.ok) return fail('Проект сохранён, но обложка не загрузилась: ' + (up.error || ''));
+        j = await api('/api/admin/items', { method: 'POST', body: JSON.stringify({ ...x, id: j.item.id, image: up.url, prevId: j.item.id }) });
+      }
+      await reloadCatalog(); await loadAdmin();
+      location.hash = 'item-' + j.item.id;
+    };
+  };
+  draw();
+}
+
+/* ---------- маршруты ---------- */
 function route() {
   if (!S.data) return;
-  let h = location.hash.slice(1);
-  if (h === 'random') { const all = S.data.items; location.replace('#item-' + all[Math.floor(Math.random() * all.length)].id); return; }
-  const nav = h.startsWith('item-') ? '' : h;
+  const h = location.hash.slice(1);
+  const nav = h.startsWith('item-') ? '' : h.startsWith('admin') ? 'admin' : h;
   document.querySelectorAll('[data-nav]').forEach(a => a.dataset.nav === nav ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   if (h.startsWith('item-')) item(h.slice(5));
-  else if (h === 'games') listView('game');
-  else if (h === 'bots') listView('bot');
-  else if (h === 'rules') rules();
+  else if (HASH_KIND[h]) { if (S.kind !== HASH_KIND[h]) { if (!S.keepCat) S.cat = 'all'; S.kind = HASH_KIND[h]; } listView(HASH_KIND[h]); }
+  else if (h === 'categories') categoriesView();
   else if (h === 'submit') submit();
+  else if (h === 'admin') adminView();
+  else if (h === 'admin-new') adminEdit(null);
+  else if (h.startsWith('admin-edit-')) adminEdit(h.slice(11));
   else overview();
   if (tg) { try { h ? tg.BackButton.show() : tg.BackButton.hide(); } catch (e) {} }
   window.scrollTo(0, 0);
 }
+// переход из «Категорий» сохраняет выбранную категорию
+document.addEventListener('click', e => { const a = e.target.closest('[data-c]'); if (a) { S.kind = a.dataset.k; } }, true);
 
 async function boot() {
-  try { S.data = await (await fetch('/api/catalog')).json(); }
+  try { await reloadCatalog(); }
   catch (e) { app.innerHTML = `<div class="loading">Каталог не загрузился</div>`; return; }
-  document.getElementById('c-game').textContent = S.data.items.filter(x => x.kind === 'game').length;
-  document.getElementById('c-bot').textContent = S.data.items.filter(x => x.kind === 'bot').length;
   if (tg) { try { tg.BackButton.onClick(() => history.length > 1 ? history.back() : (location.hash = '')); } catch (e) {} }
+  let hasKey = false; try { hasKey = Boolean(localStorage.getItem('boxapps-admin-key')); } catch (e) {}
+  if (tg || hasKey) { try { const me = await api('/api/admin/me'); setAdmin(Boolean(me.admin)); if (me.admin) loadAdmin().catch(() => {}); } catch (e) {} }
   const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param;
   if (sp && !location.hash) location.hash = sp.startsWith('item-') ? sp : 'item-' + sp;
   route();

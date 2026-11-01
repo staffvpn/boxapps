@@ -1,33 +1,44 @@
 # BOX APPS
 
-Каталог игр и ботов для Telegram, отобранных вручную. Без тапалок, казино, «заработка» и обязательных подписок.
+Каталог игр, ботов и каналов для Telegram. Один и тот же `index.html` открывается и как мини-приложение в Telegram, и как обычный сайт.
 
-Один и тот же `index.html` открывается и как мини-приложение в Telegram, и как обычный сайт.
+## Что где
 
-## Устройство
+- `index.html` — витрина (обзор, игры, боты, каналы, категории, страница проекта, заявка) и админка. Без сборки.
+- `functions/_catalog.js` — название, разделы и категории по умолчанию. Список проектов пуст: проекты добавляются в админке.
+- `functions/_lib.js` — хранилище, проверка админа, заявки.
+- `functions/tg/webhook.js` — бот: меню, разделы, категории, поиск, заявки, модерация, `/admin`.
+- `functions/tg/setup.js` — `GET /tg/setup?key=WEBHOOK_SECRET` один раз подключает вебхук, кнопку меню, команды и описание.
+- `functions/api/catalog.js`, `functions/api/submit.js` — каталог и заявки для сайта.
+- `functions/api/admin/*` — API админки: проекты, заявки, категории, загрузка обложек.
+- `functions/img/[id].js` — обложки проектов.
+- `wrangler.toml` — KV `STORE`: проекты, категории, заявки, обложки, шаги диалога бота.
 
-- `index.html` — витрина: каталог игр и ботов, карточки, правила, форма заявки. Без сборки.
-- `functions/_catalog.js` — **сам каталог**: категории, правила отбора и записи. Правьте здесь.
-- `functions/tg/webhook.js` — бот: меню, разделы, категории, случайный выбор, поиск, заявки и модерация.
-- `functions/tg/setup.js` — `GET /tg/setup?key=WEBHOOK_SECRET` один раз подключает вебхук, кнопку меню, команды и описание бота.
-- `functions/api/catalog.js` — `GET /api/catalog` для сайта.
-- `functions/api/submit.js` — `POST /api/submit`, заявки с сайта.
-- `wrangler.toml` — KV `pult-store` как `STORE`: очередь заявок, одобренные проекты, шаги диалога.
+## Админка
+
+Открывается из бота кнопкой «Админка» (`/admin`) или на сайте по адресу `/#admin`.
+
+- **Из Telegram** админ определяется автоматически: подпись мини-приложения проверяется на сервере, ID должен быть в `ADMIN_IDS`. Остальные пользователи раздела «Админка» не видят.
+- **В браузере** вход по ключу `ADMIN_KEY`.
+
+Что можно делать:
+- добавлять, редактировать и удалять игры, ботов и каналы;
+- загружать обложки;
+- отмечать «Выбор редакции» и скрывать проекты;
+- вести статистику игры (игроки по дням для графика);
+- одобрять и отклонять заявки (и из бота, и с сайта);
+- создавать, переименовывать и удалять категории.
 
 ## Запуск на Cloudflare Pages
 
-1. Cloudflare → Workers & Pages → Create → Pages → Connect to Git → этот репозиторий. Build command пустой, output directory `.`.
+1. Workers & Pages → Create → Pages → Connect to Git → этот репозиторий. Build command пустой, output directory `.`.
 2. Settings → Variables and Secrets (Production):
-   - `BOT_TOKEN` — токен от @BotFather (как секрет);
-   - `WEBHOOK_SECRET` — любая длинная случайная строка (как секрет);
-   - `ADMIN_IDS` — Telegram ID редакторов через запятую (свой ID бот покажет по команде `/myid`).
-3. Settings → Bindings: проверьте, что KV `STORE` привязан к `pult-store` (берётся из `wrangler.toml`).
-4. После деплоя откройте `https://<проект>.pages.dev/tg/setup?key=<WEBHOOK_SECRET>`.
-5. В @BotFather → Bot Settings → Configure Mini App → Enable, URL сайта. Тогда бот появится в разделе «Приложения» поиска Telegram.
+   - `BOT_TOKEN` — токен от @BotFather (Secret);
+   - `WEBHOOK_SECRET` — длинная случайная строка (Secret);
+   - `ADMIN_IDS` — Telegram ID админов через запятую (свой ID бот покажет по `/myid`);
+   - `ADMIN_KEY` — пароль для входа в админку из браузера (Secret, необязательно).
+3. Settings → Bindings: KV `STORE` привязан к хранилищу из `wrangler.toml`.
+4. После деплоя откройте `https://<проект>.pages.dev/tg/setup?key=<WEBHOOK_SECRET>`. Повторите после изменения `ADMIN_IDS`, чтобы у админов появилась команда `/admin`.
+5. @BotFather → Bot Settings → Configure Mini App → Enable, адрес сайта.
 
 Секреты в репозиторий не кладём.
-
-## Команды бота
-
-`/start` меню · `/games` · `/bots` · `/random` · `/search` · `/submit` · `/myid` · `/pending` (редакция).
-Заявки из бота и с сайта приходят редакторам из `ADMIN_IDS` с кнопками «Добавить» и «Отклонить».

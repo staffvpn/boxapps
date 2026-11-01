@@ -1,7 +1,17 @@
 // GET /tg/setup?key=WEBHOOK_SECRET — открыть один раз после того, как заданы переменные.
-// Подключает вебхук, кнопку меню «Каталог», команды и описание бота.
+// Подключает вебхук, кнопку меню, команды (у админов — плюс /admin) и описание бота.
 import { BRAND } from '../_catalog.js';
-import { json, kvPut, tgApi } from '../_lib.js';
+import { admins, json, kvPut, tgApi } from '../_lib.js';
+
+const COMMANDS = [
+  { command: 'start', description: 'Главное меню' },
+  { command: 'games', description: 'Игры' },
+  { command: 'bots', description: 'Боты' },
+  { command: 'channels', description: 'Каналы' },
+  { command: 'categories', description: 'Категории' },
+  { command: 'search', description: 'Поиск по названию' },
+  { command: 'submit', description: 'Предложить проект' },
+];
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
@@ -14,20 +24,17 @@ export async function onRequestGet({ request, env }) {
     url: origin + '/tg/webhook', secret_token: env.WEBHOOK_SECRET,
     allowed_updates: ['message', 'callback_query'], drop_pending_updates: true,
   });
-  const menu = await tgApi(env, 'setChatMenuButton', { menu_button: { type: 'web_app', text: 'Каталог', web_app: { url: origin } } });
-  const cmds = await tgApi(env, 'setMyCommands', {
-    commands: [
-      { command: 'start', description: 'Главное меню' },
-      { command: 'games', description: 'Игры' },
-      { command: 'bots', description: 'Боты' },
-      { command: 'random', description: 'Случайный выбор' },
-      { command: 'search', description: 'Поиск по названию' },
-      { command: 'submit', description: 'Предложить проект' },
-    ],
+  const menu = await tgApi(env, 'setChatMenuButton', { menu_button: { type: 'web_app', text: 'BOX APPS', web_app: { url: origin } } });
+  const cmds = await tgApi(env, 'setMyCommands', { commands: COMMANDS });
+  const adminCmds = await Promise.all(admins(env).map(id => tgApi(env, 'setMyCommands', {
+    scope: { type: 'chat', chat_id: id },
+    commands: [{ command: 'admin', description: 'Админка' }, ...COMMANDS, { command: 'myid', description: 'Мой ID' }],
+  })));
+  const desc = await tgApi(env, 'setMyDescription', { description: `${BRAND}: игры, боты и каналы для Telegram в одном каталоге.` });
+  const short = await tgApi(env, 'setMyShortDescription', { short_description: 'Игры, боты и каналы для Telegram.' });
+  return json({
+    ok: webhook.ok && menu.ok, bot: me.ok ? '@' + me.result.username : null,
+    webhook, menu, commands: cmds.ok, admins: admins(env).length, adminCommands: adminCmds.every(r => r.ok),
+    description: desc.ok && short.ok, store: Boolean(env.STORE), adminKey: Boolean(env.ADMIN_KEY),
   });
-  const desc = await tgApi(env, 'setMyDescription', {
-    description: `${BRAND}: игры и боты для Telegram, отобранные вручную. Без тапалок, казино, «заработка» и обязательных подписок.`,
-  });
-  const short = await tgApi(env, 'setMyShortDescription', { short_description: 'Отборные игры и боты для Telegram. Без фарма и мусора.' });
-  return json({ ok: webhook.ok && menu.ok, bot: me.ok ? '@' + me.result.username : null, webhook, menu, commands: cmds, description: desc.ok && short.ok, store: Boolean(env.STORE) });
 }

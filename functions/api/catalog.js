@@ -1,8 +1,9 @@
 // GET /api/catalog — каталог для сайта и мини-приложения.
-import { BRAND, CATEGORIES, CRITERIA } from '../_catalog.js';
-import { fullCatalog, json, kvGet } from '../_lib.js';
+import { BRAND, KINDS } from '../_catalog.js';
+import { fullCatalog, getCategories, json, kvGet } from '../_lib.js';
 
 export async function onRequestGet({ env }) {
-  const [items, bot] = await Promise.all([fullCatalog(env), kvGet(env, 'bot_username', '')]);
-  return json({ brand: BRAND, bot, categories: CATEGORIES, criteria: CRITERIA, items });
+  const [all, bot, categories] = await Promise.all([fullCatalog(env), kvGet(env, "bot_username", ""), getCategories(env)]);
+  const items = all.filter(x => !x.hidden);
+  return json({ brand: BRAND, bot, kinds: KINDS, categories, items });
 }
