@@ -93,11 +93,27 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 /* большие карточки */
 .cards{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
 @media (min-width:700px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.fcard{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-height:340px;border-radius:var(--r-xl);padding:22px;overflow:hidden;color:var(--dark);background:var(--c,var(--green));isolation:isolate}
-.fcard .art{position:absolute;right:-8px;bottom:60px;width:64%;max-width:280px;z-index:-1}
-.fcard .art img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r-l)}
-.fcard.img .art{right:16px;bottom:84px;width:46%}
-.fc-t{display:flex;flex-direction:column;gap:6px;max-width:72%}
+.fcard{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-height:0;border-radius:var(--r-xl);padding:22px;overflow:hidden;color:var(--dark);background:var(--c,var(--green));isolation:isolate}
+.fc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.fc-t{display:flex;flex-direction:column;gap:6px}
+.fc-t p{margin:2px 0 0;font-size:14.5px;line-height:1.4;opacity:.8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* иконки проектов */
+.pic{position:relative;flex:none;overflow:hidden;background:var(--c,var(--green));display:grid;place-items:center;color:var(--dark)}
+.pic b{font-weight:700;line-height:1}
+.pic .av{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s}
+.pic .av.ok{opacity:1}
+.pic.has-av b{visibility:hidden}
+.fic{width:64px;height:64px;border-radius:18px;box-shadow:0 6px 18px rgba(20,20,20,.18)}
+.fic b{font-size:28px}
+.thumb b{font-size:24px}
+.aic{width:96px;height:96px;border-radius:26px}
+.aic b{font-size:42px}
+.app-head{display:flex;align-items:center;gap:16px;min-width:0}
+.ah-t{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ah-t h1{margin:0;font:600 clamp(24px,7vw,32px)/1.1 var(--font);letter-spacing:-.01em;overflow-wrap:anywhere}
+.ah-t small{font-size:14px}
+.hero-logo{align-self:center;width:min(36%,140px);padding:4px 0}
+.hero-logo svg{width:100%;height:auto}
 .fc-t h3{margin:0;font:600 clamp(26px,7vw,32px)/1.05 var(--font);letter-spacing:-.01em;overflow-wrap:anywhere}
 .fc-t span{font-size:14px;opacity:.75}
 .tag{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;background:rgba(20,20,20,.12);font:600 12px/1 var(--font)}
@@ -111,27 +127,13 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 .row{display:flex;align-items:center;gap:14px;padding:12px 12px 12px 12px;border-radius:var(--r-l);background:var(--surface);min-width:0;transition:background .15s}
 .row:active{background:var(--surface-2)}
 @media (hover:hover){.row:hover{background:var(--surface-2)}}
-.thumb{width:58px;height:58px;border-radius:var(--r-m);flex:none;overflow:hidden;background:var(--c,var(--green));display:grid;place-items:center}
-.thumb svg{width:110%;height:110%}
-.thumb{position:relative}
+.thumb{width:58px;height:58px;border-radius:var(--r-m)}
 .thumb img{width:100%;height:100%;object-fit:cover}
 /* аватарка из Telegram поверх иллюстрации */
 .av{position:absolute;opacity:0;transition:opacity .25s;object-fit:cover}
 .av.ok{opacity:1}
-.has-av > svg{visibility:hidden}
 .av.fill{inset:0;width:100%;height:100%}
-.cover.sq{aspect-ratio:1/1;width:100%;max-width:480px;margin:0 auto}
-.cover.sq svg{width:86%}
-.cover.has-av{aspect-ratio:1/1;background:var(--surface);width:100%;max-width:480px;margin:0 auto}
-.cover .av.fill{border-radius:inherit}
 .av.round{left:50%;top:50%;width:min(56%,220px);height:auto;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(20,20,20,.12),0 18px 40px rgba(20,20,20,.25)}
-.fcard .art{aspect-ratio:240/180}
-.fcard .art .av.round{width:72%}
-/* с аватаркой или своей картинкой: квадрат в правом верхнем углу, над кнопкой */
-.fcard .art.has-av,.fcard.img .art{top:22px;right:22px;bottom:auto;width:min(40%,180px);aspect-ratio:1;z-index:0}
-.fcard .art.has-av .av,.fcard.img .art img{position:absolute;inset:0;left:0;top:0;width:100%;height:100%;transform:none;border-radius:var(--r-l);box-shadow:0 12px 30px rgba(20,20,20,.22)}
-.fcard:has(.art.has-av) .fc-t,.fcard.img .fc-t{max-width:calc(60% - 20px)}
-.fcard:has(.art.has-av),.fcard.img{min-height:280px}
 .row-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .row-t b{font:600 16px/1.25 var(--font);display:flex;align-items:center;gap:8px;min-width:0}
 .row-t b span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -154,9 +156,6 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 
 /* страница проекта */
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.cover{position:relative;border-radius:var(--r-xl);background:var(--c,var(--green));overflow:hidden;aspect-ratio:16/10;display:grid;place-items:center}
-.cover svg{width:78%;height:auto}
-.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .chips{display:flex;flex-wrap:wrap;gap:10px}
 .ichip{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 18px 0 6px;border-radius:999px;background:var(--surface);font:500 14.5px/1 var(--font)}
 .ichip i{width:40px;height:40px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-style:normal;color:var(--c,var(--green))}
@@ -203,8 +202,6 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 
 /* пустой каталог / герой */
 .hero{position:relative;border-radius:var(--r-xl);background:var(--surface);padding:22px;overflow:hidden;display:flex;flex-direction:column;gap:14px}
-.hero svg.ill{width:100%;max-width:420px;height:auto;align-self:center}
-.hero > svg:not(.ill){width:62%;max-width:240px;height:auto;align-self:center}
 .hero h2{margin:0;font:500 30px/1.1 var(--font);letter-spacing:-.01em}
 .hero p{margin:0;color:var(--muted)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;height:56px;padding:0 8px 0 22px;border-radius:999px;border:0;background:var(--green);color:var(--dark);font:600 15.5px/1 var(--font);align-self:flex-start}
@@ -339,81 +336,21 @@ const ORDER = ['green', 'salmon', 'yellow', 'lilac'];
 const KIND_COLOR = { game: 'green', bot: 'salmon', channel: 'yellow' };
 const hash = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 function colorOf(x) { return x.color && HEX[x.color] ? x.color : ORDER[(ORDER.indexOf(KIND_COLOR[x.kind] || 'green') + (hash(x.id) % 7 === 0 ? 3 : 0)) % 4]; }
-function accents(c) { const o = ORDER.filter(k => k !== c); return [HEX[o[0]], HEX[o[1]]]; }
 const st = (s, w = 3) => `stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`;
 const PLAY = '<svg viewBox="0 0 16 16"><path d="M4 2.5v11l9.5-5.5z" fill="currentColor"/></svg>';
 
-const ILL = {
-  game(s = HEX.dark, a1 = HEX.salmon, a2 = HEX.yellow, paper = HEX.ink) {
-    return `<svg viewBox="0 0 240 180" fill="none" aria-hidden="true">
-      <path d="M196 30l9-12M208 44l14-4M188 16l1-12" ${st(s)}/>
-      <path d="M92 48c22-14 50-16 76-4" ${st(s)} stroke-dasharray="1 10"/>
-      <g transform="rotate(-8 60 46)"><rect x="36" y="22" width="52" height="48" rx="11" fill="${a2}" ${st(s)}/><path d="M55 35l18 11-18 11z" fill="${s}"/></g>
-      <g transform="rotate(-14 52 128)"><rect x="28" y="104" width="46" height="46" rx="10" fill="${paper}" ${st(s)}/><circle cx="41" cy="117" r="3.6" fill="${s}"/><circle cx="51" cy="127" r="3.6" fill="${s}"/><circle cx="61" cy="137" r="3.6" fill="${s}"/></g>
-      <g transform="rotate(9 150 108)">
-        <path d="M104 76h92c19 0 31 16 29 35l-4 26c-3 19-25 25-38 10l-12-15h-42l-12 15c-13 15-35 9-38-10l-4-26c-2-19 10-35 29-35z" fill="${paper}" ${st(s)}/>
-        <path d="M122 99v26M109 112h26" ${st(s, 5)}/>
-        <circle cx="176" cy="104" r="7.5" fill="${a1}" ${st(s, 2.6)}/><circle cx="193" cy="120" r="7.5" fill="${a2}" ${st(s, 2.6)}/>
-      </g>
-    </svg>`;
-  },
-  bot(s = HEX.dark, a1 = HEX.yellow, a2 = HEX.green, paper = HEX.ink) {
-    return `<svg viewBox="0 0 240 180" fill="none" aria-hidden="true">
-      <path d="M22 34h48a11 11 0 0111 11v20a11 11 0 01-11 11H46l-14 12V76h-10a11 11 0 01-11-11V45a11 11 0 0111-11z" fill="${a2}" ${st(s)}/>
-      <circle cx="34" cy="55" r="3.6" fill="${s}"/><circle cx="46" cy="55" r="3.6" fill="${s}"/><circle cx="58" cy="55" r="3.6" fill="${s}"/>
-      <path d="M136 26v20" ${st(s)}/><circle cx="136" cy="20" r="9" fill="${a1}" ${st(s)}/>
-      <rect x="72" y="138" width="16" height="22" rx="6" fill="${paper}" ${st(s)} transform="rotate(-20 80 149)"/>
-      <rect x="182" y="138" width="16" height="22" rx="6" fill="${paper}" ${st(s)} transform="rotate(20 190 149)"/>
-      <path d="M104 144h64v20h-64z" fill="${a1}" ${st(s)}/>
-      <rect x="84" y="46" width="104" height="94" rx="30" fill="${paper}" ${st(s)}/>
-      <rect x="72" y="80" width="12" height="28" rx="6" fill="${a1}" ${st(s)}/><rect x="188" y="80" width="12" height="28" rx="6" fill="${a1}" ${st(s)}/>
-      <rect x="100" y="68" width="72" height="36" rx="18" fill="${s}"/>
-      <circle cx="121" cy="86" r="6.5" fill="${a2}"/><circle cx="151" cy="86" r="6.5" fill="${a2}"/>
-      <path d="M124 120c8 6 16 6 24 0" ${st(s)}/>
-      <path d="M206 40l10-8M212 56h12" ${st(s)}/>
-    </svg>`;
-  },
-  channel(s = HEX.dark, a1 = HEX.salmon, a2 = HEX.lilac, paper = HEX.ink) {
-    return `<svg viewBox="0 0 240 180" fill="none" aria-hidden="true">
-      <path d="M18 46l56-20-18 54-13-22z" fill="${a2}" ${st(s)}/><path d="M43 58l31-32" ${st(s)}/>
-      <path d="M190 66c10 10 14 22 14 36M204 50c16 16 22 34 22 54" ${st(s)}/>
-      <g transform="rotate(-14 124 100)">
-        <path d="M96 116l9 38h20l-7-38" fill="${a2}" ${st(s)}/>
-        <path d="M72 82h24l64-32v100l-64-32H72a11 11 0 01-11-11V93a11 11 0 0111-11z" fill="${paper}" ${st(s)}/>
-        <path d="M160 50c11 0 18 22 18 50s-7 50-18 50" fill="${a1}" ${st(s)}/>
-        <path d="M80 96v14" ${st(s, 4)}/>
-      </g>
-      <circle cx="56" cy="146" r="11" fill="${a1}" ${st(s)}/><path d="M52 146l3 3 6-6" ${st(s, 2.6)}/>
-    </svg>`;
-  },
-  box(s = HEX.ink) {
-    return `<svg class="ill" viewBox="0 0 320 230" fill="none" aria-hidden="true">
-      <path d="M64 70c10-26 30-40 56-44M256 74c-8-24-26-38-50-44" ${st(s, 2.4)} stroke-dasharray="1 9"/>
-      <path d="M28 120l14-6M30 96l14 4M290 120l-14-6M292 96l-14 4" ${st(s)}/>
-      <g transform="rotate(-18 82 70) translate(30 18) scale(.5)">${ILL.gameInner(s)}</g>
-      <g transform="translate(118 10) scale(.36)"><rect x="84" y="46" width="104" height="94" rx="30" fill="${HEX.lilac}" ${st(s, 7)}/><rect x="100" y="68" width="72" height="36" rx="18" fill="${HEX.dark}" ${st(s, 7)}/><circle cx="121" cy="86" r="7" fill="${HEX.green}"/><circle cx="151" cy="86" r="7" fill="${HEX.green}"/><path d="M136 46V26" ${st(s, 7)}/><circle cx="136" cy="20" r="9" fill="${HEX.yellow}" ${st(s, 7)}/></g>
-      <g transform="rotate(16 250 70) translate(212 36) scale(.4)"><path d="M72 82h24l64-32v100l-64-32H72a11 11 0 01-11-11V93a11 11 0 0111-11z" fill="${HEX.yellow}" ${st(s, 7)}/><path d="M160 50c11 0 18 22 18 50s-7 50-18 50" fill="${HEX.salmon}" ${st(s, 7)}/></g>
-      <g transform="translate(-8 -56) scale(.27)"><path d="M237 700L383 605Q389 602 396 604L608 676L472 778Z" fill="#6BDE8F"/><path d="M640 676L858 604Q866 602 872 606L1014 700L787 778Z" fill="#6BDE8F"/><path d="M341 768L488 813L631 708V1010L386 917Q372 911 369 896Z" fill="#F5F0EA"/><path d="M660 865L916 770L895 896Q892 909 879 915L660 1000Z" fill="#F5F0EA"/></g>
-    </svg>`;
-  },
-  gameInner(s) {
-    return `<path d="M104 76h92c19 0 31 16 29 35l-4 26c-3 19-25 25-38 10l-12-15h-42l-12 15c-13 15-35 9-38-10l-4-26c-2-19 10-35 29-35z" fill="${HEX.green}" ${st(s, 6)}/><path d="M122 99v26M109 112h26" ${st(HEX.dark, 7)}/><circle cx="176" cy="104" r="8" fill="${HEX.yellow}"/><circle cx="193" cy="120" r="8" fill="${HEX.salmon}"/>`;
-  },
-};
 const LOGO = '<svg viewBox="225 440 800 590" aria-hidden="true"><path d="M237 700L383 605Q389 602 396 604L608 676L472 778Z" fill="#6BDE8F"/><path d="M640 676L858 604Q866 602 872 606L1014 700L787 778Z" fill="#6BDE8F"/><path d="M341 768L488 813L631 708V1010L386 917Q372 911 369 896Z" fill="#F5F0EA"/><path d="M660 865L916 770L895 896Q892 909 879 915L660 1000Z" fill="#F5F0EA"/><path d="M298 530L354 553M363 466L399 508" stroke="#6BDE8F" stroke-width="26" stroke-linecap="round"/></svg>';
 document.getElementById('logo-ill').innerHTML = LOGO;
 document.getElementById('boot-ill').innerHTML = LOGO;
 
-function artOf(x) {
-  const c = colorOf(x), [a1, a2] = accents(c);
-  return (ILL[x.kind] || ILL.game)(HEX.dark, a1, a2, HEX.ink);
-}
 const cssColor = x => `var(--${colorOf(x)})`;
 // юзернейм проекта из ссылки t.me/<username>[/...]
 function tgName(x) { const m = /^https:\/\/t\.me\/([A-Za-z][A-Za-z0-9_]{3,31})(?:[/?#]|$)/.exec(x.link || ''); return m ? m[1] : ''; }
 // аватарка из Telegram: появляется поверх нашей иллюстрации, если загрузилась; если нет — иллюстрация остаётся
 function avatarImg(x, cls = '') { const n = tgName(x); return n ? `<img class="av ${cls}" src="/avatar/${n}" alt="" loading="lazy" onload="this.classList.add('ok');this.parentNode.classList.add('has-av')" onerror="this.remove()">` : ''; }
-function pic(x, cls) { return x.image ? `<img src="${esc(x.image)}" alt="" loading="lazy">` : artOf(x) + avatarImg(x, cls); }
+// иконка проекта: своя картинка → аватарка из Telegram → цветной квадрат с первой буквой
+const letter = x => esc((String(x.title || '').replace(/[«»"@]/g, '').trim()[0] || '·').toUpperCase());
+function iconHTML(x, cls) { return `<span class="${cls} pic" style="--c:${cssColor(x)}"><b>${letter(x)}</b>${x.image ? `<img class="av ok" src="${esc(x.image)}" alt="" loading="lazy">` : avatarImg(x, 'fill')}</span>`; }
 
 /* ---------- счётчики и ссылки ---------- */
 function track(id, type) {
@@ -438,17 +375,17 @@ async function reloadCatalog() { S.data = await (await fetch('/api/catalog', { c
 
 /* ---------- общие куски ---------- */
 const countIn = (k, c) => S.data.items.filter(x => x.kind === k && (!c || x.categories.includes(c))).length;
-function thumb(x) { return `<span class="thumb" style="--c:${cssColor(x)}">${pic(x, 'fill')}</span>`; }
+function thumb(x) { return iconHTML(x, 'thumb'); }
 function rowHTML(x) {
   const meta = [kindName(x.kind), x.categories[0], x.rating ? '★ ' + Number(x.rating).toFixed(1) : '', x.subscribers ? x.subscribers : ''].filter(Boolean).join(' · ');
   return `<a class="row" href="#item-${x.id}">${thumb(x)}<span class="row-t"><b><span>${esc(x.title)}</span>${x.featured ? `<span class="mini" style="--c:${cssColor(x)}">выбор</span>` : ''}</b><small>${esc(meta)}</small></span><span class="play">${PLAY}</span></a>`;
 }
 const rowsHTML = list => list.length ? `<div class="rows">${list.map(rowHTML).join('')}</div>` : `<div class="empty">Здесь пока пусто.</div>`;
 function cardHTML(x) {
-  const sub = x.author ? 'от ' + x.author : `${kindName(x.kind)} · ${x.categories[0]}`;
-  return `<a class="fcard in${x.image ? ' img' : ''}" href="#item-${x.id}" style="--c:${cssColor(x)}">
-    <div class="fc-t">${x.featured ? '<span class="tag dark">★ Выбор редакции</span>' : ''}<h3>${esc(x.title)}</h3><span>${esc(sub)}</span></div>
-    <div class="art">${pic(x, 'round')}</div>
+  const sub = [kindName(x.kind), x.categories[0], x.author].filter(Boolean).join(' · ');
+  return `<a class="fcard in" href="#item-${x.id}" style="--c:${cssColor(x)}">
+    <div class="fc-top">${iconHTML(x, 'fic')}${x.featured ? '<span class="tag dark">★ Выбор редакции</span>' : ''}</div>
+    <div class="fc-t"><h3>${esc(x.title)}</h3><span>${esc(sub)}</span>${x.description || x.note ? `<p>${esc(x.note || x.description)}</p>` : ''}</div>
     <span class="go">${openLabel(x.kind)}<span class="play">${PLAY}</span></span></a>`;
 }
 const searchHTML = (id, val, ph) => `<label class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="${id}" type="search" placeholder="${ph}" value="${esc(val)}" autocomplete="off" enterkeyhint="search">${val ? `<button type="button" data-clear="${id}" aria-label="Очистить">×</button>` : ''}</label>`;
@@ -458,7 +395,7 @@ function bindSearch(id, set, rerender) {
   const c = app.querySelector(`[data-clear="${id}"]`); if (c) c.onclick = () => { set(''); rerender(); };
 }
 function heroEmpty() {
-  return `<section class="hero in">${ILL.box()}<h2>Каталог наполняется</h2><p>Скоро здесь появятся игры, боты и каналы.</p>
+  return `<section class="hero in"><div class="hero-logo">${LOGO}</div><h2>Каталог наполняется</h2><p>Скоро здесь появятся игры, боты и каналы.</p>
     ${S.admin ? `<a class="btn" href="#admin-new">Добавить первый проект<span class="play">${PLAY}</span></a>` : `<a class="btn" href="#submit">Предложить проект<span class="play">${PLAY}</span></a>`}</section>`;
 }
 
@@ -573,7 +510,7 @@ const IC = {
 
 function item(id) {
   const x = S.data.items.find(i => i.id === id);
-  if (!x) { app.innerHTML = `<section class="hero">${ILL.box()}<h2>Не найдено</h2><p>Такого проекта нет в каталоге.</p><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a></section>`; document.body.classList.remove('page-item'); return; }
+  if (!x) { app.innerHTML = `<section class="hero"><div class="hero-logo">${LOGO}</div><h2>Не найдено</h2><p>Такого проекта нет в каталоге.</p><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a></section>`; document.body.classList.remove('page-item'); return; }
   const st = x.stats;
   const c = cssColor(x);
   const chips = [];
@@ -584,14 +521,13 @@ function item(id) {
   if (x.price) chips.push([IC.coin, x.price]);
   const similar = byRating(S.data.items.filter(y => y.id !== x.id && y.kind === x.kind)).slice(0, 4);
   app.innerHTML = `
-  <div class="topbar"><button class="circ" id="back" aria-label="Назад">${IC.back}</button>
+  <div class="topbar">${tg ? '<span></span>' : `<button class="circ" id="back" aria-label="Назад">${IC.back}</button>`}
     <div class="head-r">${S.admin ? `<a class="circ" href="#admin-edit-${x.id}" aria-label="Редактировать">${IC.edit}</a>` : ''}<button class="circ" id="share" aria-label="Поделиться">${IC.share}</button></div></div>
-  <div class="in" style="display:flex;flex-direction:column;gap:8px"><span class="muted" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1 class="big">${esc(x.title)}</h1></div>
-  <div class="cover in${!x.image && tgName(x) ? ' sq' : ''}" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x) + avatarImg(x, 'fill')}</div>
+  <div class="app-head in">${iconHTML(x, 'aic')}<div class="ah-t"><span class="muted">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1>${esc(x.title)}</h1><small id="live-sub" class="muted"></small></div></div>
   <div class="chips">${chips.map(([ic, t]) => `<span class="ichip" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
   <p class="about" id="about" ${x.description ? '' : 'hidden'}>${esc(x.description || '')}</p>
   ${x.note ? `<div class="note"><span class="tag" style="background:${c};color:var(--dark)">От редакции</span><p>${esc(x.note)}</p></div>` : ''}
-  ${x.channel ? `<a class="row" href="${esc(x.channel)}" target="_blank" rel="noopener" id="chan"><span class="thumb" style="--c:var(--yellow)">${ILL.channel()}</span><span class="row-t"><b><span>Канал проекта</span></b><small>${esc(x.channel.replace('https://', ''))}</small></span><span class="play">${PLAY}</span></a>` : ''}
+  ${x.channel ? `<a class="row" href="${esc(x.channel)}" target="_blank" rel="noopener" id="chan">${thumb({ id: 'chan-' + x.id, kind: 'channel', title: x.title, link: x.channel })}<span class="row-t"><b><span>Канал проекта</span></b><small>${esc(x.channel.replace('https://', ''))}</small></span><span class="play">${PLAY}</span></a>` : ''}
   ${st ? `<section class="panel"><div class="sec-h"><h2 class="sec">${st.week ? 'Игроки за неделю' : 'Показатели'}</h2><span class="muted" style="font-size:13px">30 дней</span></div>
     ${st.week ? chartHTML(st.week) : ''}
     <div class="kpis">${st.players ? `<div class="kpi"><b>${esc(st.players)}</b><span>игроков</span></div>` : ''}${st.session ? `<div class="kpi"><b>${esc(st.session)}</b><span>сессия</span></div>` : ''}${st.d7 ? `<div class="kpi"><b>${esc(st.d7)}</b><span>вернулись на 7 день</span></div>` : ''}</div></section>` : ''}
@@ -602,7 +538,7 @@ function item(id) {
     : `<span class="off">Ссылка появится скоро</span>`}</div></div>`;
   if (st && st.week) bindChart(st.week);
   liveInfo(x);
-  app.querySelector('#back').onclick = () => goBack();
+  const bk = app.querySelector('#back'); if (bk) bk.onclick = () => goBack();
   if (!S.admin) track(x.id, 'view');
   const tgOpen = (e, link) => { if (tg && /^https:\/\/t\.me\//.test(link)) { e.preventDefault(); try { tg.openTelegramLink(link); } catch (er) { location.href = link; } } };
   const open = app.querySelector('#open');
@@ -627,9 +563,9 @@ async function liveInfo(x) {
   const j = await fetch(`/api/tg/${n}${x.kind === 'channel' ? '?posts=1' : ''}`).then(r => r.json()).catch(() => null);
   if (!j || !j.ok || location.hash !== '#item-' + x.id) return;
   const chips = app.querySelector('.chips'), c = cssColor(x);
-  const add = (ic, t) => chips && chips.insertAdjacentHTML('afterbegin', `<span class="ichip in" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`);
-  if (j.monthly) add(IC.users, `${fmtN(j.monthly)} в месяц`);
-  if (j.subscribers && !x.subscribers) add(IC.users, `${fmtN(j.subscribers)} ${plural(j.subscribers, 'подписчик', 'подписчика', 'подписчиков')}`);
+  const sub = app.querySelector('#live-sub');
+  const t = j.subscribers ? `${fmtN(j.subscribers)} ${plural(j.subscribers, 'подписчик', 'подписчика', 'подписчиков')}` : j.monthly ? `${fmtN(j.monthly)} пользователей в месяц` : '';
+  if (sub && t) sub.textContent = t;
   const about = app.querySelector('#about');
   if (about && about.hidden && j.description) { about.textContent = j.description; about.hidden = false; }
   if (j.posts && j.posts.length) {
@@ -682,30 +618,80 @@ function submit() {
   const tab = S.subTab || 'add';
   app.innerHTML = `
   <h1 class="big in">${tab === 'mine' ? 'Мои <em>проекты</em>' : 'Добавить <em>свой</em> проект'}</h1>
-  ${inTg ? `<div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))" role="group"><button data-st="add" aria-pressed="${tab === 'add'}">Добавить</button><button data-st="mine" aria-pressed="${tab === 'mine'}">Мои проекты</button></div>` : ''}
+  ${inTg ? `<div class="sec-h" style="margin-top:-6px"><span class="muted" style="font-size:14px">${tab === 'mine' ? 'Заявки и статистика ваших проектов' : 'Добавлять может только владелец'}</span><a href="#submit" data-st="${tab === 'mine' ? 'add' : 'mine'}" style="color:var(--salmon)">${tab === 'mine' ? '+ Добавить' : 'Мои проекты →'}</a></div>` : ''}
   <div id="sub" style="display:flex;flex-direction:column;gap:16px"></div>`;
-  app.querySelectorAll('[data-st]').forEach(b => b.onclick = () => { S.subTab = b.dataset.st; haptic(); submit(); });
+  app.querySelectorAll('[data-st]').forEach(b => b.onclick = e => { e.preventDefault(); S.subTab = b.dataset.st; haptic(); submit(); });
   if (tab === 'mine' && inTg) myProjects(); else addProject();
 }
 
 function addProject() {
   const box = app.querySelector('#sub');
-  const k = S.addKind || 'game';
-  const how = {
-    game: ['Перешлите боту сообщение от @BotFather про вашего бота с игрой', 'В @BotFather: /mybots → выберите бота → перешлите ответ в BOX APPS.'],
-    bot: ['Перешлите боту сообщение от @BotFather про вашего бота', 'В @BotFather: /mybots → выберите бота → перешлите ответ в BOX APPS.'],
-    channel: ['Выберите свой канал из списка', 'Telegram покажет только каналы, которые создали вы.'],
-  }[k];
-  const link = S.data.bot ? `https://t.me/${S.data.bot}?start=add${k === 'channel' ? 'channel' : k}` : '';
-  box.innerHTML = `<div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(kk => `<button type="button" data-k="${kk}" aria-pressed="${k === kk}">${kindName(kk)}</button>`).join('')}</div>
-    <section class="hero in" style="gap:12px">${(ILL[k] || ILL.game)(HEX.ink, HEX.salmon, HEX.yellow, '#222226')}
-      <h2 style="font-size:24px">${how[0]}</h2>
-      <p>${how[1]} Так мы видим, что проект ваш: добавлять может только владелец.</p>
-      ${link ? `<a class="btn" id="go" href="${esc(link)}">Продолжить в боте<span class="play">${PLAY}</span></a>` : '<p class="msg">Бот ещё не подключён.</p>'}
-    </section>`;
-  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.addKind = b.dataset.k; haptic(); addProject(); });
-  const go = box.querySelector('#go');
-  if (go && tg) go.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(go.href); tg.close(); } catch (er) { location.href = go.href; } };
+  const F = S.form = S.form || { kind: 'game' };
+  const isChan = F.kind === 'channel';
+  const what = isChan ? 'канала' : F.kind === 'bot' ? 'бота' : 'бота с игрой';
+  const chatLink = S.data.bot ? `https://t.me/${S.data.bot}?start=add${F.kind}` : '';
+  const seg = `<div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${F.kind === k}">${kindName(k)}</button>`).join('')}</div>`;
+  if (!tg) {
+    box.innerHTML = seg + `<div class="empty">Добавить проект можно в Telegram: откройте BOX APPS ${S.data.bot ? `в <a href="https://t.me/${esc(S.data.bot)}" style="color:var(--salmon)">@${esc(S.data.bot)}</a>` : 'в боте'}.</div>`;
+    box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.form = { kind: b.dataset.k }; addProject(); });
+    return;
+  }
+  let body;
+  if (!F.verified) {
+    body = `<form class="form" id="vf" novalidate>
+      <div class="cells" style="grid-template-columns:minmax(0,1fr)">
+        <div class="cell"><label for="v-link">Юзернейм ${what}</label><input id="v-link" placeholder="@username" value="${esc(F.link || '')}" ${NOAUTO} inputmode="email" enterkeyhint="next"></div>
+        ${isChan ? '' : `<div class="cell"><label for="v-token">Токен бота</label><input id="v-token" type="password" placeholder="123456:ABC…" ${NOAUTO} enterkeyhint="go"><small>@BotFather → /mybots → бот → API Token. Нужен один раз для проверки, мы его не сохраняем.</small></div>`}
+      </div>
+      ${isChan ? `<div class="note"><span class="tag" style="background:var(--yellow);color:var(--dark)">Как подтвердить</span><p>Добавьте ${S.data.bot ? `<b>@${esc(S.data.bot)}</b>` : 'нашего бота'} в администраторы канала, права не нужны. Нажмите «Проверить». После проверки бота можно убрать.</p></div>` : ''}
+      ${F.error ? `<p class="msg">${esc(F.error)}</p>` : ''}
+      <button class="submit" type="submit">Проверить<span class="play">${PLAY}</span></button>
+      ${chatLink ? `<a href="${esc(chatLink)}" id="viachat" class="muted" style="text-align:center;font-size:14px">или добавить через чат с ботом</a>` : ''}
+    </form>`;
+  } else {
+    const cats = S.data.categories[F.kind].map(c => `<option ${F.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
+    body = `<div class="note"><span class="tag" style="background:var(--green);color:var(--dark)">✓ Подтверждено</span><p>@${esc(F.name)} ваш.${isChan ? ' Нашего бота можно убрать из админов.' : ''}</p></div>
+    <form class="form" id="f" novalidate>
+      <div class="cells">
+        <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64" value="${esc(F.title || '')}" enterkeyhint="next"></div>
+        <div class="cell"><label for="f-cat">Категория</label><select id="f-cat">${cats}</select></div>
+        <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600">${esc(F.description || '')}</textarea></div>
+      </div>
+      <p class="msg" id="f-msg" hidden></p>
+      <button class="submit" type="submit">Отправить на проверку<span class="play">${PLAY}</span></button>
+    </form>`;
+  }
+  box.innerHTML = seg + body;
+  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.form = { kind: b.dataset.k }; haptic(); addProject(); });
+  const vc = box.querySelector('#viachat');
+  if (vc) vc.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(vc.href); tg.close(); } catch (er) { location.href = vc.href; } };
+  const vf = box.querySelector('#vf');
+  if (vf) vf.onsubmit = async e => {
+    e.preventDefault();
+    F.link = vf.querySelector('#v-link').value; F.error = '';
+    const tok = vf.querySelector('#v-token');
+    const btn = vf.querySelector('.submit'); btn.disabled = true;
+    const j = await api('/api/claim', { method: 'POST', body: JSON.stringify({ kind: F.kind, link: F.link, token: tok ? tok.value : '' }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
+    if (j.ok) {
+      F.verified = true; F.name = j.name; F.link = 'https://t.me/' + j.name;
+      if (j.info) { F.title = j.info.title || j.name; F.description = j.info.description || ''; }
+      try { tg.HapticFeedback.notificationOccurred('success'); } catch (er) {}
+    } else { F.error = j.error || 'Не получилось'; try { tg.HapticFeedback.notificationOccurred('error'); } catch (er) {} }
+    addProject();
+  };
+  const f = box.querySelector('#f');
+  if (f) f.onsubmit = async e => {
+    e.preventDefault();
+    const msg = f.querySelector('#f-msg'); msg.hidden = true;
+    const btn = f.querySelector('.submit'); btn.disabled = true;
+    F.title = f.querySelector('#f-title').value; F.category = f.querySelector('#f-cat').value; F.description = f.querySelector('#f-desc').value;
+    const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind: F.kind, link: F.link, title: F.title, category: F.category, description: F.description }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
+    if (!j.ok) { msg.textContent = j.error || 'Не получилось отправить'; msg.hidden = false; btn.disabled = false; return; }
+    try { tg.HapticFeedback.notificationOccurred('success'); } catch (er) {}
+    S.form = null;
+    box.innerHTML = `<section class="hero in"><div class="hero-logo">${LOGO}</div><h2>Заявка отправлена</h2><p>Мы проверим проект и ответим в чате с ботом.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a><button class="btn ghost" id="toMine">Мои проекты</button></div></section>`;
+    box.querySelector('#toMine').onclick = () => { S.subTab = 'mine'; submit(); };
+  };
 }
 
 async function myProjects() {
@@ -719,7 +705,7 @@ async function myProjects() {
   box.innerHTML = (items.length ? `<div class="sec-h"><h2 class="sec">В каталоге</h2></div><div class="adm-list">${items.map(x => `<div class="adm-row">${rowHTML(x)}
       <div class="adm-meta"><span class="stat-chip">Просмотры <b>${x.hits.v || 0}</b> · 7 дн ${x.hits.v7 || 0}</span><span class="stat-chip">Переходы <b>${x.hits.o || 0}</b> · 7 дн ${x.hits.o7 || 0}</span></div></div>`).join('')}</div>` : '') +
     (subs.length ? `<div class="sec-h"><h2 class="sec">Заявки</h2></div><div class="rows">${subs.map(s => `<div class="row">${thumb({ id: s.sid, kind: s.kind, title: s.title, link: s.link })}<span class="row-t"><b><span>${esc(s.title)}</span></b><small>${kindName(s.kind)} · ${new Date(s.at).toLocaleDateString('ru-RU')}</small></span><span class="mini" style="--c:${STATUS[s.status][1]};${s.status === 'rejected' ? 'color:var(--muted)' : ''}">${STATUS[s.status][0]}</span></div>`).join('')}</div>` : '') +
-    (!items.length && !subs.length ? `<section class="hero">${ILL.box()}<h2>Пока пусто</h2><p>Добавьте свою игру, бота или канал.</p><button class="btn" id="toAdd">Добавить проект<span class="play">${PLAY}</span></button></section>` : '');
+    (!items.length && !subs.length ? `<section class="hero"><div class="hero-logo">${LOGO}</div><h2>Пока пусто</h2><p>Добавьте свою игру, бота или канал.</p><button class="btn" id="toAdd">Добавить проект<span class="play">${PLAY}</span></button></section>` : '');
   const ta = box.querySelector('#toAdd'); if (ta) ta.onclick = () => { S.subTab = 'add'; submit(); };
 }
 
@@ -1008,7 +994,7 @@ document.addEventListener('keydown', e => {
 
 async function boot() {
   try { await reloadCatalog(); }
-  catch (e) { app.innerHTML = `<section class="hero">${ILL.box()}<h2>Каталог не загрузился</h2><p>Проверьте интернет и обновите страницу.</p></section>`; return; }
+  catch (e) { app.innerHTML = `<section class="hero"><div class="hero-logo">${LOGO}</div><h2>Каталог не загрузился</h2><p>Проверьте интернет и обновите страницу.</p></section>`; return; }
   if (location.hash && !pageHash()) history.replaceState(null, '', location.pathname + location.search);
   if (tg) { try { tg.BackButton.hide(); tg.BackButton.onClick(goBack); } catch (e) {} }
   let hasKey = false; try { hasKey = Boolean(localStorage.getItem('boxapps-admin-key')); } catch (e) {}
