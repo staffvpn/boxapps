@@ -119,6 +119,8 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 .av.ok{opacity:1}
 .has-av > svg{visibility:hidden}
 .av.fill{inset:0;width:100%;height:100%}
+.cover.has-av{aspect-ratio:1/1;background:var(--surface);width:100%;max-width:480px;margin:0 auto}
+.cover .av.fill{border-radius:inherit}
 .av.round{left:50%;top:50%;width:min(56%,220px);height:auto;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(20,20,20,.12),0 18px 40px rgba(20,20,20,.25)}
 .fcard .art{aspect-ratio:240/180}
 .fcard .art .av.round{width:72%}
@@ -156,10 +158,24 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 .note p{margin:0}
 .cta{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:12px var(--side) calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 35%)}
 .cta-in{max-width:760px;margin:0 auto;display:flex;gap:10px}
-.cta a,.cta span.off{flex:1;display:flex;align-items:center;gap:14px;height:66px;border-radius:999px;background:var(--green);color:var(--dark);padding:0 22px 0 9px;font:600 16px/1 var(--font)}
-.cta .play{width:50px;height:50px;background:var(--dark);color:var(--ink)}
-.cta .arr{margin-left:auto;letter-spacing:-2px;opacity:.55;font-weight:700}
-.cta span.off{background:var(--surface-2);color:var(--muted);justify-content:center}
+.cta span.off{flex:1;display:flex;align-items:center;justify-content:center;height:66px;border-radius:999px;background:var(--surface-2);color:var(--muted);font:600 16px/1 var(--font)}
+/* кнопка-свайп: круг тянется от левого края к правому */
+.swipe{--k:52px;--x:0px;position:relative;flex:1;height:68px;border-radius:999px;background:var(--green);color:var(--dark);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;outline-offset:3px}
+.swipe .sw-fill{position:absolute;left:0;top:0;bottom:0;width:calc(var(--x) + var(--k) + 16px);border-radius:999px;background:rgba(20,20,20,.12)}
+.swipe .sw-text{position:absolute;inset:0;display:flex;align-items:center;padding-left:calc(var(--k) + 30px);font:600 16.5px/1 var(--font);opacity:var(--t,1);pointer-events:none}
+.swipe .sw-arr{position:absolute;right:22px;top:50%;transform:translateY(-50%);display:flex;gap:1px;font:700 20px/1 var(--font);opacity:var(--t,1);pointer-events:none}
+.swipe .sw-arr i{font-style:normal;animation:chev 1.4s ease-in-out infinite;opacity:.25}
+.swipe .sw-arr i:nth-child(2){animation-delay:.18s}.swipe .sw-arr i:nth-child(3){animation-delay:.36s}
+@keyframes chev{50%{opacity:.85}}
+.swipe .sw-knob{position:absolute;left:8px;top:8px;width:var(--k);height:var(--k);border-radius:50%;background:var(--dark);color:var(--ink);display:grid;place-items:center;transform:translateX(var(--x));box-shadow:0 4px 14px rgba(20,20,20,.25)}
+.swipe .sw-knob svg{width:18px;height:18px;margin-left:2px}
+.swipe.idle .sw-knob{animation:nudge 2.6s ease-in-out 1s infinite}
+@keyframes nudge{0%,62%,100%{transform:translateX(0)}72%{transform:translateX(22px)}82%{transform:translateX(0)}88%{transform:translateX(9px)}}
+.swipe.anim .sw-knob,.swipe.anim .sw-fill{transition:transform .45s cubic-bezier(.3,.8,.2,1),width .45s cubic-bezier(.3,.8,.2,1)}
+.swipe.anim .sw-text,.swipe.anim .sw-arr{transition:opacity .3s}
+.swipe.done{background:var(--ink)}
+.swipe.done .sw-knob{background:var(--green);color:var(--dark)}
+.swipe:active{cursor:grabbing}
 
 /* график */
 .panel{border-radius:var(--r-l);background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
@@ -563,7 +579,7 @@ function item(id) {
   <div class="topbar"><button class="circ" id="back" aria-label="Назад">${IC.back}</button>
     <div class="head-r">${S.admin ? `<a class="circ" href="#admin-edit-${x.id}" aria-label="Редактировать">${IC.edit}</a>` : ''}<button class="circ" id="share" aria-label="Поделиться">${IC.share}</button></div></div>
   <div class="in" style="display:flex;flex-direction:column;gap:8px"><span class="muted">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1 class="big">${esc(x.title)}</h1></div>
-  <div class="cover in" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x) + avatarImg(x, 'round')}</div>
+  <div class="cover in" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x) + avatarImg(x, 'fill')}</div>
   <div class="chips">${chips.map(([ic, t]) => `<span class="ichip" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
   ${x.description ? `<p class="about">${esc(x.description)}</p>` : ''}
   ${x.note ? `<div class="note"><span class="tag" style="background:${c};color:var(--dark)">От редакции</span><p>${esc(x.note)}</p></div>` : ''}
@@ -573,14 +589,18 @@ function item(id) {
     <div class="kpis">${st.players ? `<div class="kpi"><b>${esc(st.players)}</b><span>игроков</span></div>` : ''}${st.session ? `<div class="kpi"><b>${esc(st.session)}</b><span>сессия</span></div>` : ''}${st.d7 ? `<div class="kpi"><b>${esc(st.d7)}</b><span>вернулись на 7 день</span></div>` : ''}</div></section>` : ''}
   ${similar.length ? `<div class="sec-h"><h2 class="sec">Похожие</h2></div>${rowsHTML(similar)}` : ''}
   <div class="cta"><div class="cta-in">${x.link
-    ? `<a href="${esc(x.link)}" target="_blank" rel="noopener" id="open"><span class="play">${PLAY}</span>${openLabel(x.kind)}<span class="arr">›››</span></a>`
+    ? `<div class="swipe idle" id="open" role="button" tabindex="0" aria-label="${openLabel(x.kind)}: перетащите или нажмите"><span class="sw-fill"></span><span class="sw-text">${openLabel(x.kind)}</span><span class="sw-arr"><i>›</i><i>›</i><i>›</i></span><span class="sw-knob">${PLAY}</span></div>`
     : `<span class="off">Ссылка появится скоро</span>`}</div></div>`;
   if (st && st.week) bindChart(st.week);
   app.querySelector('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '');
   if (!S.admin) track(x.id, 'view');
   const tgOpen = (e, link) => { if (tg && /^https:\/\/t\.me\//.test(link)) { e.preventDefault(); try { tg.openTelegramLink(link); } catch (er) { location.href = link; } } };
   const open = app.querySelector('#open');
-  if (open) open.onclick = e => { if (!S.admin) track(x.id, 'open'); try { tg && tg.HapticFeedback.impactOccurred('medium'); } catch (er) {} tgOpen(e, x.link); };
+  if (open) swipeButton(open, () => {
+    if (!S.admin) track(x.id, 'open');
+    if (tg && /^https:\/\/t\.me\//.test(x.link)) { try { tg.openTelegramLink(x.link); return; } catch (er) {} }
+    location.href = x.link;
+  });
   const chan = app.querySelector('#chan'); if (chan) chan.onclick = e => tgOpen(e, x.channel);
   app.querySelector('#share').onclick = async () => {
     const url = shareUrl(x);
@@ -588,6 +608,42 @@ function item(id) {
     if (navigator.share) { try { await navigator.share({ title: x.title, url }); return; } catch (e) {} }
     try { await navigator.clipboard.writeText(url); } catch (e) {}
   };
+}
+
+/* ---------- кнопка-свайп ---------- */
+function swipeButton(el, onDone) {
+  const knob = el.querySelector('.sw-knob');
+  let max = 0, start = 0, x = 0, drag = false, moved = false, t0 = 0, busy = false;
+  const set = v => { x = v; el.style.setProperty('--x', v + 'px'); el.style.setProperty('--t', String(Math.max(0, 1 - v / (max * .6)))); };
+  const measure = () => { max = el.clientWidth - knob.offsetWidth - 16; };
+  const finish = () => {
+    busy = true; el.classList.add('anim'); el.classList.remove('idle'); set(max);
+    try { tg && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    setTimeout(() => { el.classList.add('done'); onDone(); }, 420);
+    setTimeout(() => { el.classList.remove('done'); set(0); setTimeout(() => { el.classList.remove('anim'); el.classList.add('idle'); busy = false; }, 460); }, 1600);
+  };
+  const back = () => { el.classList.add('anim'); set(0); setTimeout(() => { el.classList.remove('anim'); el.classList.add('idle'); }, 460); };
+  el.addEventListener('pointerdown', e => {
+    if (busy) return;
+    measure(); drag = true; moved = false; t0 = Date.now(); start = e.clientX - x;
+    el.classList.remove('idle', 'anim'); el.setPointerCapture(e.pointerId);
+    try { tg && tg.HapticFeedback.impactOccurred('light'); } catch (er) {}
+  });
+  el.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const v = Math.max(0, Math.min(max, e.clientX - start));
+    if (Math.abs(v - x) > 2) moved = true;
+    set(v);
+  });
+  const up = () => {
+    if (!drag) return; drag = false;
+    if (x >= max * .82) finish();
+    else if (!moved && Date.now() - t0 < 350) finish(); // обычное нажатие — круг сам проезжает до конца
+    else back();
+  };
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', () => { drag = false; back(); });
+  el.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !busy) { e.preventDefault(); measure(); finish(); } });
 }
 
 /* ---------- заявка ---------- */
