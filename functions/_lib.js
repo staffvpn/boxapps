@@ -95,7 +95,7 @@ export async function createSubmission(env, sub) {
   await kvPut(env, 'pending', pending.slice(-200));
   if (sub.user_id) await trackMine(env, sub.user_id, { sid: sub.sid, title: sub.title, kind: sub.kind, link: sub.link, status: 'pending', at: sub.at });
   const who = sub.username ? '@' + sub.username : sub.user_id ? String(sub.user_id) : (sub.contact || 'с сайта');
-  const text = `Новая заявка от ${esc(who)}\n${sub.verified ? '✅ Владелец подтверждён' : '⚠️ Владение не подтверждено'}\n\n<b>${esc(sub.title)}</b> · ${kindLabel(sub.kind)} · ${esc(sub.category)}\n${esc(sub.link)}\n\n${esc(sub.description)}`;
+  const text = `Новая заявка от ${esc(who)}\n\n<b>${esc(sub.title)}</b> · ${kindLabel(sub.kind)} · ${esc(sub.category)}\n${esc(sub.link)}\n\n${esc(sub.description)}`;
   await Promise.all(admins(env).map(id => tgApi(env, 'sendMessage', {
     chat_id: id, text, parse_mode: 'HTML', disable_web_page_preview: true,
     reply_markup: { inline_keyboard: [[{ text: 'Добавить', callback_data: `mod:ok:${sub.sid}` }, { text: 'Отклонить', callback_data: `mod:no:${sub.sid}` }]] },
@@ -113,7 +113,7 @@ export async function approveSubmission(env, sid) {
   let id = slug(sub.title);
   while (items.some(x => x.id === id)) id += '-' + Math.floor(Math.random() * 90 + 10);
   const item = { id, kind: KINDS[sub.kind] ? sub.kind : 'game', title: sub.title, categories: [sub.category], link: sub.link, description: sub.description || '', createdAt: Date.now() };
-  if (sub.verified) { item.verified = true; if (sub.user_id) item.owner = sub.user_id; }
+  if (sub.user_id) item.owner = sub.user_id;
   items.push(item);
   await saveItems(env, items);
   if (sub.user_id) await trackMine(env, sub.user_id, { sid, status: 'approved', item: id });
@@ -141,6 +141,3 @@ export async function currentUser(request, env) {
   return verifyInitData(request.headers.get('x-tg-init-data'), env.BOT_TOKEN);
 }
 
-// Подтверждённые владельцы: own:<username> → { user_id, at }
-export async function setOwner(env, name, uid, via) { await kvPut(env, 'own:' + name.toLowerCase(), { user_id: uid || 0, via, at: Date.now() }); }
-export async function getOwner(env, name) { return kvGet(env, 'own:' + String(name).toLowerCase(), null); }

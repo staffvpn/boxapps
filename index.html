@@ -618,7 +618,7 @@ function submit() {
   const tab = S.subTab || 'add';
   app.innerHTML = `
   <h1 class="big in">${tab === 'mine' ? 'Мои <em>проекты</em>' : 'Добавить <em>свой</em> проект'}</h1>
-  ${inTg ? `<div class="sec-h" style="margin-top:-6px"><span class="muted" style="font-size:14px">${tab === 'mine' ? 'Заявки и статистика ваших проектов' : 'Добавлять может только владелец'}</span><a href="#submit" data-st="${tab === 'mine' ? 'add' : 'mine'}" style="color:var(--salmon)">${tab === 'mine' ? '+ Добавить' : 'Мои проекты →'}</a></div>` : ''}
+  ${inTg ? `<div class="sec-h" style="margin-top:-6px"><span class="muted" style="font-size:14px">${tab === 'mine' ? 'Заявки и статистика ваших проектов' : 'Игра, бот или канал'}</span><a href="#submit" data-st="${tab === 'mine' ? 'add' : 'mine'}" style="color:var(--salmon)">${tab === 'mine' ? '+ Добавить' : 'Мои проекты →'}</a></div>` : ''}
   <div id="sub" style="display:flex;flex-direction:column;gap:16px"></div>`;
   app.querySelectorAll('[data-st]').forEach(b => b.onclick = e => { e.preventDefault(); S.subTab = b.dataset.st; haptic(); submit(); });
   if (tab === 'mine' && inTg) myProjects(); else addProject();
@@ -627,70 +627,34 @@ function submit() {
 function addProject() {
   const box = app.querySelector('#sub');
   const F = S.form = S.form || { kind: 'game' };
-  const isChan = F.kind === 'channel';
-  const what = isChan ? 'канала' : F.kind === 'bot' ? 'бота' : 'бота с игрой';
-  const chatLink = S.data.bot ? `https://t.me/${S.data.bot}?start=add${F.kind}` : '';
-  const seg = `<div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${F.kind === k}">${kindName(k)}</button>`).join('')}</div>`;
-  if (!tg) {
-    box.innerHTML = seg + `<div class="empty">Добавить проект можно в Telegram: откройте BOX APPS ${S.data.bot ? `в <a href="https://t.me/${esc(S.data.bot)}" style="color:var(--salmon)">@${esc(S.data.bot)}</a>` : 'в боте'}.</div>`;
-    box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.form = { kind: b.dataset.k }; addProject(); });
-    return;
-  }
-  let body;
-  if (!F.verified) {
-    body = `<form class="form" id="vf" novalidate>
-      <div class="cells" style="grid-template-columns:minmax(0,1fr)">
-        <div class="cell"><label for="v-link">Юзернейм ${what}</label><input id="v-link" placeholder="@username" value="${esc(F.link || '')}" ${NOAUTO} inputmode="email" enterkeyhint="next"></div>
-        ${isChan ? '' : `<div class="cell"><label for="v-token">Токен бота</label><input id="v-token" type="password" placeholder="123456:ABC…" ${NOAUTO} enterkeyhint="go"><small>@BotFather → /mybots → бот → API Token. Нужен один раз для проверки, мы его не сохраняем.</small></div>`}
-      </div>
-      ${isChan ? `<div class="note"><span class="tag" style="background:var(--yellow);color:var(--dark)">Как подтвердить</span><p>Добавьте ${S.data.bot ? `<b>@${esc(S.data.bot)}</b>` : 'нашего бота'} в администраторы канала, права не нужны. Нажмите «Проверить». После проверки бота можно убрать.</p></div>` : ''}
-      ${F.error ? `<p class="msg">${esc(F.error)}</p>` : ''}
-      <button class="submit" type="submit">Проверить<span class="play">${PLAY}</span></button>
-      ${chatLink ? `<a href="${esc(chatLink)}" id="viachat" class="muted" style="text-align:center;font-size:14px">или добавить через чат с ботом</a>` : ''}
-    </form>`;
-  } else {
-    const cats = S.data.categories[F.kind].map(c => `<option ${F.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
-    body = `<div class="note"><span class="tag" style="background:var(--green);color:var(--dark)">✓ Подтверждено</span><p>@${esc(F.name)} ваш.${isChan ? ' Нашего бота можно убрать из админов.' : ''}</p></div>
+  const what = F.kind === 'channel' ? 'канала' : F.kind === 'bot' ? 'бота' : 'бота с игрой';
+  const cats = S.data.categories[F.kind].map(c => `<option ${F.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
+  box.innerHTML = `<div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${F.kind === k}">${kindName(k)}</button>`).join('')}</div>
     <form class="form" id="f" novalidate>
       <div class="cells">
+        <div class="cell"><label for="f-link">Юзернейм ${what}</label><input id="f-link" placeholder="@username" value="${esc(F.link || '')}" ${NOAUTO} inputmode="email" enterkeyhint="next"></div>
         <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64" value="${esc(F.title || '')}" enterkeyhint="next"></div>
         <div class="cell"><label for="f-cat">Категория</label><select id="f-cat">${cats}</select></div>
+        ${tg ? '' : `<div class="cell"><label for="f-contact">Ваш контакт</label><input id="f-contact" placeholder="@username" maxlength="64" ${NOAUTO} inputmode="email"></div>`}
         <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600">${esc(F.description || '')}</textarea></div>
       </div>
       <p class="msg" id="f-msg" hidden></p>
-      <button class="submit" type="submit">Отправить на проверку<span class="play">${PLAY}</span></button>
+      <button class="submit" type="submit">Отправить заявку<span class="play">${PLAY}</span></button>
     </form>`;
-  }
-  box.innerHTML = seg + body;
-  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.form = { kind: b.dataset.k }; haptic(); addProject(); });
-  const vc = box.querySelector('#viachat');
-  if (vc) vc.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(vc.href); tg.close(); } catch (er) { location.href = vc.href; } };
-  const vf = box.querySelector('#vf');
-  if (vf) vf.onsubmit = async e => {
-    e.preventDefault();
-    F.link = vf.querySelector('#v-link').value; F.error = '';
-    const tok = vf.querySelector('#v-token');
-    const btn = vf.querySelector('.submit'); btn.disabled = true;
-    const j = await api('/api/claim', { method: 'POST', body: JSON.stringify({ kind: F.kind, link: F.link, token: tok ? tok.value : '' }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
-    if (j.ok) {
-      F.verified = true; F.name = j.name; F.link = 'https://t.me/' + j.name;
-      if (j.info) { F.title = j.info.title || j.name; F.description = j.info.description || ''; }
-      try { tg.HapticFeedback.notificationOccurred('success'); } catch (er) {}
-    } else { F.error = j.error || 'Не получилось'; try { tg.HapticFeedback.notificationOccurred('error'); } catch (er) {} }
-    addProject();
-  };
   const f = box.querySelector('#f');
-  if (f) f.onsubmit = async e => {
-    e.preventDefault();
+  const keep = () => { F.link = f.querySelector('#f-link').value; F.title = f.querySelector('#f-title').value; F.category = f.querySelector('#f-cat').value; F.description = f.querySelector('#f-desc').value; };
+  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { keep(); F.kind = b.dataset.k; F.category = ''; haptic(); addProject(); });
+  f.onsubmit = async e => {
+    e.preventDefault(); keep();
     const msg = f.querySelector('#f-msg'); msg.hidden = true;
     const btn = f.querySelector('.submit'); btn.disabled = true;
-    F.title = f.querySelector('#f-title').value; F.category = f.querySelector('#f-cat').value; F.description = f.querySelector('#f-desc').value;
-    const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind: F.kind, link: F.link, title: F.title, category: F.category, description: F.description }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
+    const contact = f.querySelector('#f-contact');
+    const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind: F.kind, link: F.link, title: F.title, category: F.category, description: F.description, contact: contact ? contact.value : '' }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
     if (!j.ok) { msg.textContent = j.error || 'Не получилось отправить'; msg.hidden = false; btn.disabled = false; return; }
-    try { tg.HapticFeedback.notificationOccurred('success'); } catch (er) {}
+    try { tg && tg.HapticFeedback.notificationOccurred('success'); } catch (er) {}
     S.form = null;
-    box.innerHTML = `<section class="hero in"><div class="hero-logo">${LOGO}</div><h2>Заявка отправлена</h2><p>Мы проверим проект и ответим в чате с ботом.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a><button class="btn ghost" id="toMine">Мои проекты</button></div></section>`;
-    box.querySelector('#toMine').onclick = () => { S.subTab = 'mine'; submit(); };
+    box.innerHTML = `<section class="hero in"><div class="hero-logo">${LOGO}</div><h2>Заявка отправлена</h2><p>Мы посмотрим проект и ответим${tg ? ' в чате с ботом' : ''}.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a>${tg ? '<button class="btn ghost" id="toMine">Мои проекты</button>' : ''}</div></section>`;
+    const tm = box.querySelector('#toMine'); if (tm) tm.onclick = () => { S.subTab = 'mine'; submit(); };
   };
 }
 
