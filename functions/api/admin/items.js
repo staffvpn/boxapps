@@ -34,14 +34,26 @@ function clean(b, CATEGORIES) {
   return it;
 }
 
+// Просмотры и переходы: всего и за последние 7 дней.
+async function loadHits(env) {
+  if (!env.DB) return {};
+  try {
+    const since = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
+    const { results } = await env.DB.prepare(
+      'SELECT id, SUM(views) v, SUM(opens) o, SUM(CASE WHEN day >= ?1 THEN views ELSE 0 END) v7, SUM(CASE WHEN day >= ?1 THEN opens ELSE 0 END) o7 FROM hits GROUP BY id'
+    ).bind(since).all();
+    return Object.fromEntries(results.map(r => [r.id, { v: r.v, o: r.o, v7: r.v7, o7: r.o7 }]));
+  } catch { return {}; }
+}
+
 export async function onRequest({ request, env }) {
   if (!(await isAdmin(request, env))) return json({ ok: false, error: 'Нет доступа' }, 403);
   if (!env.STORE) return json({ ok: false, error: 'Хранилище не подключено' }, 503);
   const url = new URL(request.url);
 
   if (request.method === 'GET') {
-    const [items, pending] = await Promise.all([fullCatalog(env), kvGet(env, 'pending', [])]);
-    return json({ ok: true, items, pending: pending.length });
+    const [items, pending, hits] = await Promise.all([fullCatalog(env), kvGet(env, 'pending', []), loadHits(env)]);
+    return json({ ok: true, items, pending: pending.length, hits });
   }
   if (request.method === 'POST') {
     let b;
@@ -64,6 +76,7 @@ export async function onRequest({ request, env }) {
     const items = await storedItems(env);
     await saveItems(env, items.filter(x => x.id !== id));
     await env.STORE.delete('img:' + id);
+    if (env.DB) await env.DB.prepare('DELETE FROM hits WHERE id = ?1').bind(id).run().catch(() => {});
     return json({ ok: true });
   }
   return json({ ok: false }, 405);

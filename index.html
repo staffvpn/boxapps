@@ -52,17 +52,25 @@ img{max-width:100%;display:block}
 .promo p{margin:0;font-size:12px;color:#B5B5AE}
 .btn-lime{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--lime);color:var(--ink);border:0;padding:10px 14px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;align-self:flex-start}
 
+.mhead{position:sticky;top:0;z-index:5;background:var(--ink)}
+@media (min-width:980px){.mhead{display:none}}
+/* в полноэкранном режиме Telegram кладёт свои кнопки поверх верха экрана — опускаем шапку под них */
 .mtop{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--ink);color:#fff;
-  padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));position:sticky;top:0;z-index:5}
-@media (min-width:980px){.mtop{display:none}}
+  padding:calc(14px + max(env(safe-area-inset-top,0px), calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px)))) max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
 .mtop .logo{padding:0;font-size:19px}
-.mtabs{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--ink);border-top:1px solid #2b2b29;
-  padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));position:sticky;top:calc(51px + env(safe-area-inset-top,0px));z-index:4}
-@media (min-width:980px){.mtabs{display:none}}
-.mtabs a{flex:none;padding:11px 12px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:#BDBDB6}
-.mtabs a[aria-current="page"]{color:var(--ink);background:var(--lime)}
+.mt-r{display:flex;gap:8px;align-items:center}
+.ibtn{width:34px;height:34px;display:grid;place-items:center;border:1px solid #3a3a38;color:#fff;position:relative}
+.ibtn .dot{position:absolute;top:-5px;right:-5px;background:var(--violet);color:#fff;font:700 9px/1 var(--mono);padding:3px 4px}
+/* нижнее меню на телефоне — под большой палец */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--ink);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  padding:0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);border-top:1px solid #2b2b29}
+@media (min-width:980px){.bnav{display:none}}
+.bnav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:9px 2px 10px;color:#9d9d97;font:800 9.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;position:relative}
+.bnav a svg{width:21px;height:21px}
+.bnav a[aria-current="page"]{color:var(--lime)}
+.bnav a[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--lime)}
 
-.main{min-width:0;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.main{min-width:0;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(92px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 @media (min-width:980px){.main{padding:22px 24px 32px}}
 .frame{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .box{background:var(--card);border:var(--b);min-width:0}
@@ -71,7 +79,7 @@ img{max-width:100%;display:block}
 .box-f:hover{background:var(--lime)}
 
 .hello{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:18px;border:var(--b);background:var(--card)}
-.hello h1{margin:0;font:900 clamp(28px,6vw,44px)/.95 var(--sans);letter-spacing:-.02em;text-transform:uppercase;text-wrap:balance;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hello h1{margin:0;font:900 clamp(26px,6vw,44px)/.95 var(--sans);letter-spacing:-.02em;text-transform:uppercase;text-wrap:balance;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .hello h1 .tag{background:var(--lime);padding:0 8px}
 .hello p{margin:6px 0 0;font-size:13px}
 .chip{display:inline-flex;align-items:center;gap:8px;border:var(--b);padding:8px 12px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;background:var(--card);cursor:pointer}
@@ -123,9 +131,9 @@ img{max-width:100%;display:block}
 .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .chiprow{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 100%;min-width:0}
 @media (max-width:700px){.chiprow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px)));padding:0 max(16px,env(safe-area-inset-right,0px)) 2px}.chiprow::-webkit-scrollbar{display:none}.chiprow .cat{flex:none}}
-.cat{border:var(--b);background:var(--card);padding:8px 11px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.cat{border:var(--b);background:var(--card);padding:11px 14px;font:800 12.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
 .cat[aria-pressed="true"]{background:var(--lime)}
-.find{display:flex;align-items:center;gap:8px;border:var(--b);background:var(--card);padding:0 12px;flex:1 1 200px;min-width:0;height:35px}
+.find{display:flex;align-items:center;gap:8px;border:var(--b);background:var(--card);padding:0 12px;flex:1 1 200px;min-width:0;height:40px}
 .find input{border:0;background:none;outline:none;width:100%;min-width:0;font:700 12px/1 var(--sans);text-transform:uppercase;letter-spacing:.04em}
 .find input::placeholder{color:var(--muted)}
 
@@ -147,6 +155,29 @@ img{max-width:100%;display:block}
 .blank{padding:34px 18px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
 .blank h2{margin:0;font:900 clamp(26px,5vw,36px)/.95 var(--sans);text-transform:uppercase;letter-spacing:-.02em}
 
+.strip{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline:14px;padding:14px;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.tile{flex:none;width:172px;height:116px;border:var(--b);background:var(--card);display:flex;flex-direction:column;justify-content:space-between;padding:12px;scroll-snap-align:start;transition:background .15s}
+.tile:hover,.tile:active{background:var(--lime)}
+.tile.dark{background:var(--ink);color:#fff}
+.tile.dark .mono{color:#9d9d97}
+.tile .mono{font-size:12px;color:var(--muted);align-self:flex-end}
+.tile b{font:900 15.5px/1.05 var(--sans);text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
+.seg{display:flex;border:var(--b)}
+.seg button{border:0;background:var(--card);padding:7px 10px;font:800 10.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.seg button+button{border-left:var(--b)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.gsearch{display:flex;align-items:center;gap:10px;border:var(--b);background:var(--card);height:52px;padding:0 14px}
+.gsearch svg{flex:none}
+.gsearch input{flex:1;min-width:0;border:0;background:none;outline:none;font:800 15px/1 var(--sans);text-transform:uppercase;letter-spacing:.02em}
+.gsearch input::placeholder{color:var(--muted)}
+.gsearch button{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:4px}
+.fav{width:48px;height:48px;flex:none;display:grid;place-items:center;border:var(--b);background:var(--card);cursor:pointer}
+.fav svg{width:20px;height:20px}
+.fav[aria-pressed="true"]{background:var(--lime)}
+.fav[aria-pressed="true"] path{fill:var(--ink)}
+.hits{font:700 11.5px/1.35 var(--mono);white-space:nowrap}
+.hits small{display:block;color:var(--muted);font-weight:500}
 .cats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (min-width:700px){.cats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .cats-grid a{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:16px 14px;min-height:92px;border-right:1px solid var(--hair);border-bottom:1px solid var(--hair)}
@@ -156,7 +187,7 @@ img{max-width:100%;display:block}
 
 .prod{display:grid;grid-template-columns:minmax(0,1fr)}
 @media (min-width:760px){.prod{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
-@media (max-width:759px){.prod .cover{border-right:0;border-bottom:var(--b);aspect-ratio:4/3}}
+@media (max-width:759px){.prod .cover{border-right:0;border-bottom:var(--b);aspect-ratio:16/10}}
 .prod-b{padding:18px;display:flex;flex-direction:column;gap:14px}
 .prod-b h1{margin:0;font:900 clamp(30px,6vw,46px)/.92 var(--sans);text-transform:uppercase;letter-spacing:-.02em;overflow-wrap:anywhere}
 .prod-b .desc{margin:0;font-size:14px;line-height:1.55;max-width:56ch;white-space:pre-line}
@@ -168,7 +199,7 @@ img{max-width:100%;display:block}
 .kv b{font:900 16px/1.1 var(--sans);text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
 .note{border-left:4px solid var(--lime);background:var(--ink);color:#fff;padding:12px 14px;font-size:13.5px}
 .note .lbl{color:var(--lime);display:block;margin-bottom:4px}
-.actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:10px}
+.actions{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.4fr);gap:10px}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 16px;border:var(--b);background:var(--card);font:900 12px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
 .btn.dark{background:var(--ink);color:#fff;justify-content:space-between}
 .btn.dark:hover{background:var(--ink-2)}
@@ -254,6 +285,7 @@ img{max-width:100%;display:block}
       <a href="#games" data-nav="games"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="16" height="9" rx="1"/><path d="M6 9v3M4.5 10.5h3M13 10h.01M15 11.5h.01"/></svg>Игры<span class="cnt" data-cnt="game"></span></a>
       <a href="#bots" data-nav="bots"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="12" height="10"/><path d="M10 3v3M7.5 10.5h.01M12.5 10.5h.01M8 13.5h4"/></svg>Боты<span class="cnt" data-cnt="bot"></span></a>
       <a href="#channels" data-nav="channels"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8v4l9 4V4zM12 7h3a2 2 0 010 4h-3"/></svg>Каналы<span class="cnt" data-cnt="channel"></span></a>
+      <a href="#saved" data-nav="saved"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 16.5S3 12.3 3 7.6A3.6 3.6 0 0110 6a3.6 3.6 0 017 1.6c0 4.7-7 8.9-7 8.9z"/></svg>Избранное<span class="cnt" data-fav-cnt hidden></span></a>
       <a href="#categories" data-nav="categories"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h9"/></svg>Категории</a>
       <a href="#submit" data-nav="submit"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 4v12M4 10h12"/></svg>Предложить</a>
       <div class="sep admin-only" hidden></div>
@@ -267,21 +299,31 @@ img{max-width:100%;display:block}
   </aside>
 
   <div style="min-width:0">
-    <header class="mtop"><a class="logo" href="#"><i></i>BOX APPS</a><a class="btn-lime" href="#submit" style="padding:8px 10px">+ Проект</a></header>
-    <nav class="mtabs" aria-label="Разделы">
-      <a href="#" data-nav="">Обзор</a><a href="#games" data-nav="games">Игры</a><a href="#bots" data-nav="bots">Боты</a><a href="#channels" data-nav="channels">Каналы</a><a href="#categories" data-nav="categories">Категории</a><a href="#submit" data-nav="submit">Предложить</a><a href="#admin" data-nav="admin" class="admin-only" hidden>Админка</a>
-    </nav>
+    <div class="mhead"><header class="mtop"><a class="logo" href="#"><i></i>BOX APPS</a>
+      <div class="mt-r"><a class="ibtn admin-only" href="#admin" aria-label="Админка" hidden><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="2.5"/><path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5M4.7 4.7l1.8 1.8M13.5 13.5l1.8 1.8M4.7 15.3l1.8-1.8M13.5 6.5l1.8-1.8"/></svg><span class="dot" id="m-pend" hidden></span></a><a class="btn-lime" href="#submit" style="padding:9px 11px">+ Проект</a></div></header></div>
     <main class="main"><div class="frame" id="app"><div class="loading">BOX APPS</div></div></main>
+    <nav class="bnav" aria-label="Разделы">
+      <a href="#" data-nav=""><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="5.5" height="5.5"/><rect x="11.5" y="3" width="5.5" height="5.5"/><rect x="3" y="11.5" width="5.5" height="5.5"/><rect x="11.5" y="11.5" width="5.5" height="5.5"/></svg>Главная</a>
+      <a href="#games" data-nav="games"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="16" height="9" rx="1"/><path d="M6 9v3M4.5 10.5h3M13 10h.01M15 11.5h.01"/></svg>Игры</a>
+      <a href="#bots" data-nav="bots"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="12" height="10"/><path d="M10 3v3M7.5 10.5h.01M12.5 10.5h.01M8 13.5h4"/></svg>Боты</a>
+      <a href="#channels" data-nav="channels"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8v4l9 4V4zM12 7h3a2 2 0 010 4h-3"/></svg>Каналы</a>
+      <a href="#saved" data-nav="saved"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 16.5S3 12.3 3 7.6A3.6 3.6 0 0110 6a3.6 3.6 0 017 1.6c0 4.7-7 8.9-7 8.9z"/></svg>Избранное</a>
+    </nav>
   </div>
 </div>
 
 <script>
 const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ? window.Telegram.WebApp : null;
-if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor('#111111'); tg.setBackgroundColor('#ECECE8'); } catch (e) {} }
+if (tg) {
+  try { tg.ready(); tg.expand(); tg.setHeaderColor('#111111'); tg.setBackgroundColor('#ECECE8'); tg.setBottomBarColor && tg.setBottomBarColor('#ECECE8'); } catch (e) {}
+  // на телефоне — во весь экран и без закрытия свайпом вниз при прокрутке
+  try { if (['ios', 'android'].includes(tg.platform) && tg.isVersionAtLeast('8.0')) tg.requestFullscreen(); } catch (e) {}
+  try { if (tg.isVersionAtLeast('7.7')) tg.disableVerticalSwipes(); } catch (e) {}
+}
 
 const KIND_HASH = { game: 'games', bot: 'bots', channel: 'channels' };
 const HASH_KIND = { games: 'game', bots: 'bot', channels: 'channel' };
-const S = { data: null, kind: 'game', cat: 'all', q: '', admin: false, adm: { items: [], pending: [], tab: 'items' } };
+const S = { data: null, kind: 'game', cat: 'all', q: '', home: 'game', admin: false, adm: { items: [], pending: [], tab: 'items' } };
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const kindName = k => ({ game: 'Игра', bot: 'Бот', channel: 'Канал' }[k] || k);
@@ -295,6 +337,34 @@ const sq = (x, i) => x.image ? `<span class="sq"><img src="${esc(x.image)}" alt=
 const coverHTML = x => x.image ? `<img src="${esc(x.image)}" alt="">` : `<b>${glyph(x)}</b>`;
 const starsOf = r => { const n = Math.round(r || 0); return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); };
 const byRating = arr => [...arr].sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.createdAt || 0) - (a.createdAt || 0));
+
+/* ---------- избранное: облако Telegram, в браузере — localStorage ---------- */
+const FAV = new Set();
+const HEART = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 16.5S3 12.3 3 7.6A3.6 3.6 0 0110 6a3.6 3.6 0 017 1.6c0 4.7-7 8.9-7 8.9z"/></svg>';
+const cloud = () => tg && tg.CloudStorage && tg.isVersionAtLeast && tg.isVersionAtLeast('6.9') ? tg.CloudStorage : null;
+function loadFav() {
+  return new Promise(res => {
+    const done = v => { try { JSON.parse(v || '[]').forEach(id => FAV.add(id)); } catch (e) {} favCount(); res(); };
+    const c = cloud();
+    if (c) { try { c.getItem('fav', (err, v) => done(err ? null : v)); setTimeout(res, 1500); return; } catch (e) {} }
+    try { done(localStorage.getItem('boxapps-fav')); } catch (e) { res(); }
+  });
+}
+function saveFav() {
+  const v = JSON.stringify([...FAV].slice(-150));
+  const c = cloud();
+  if (c) { try { c.setItem('fav', v); } catch (e) {} }
+  try { localStorage.setItem('boxapps-fav', v); } catch (e) {}
+  favCount();
+}
+function favCount() {
+  const n = S.data ? S.data.items.filter(x => FAV.has(x.id)).length : FAV.size;
+  document.querySelectorAll('[data-fav-cnt]').forEach(el => { el.textContent = n; el.hidden = !n; });
+}
+function track(id, type) {
+  try { const body = JSON.stringify({ id, type }); if (!(navigator.sendBeacon && navigator.sendBeacon('/api/hit', new Blob([body], { type: 'application/json' })))) fetch('/api/hit', { method: 'POST', body, headers: { 'content-type': 'application/json' }, keepalive: true }); } catch (e) {}
+}
+function shareUrl(x) { return S.data.bot ? `https://t.me/${S.data.bot}?startapp=${x.id}` : location.origin + '/#item-' + x.id; }
 
 /* ---------- запросы ---------- */
 function authHeaders() {
@@ -337,22 +407,44 @@ function overview() {
   const n = k => all.filter(x => x.kind === k).length;
   const h = new Date().getHours();
   const hi = h < 6 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 18 ? 'Добрый день' : 'Добрый вечер';
+  const q = (S.gq || '').trim().toLowerCase();
   const head = `
   <section class="hello in">
     <div><h1>${hi}! <span class="tag">Что откроем?</span></h1><p>Игры, боты и каналы для Telegram в одном каталоге.</p></div>
-    <a class="chip" href="#categories">Категории ${ARROW}</a>
   </section>
+  <label class="gsearch"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>
+    <input id="gq" type="search" placeholder="Найти игру, бота или канал" value="${esc(S.gq || '')}" autocomplete="off" enterkeyhint="search">${q ? '<button type="button" id="gx" aria-label="Очистить">×</button>' : ''}</label>`;
+  const bindSearch = () => {
+    const gi = app.querySelector('#gq');
+    gi.oninput = () => { S.gq = gi.value; const p = gi.selectionStart; overview(); const n2 = app.querySelector('#gq'); n2.focus(); n2.setSelectionRange(p, p); };
+    const gx = app.querySelector('#gx'); if (gx) gx.onclick = () => { S.gq = ''; overview(); };
+  };
+  if (q) {
+    const res = byRating(all.filter(x => (x.title + ' ' + (x.description || '') + ' ' + x.categories.join(' ')).toLowerCase().includes(q)));
+    app.innerHTML = head + `<section class="box"><div class="box-h"><span class="lbl">Найдено</span><span class="sub mono">${res.length}</span></div>
+      <div style="overflow-x:auto"><table class="tbl"><tbody>${res.length ? rowsHTML(res) : '<tr><td class="empty">Ничего не нашлось. Попробуйте другое слово.</td></tr>'}</tbody></table></div></section>`;
+    bindRows(); bindSearch(); return;
+  }
+  const strip = `
+  <section class="box">
+    <div class="box-h"><span class="lbl">Категории</span>
+      <div class="seg" role="group" aria-label="Раздел">${['game', 'bot', 'channel'].map(k => `<button data-home="${k}" aria-pressed="${S.home === k}">${kindsName(k)}</button>`).join('')}</div></div>
+    <div class="strip">${S.data.categories[S.home].map((c, i) => `<a class="tile${i === 0 ? ' dark' : ''}" href="#${KIND_HASH[S.home]}" data-k="${S.home}" data-c="${esc(c)}"><span class="mono">${all.filter(x => x.kind === S.home && x.categories.includes(c)).length}</span><b>${esc(c)}</b></a>`).join('')}</div>
+    <a class="box-f" href="#categories">Все категории <span>→</span></a>
+  </section>`;
+  const stats = `
   <div class="stats">
     <a class="box stat" href="#games"><div class="top"><span class="lbl">Игры</span>${ARROW}</div><b>${n('game')}</b><span class="delta">${S.data.categories.game.length} категорий</span></a>
     <a class="box stat" href="#bots"><div class="top"><span class="lbl">Боты</span>${ARROW}</div><b>${n('bot')}</b><span class="delta">${S.data.categories.bot.length} категорий</span></a>
     <a class="box stat" href="#channels"><div class="top"><span class="lbl">Каналы</span>${ARROW}</div><b>${n('channel')}</b><span class="delta">${S.data.categories.channel.length} категорий</span></a>
     <a class="box stat hot" href="#categories"><div class="top"><span class="lbl">Всего</span>${ARROW}</div><b>${all.length}</b><span class="delta">в каталоге</span></a>
   </div>`;
-  if (!all.length) { app.innerHTML = head + emptyCatalog(); return; }
+  const bindHome = () => app.querySelectorAll('[data-home]').forEach(b => b.onclick = () => { S.home = b.dataset.home; haptic(); const y = window.scrollY; overview(); window.scrollTo(0, y); });
+  if (!all.length) { app.innerHTML = head + emptyCatalog() + strip; bindHome(); bindSearch(); return; }
   const pick = all.find(x => x.featured);
   const fresh = [...all].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
   const top = byRating(all).slice(0, 6);
-  app.innerHTML = head + `
+  app.innerHTML = head + strip + `
   <div class="grid2">
     ${pick ? `<a class="box pick" href="#item-${pick.id}">
       <div class="cover">${coverHTML(pick)}<span class="badge lime">Выбор редакции</span></div>
@@ -377,8 +469,8 @@ function overview() {
     <div class="box-h"><span class="lbl">Топ проектов</span><span class="sub">по оценкам</span></div>
     <div style="overflow-x:auto"><table class="tbl">${tableHead}<tbody>${rowsHTML(top)}</tbody></table></div>
     <a class="box-f" href="#games">Смотреть все <span>→</span></a>
-  </section>`;
-  bindRows();
+  </section>` + stats;
+  bindRows(); bindHome(); bindSearch();
   app.querySelectorAll('[data-go]').forEach(l => l.onclick = () => location.hash = 'item-' + l.dataset.go);
 }
 
@@ -419,6 +511,14 @@ function categoriesView() {
       <div class="cats-grid">${S.data.categories[k].map(c => `<a href="#${KIND_HASH[k]}" data-k="${k}" data-c="${esc(c)}"><b>${esc(c)}</b><span>${all.filter(x => x.kind === k && x.categories.includes(c)).length}</span></a>`).join('')}</div>
     </section>`).join('');
   app.querySelectorAll('[data-c]').forEach(a => a.onclick = () => { S.cat = a.dataset.c; S.q = ''; haptic(); });
+}
+
+function savedView() {
+  const list = S.data.items.filter(x => FAV.has(x.id));
+  app.innerHTML = `<section class="hello in"><div><h1>Избранное ${list.length ? `<span class="tag">${list.length}</span>` : ''}</h1><p>${cloud() ? 'Сохраняется в вашем аккаунте Telegram.' : 'Сохраняется в этом браузере.'}</p></div></section>` +
+    (list.length ? `<section class="box"><div style="overflow-x:auto"><table class="tbl">${tableHead}<tbody>${rowsHTML(list)}</tbody></table></div></section>`
+      : `<section class="box blank"><span class="sq lime">${HEART.replace('<svg ', '<svg width="16" height="16" ')}</span><h2>Пока пусто</h2><p class="sub" style="margin:0">Откройте проект и нажмите на сердечко, чтобы сохранить его здесь.</p><a class="chip" href="#">На главную ${ARROW}</a></section>`);
+  bindRows();
 }
 
 /* ---------- страница проекта ---------- */
@@ -481,6 +581,7 @@ function item(id) {
       ${x.note ? `<div class="note"><span class="lbl">От редакции</span>${esc(x.note)}</div>` : ''}
       <div class="kv">${facts.map(([k, v]) => `<div><span class="lbl" style="color:var(--muted)">${k}</span><b>${esc(v)}</b></div>`).join('')}</div>
       <div class="actions">
+        <button class="fav" id="fav" aria-pressed="${FAV.has(x.id)}" aria-label="В избранное">${HEART}</button>
         <button class="btn" id="share">Поделиться</button>
         ${x.link ? `<a class="btn dark" href="${esc(x.link)}" target="_blank" rel="noopener" id="open">${openLabel(x.kind)} ${RARROW}</a>` : `<span class="btn" aria-disabled="true">Нет ссылки</span>`}
       </div>
@@ -501,11 +602,18 @@ function item(id) {
   bindRows();
   if (st && st.week) bindChart(st.week);
   app.querySelector('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '');
+  if (!S.admin) track(x.id, 'view');
   const open = app.querySelector('#open');
-  if (open && tg) open.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(x.link); } catch (er) { location.href = x.link; } };
+  if (open) open.onclick = e => {
+    if (!S.admin) track(x.id, 'open');
+    if (tg && /^https:\/\/t\.me\//.test(x.link)) { e.preventDefault(); try { tg.openTelegramLink(x.link); } catch (er) { location.href = x.link; } }
+  };
+  const fav = app.querySelector('#fav');
+  fav.onclick = () => { FAV.has(x.id) ? FAV.delete(x.id) : FAV.add(x.id); fav.setAttribute('aria-pressed', FAV.has(x.id)); saveFav(); try { tg && tg.HapticFeedback.impactOccurred('light'); } catch (e) {} };
   app.querySelector('#share').onclick = async () => {
-    const url = location.origin + '/#item-' + x.id;
+    const url = shareUrl(x);
     if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — BOX APPS')); return; } catch (e) {} }
+    if (navigator.share) { try { await navigator.share({ title: x.title, url }); return; } catch (e) {} }
     try { await navigator.clipboard.writeText(url); app.querySelector('#share').textContent = 'Скопировано'; } catch (e) {}
   };
 }
@@ -560,8 +668,8 @@ function setAdmin(on) {
 async function loadAdmin() {
   const [a, p] = await Promise.all([api('/api/admin/items'), api('/api/admin/pending')]);
   if (!a.ok) throw new Error(a.error || 'Нет доступа');
-  S.adm.items = a.items; S.adm.pending = p.pending || [];
-  const c = document.getElementById('c-pend'); c.textContent = S.adm.pending.length; c.hidden = !S.adm.pending.length;
+  S.adm.items = a.items; S.adm.pending = p.pending || []; S.adm.hits = a.hits || {};
+  ['c-pend', 'm-pend'].forEach(id => { const c = document.getElementById(id); if (c) { c.textContent = S.adm.pending.length; c.hidden = !S.adm.pending.length; } });
 }
 
 async function adminView() {
@@ -588,12 +696,12 @@ function adminItems() {
   const box = app.querySelector('#adm');
   const list = [...S.adm.items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   box.innerHTML = `<section class="box"><div class="box-h"><span class="lbl">Все проекты</span><label class="find" style="flex:0 1 260px"><input id="aq" type="search" placeholder="Найти" autocomplete="off"></label></div>
-    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Проект</th><th class="hide-s">Ссылка</th><th></th></tr></thead><tbody id="atb"></tbody></table></div></section>`;
+    <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Проект</th><th>Просмотры / переходы</th><th></th></tr></thead><tbody id="atb"></tbody></table></div></section>`;
   const draw = q => {
     const rows = list.filter(x => !q || x.title.toLowerCase().includes(q));
     box.querySelector('#atb').innerHTML = rows.length ? rows.map((x, i) => `<tr>
       <td><div class="name">${sq(x, i)}<div style="min-width:0">${esc(x.title)}${x.featured ? '<span class="pill feat">выбор</span>' : ''}${x.hidden ? '<span class="pill off">скрыт</span>' : ''}<small>${kindName(x.kind)} · ${esc(x.categories.join(' · '))}</small></div></div></td>
-      <td class="hide-s sub" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.link || '')}</td>
+      <td>${(h => `<div class="hits">${h.v || 0} / ${h.o || 0}<small>7 дн: ${h.v7 || 0} / ${h.o7 || 0}</small></div>`)((S.adm.hits || {})[x.id] || {})}</td>
       <td><div class="row-act"><button data-view="${x.id}">Открыть</button><button data-edit="${x.id}">Изменить</button><button class="del" data-del="${x.id}">Удалить</button></div></td></tr>`).join('')
       : `<tr><td colspan="3" class="empty">${list.length ? 'Ничего не нашлось' : 'Пока пусто. Нажмите «+ Добавить проект».'}</td></tr>`;
     box.querySelectorAll('[data-view]').forEach(b => b.onclick = () => location.hash = 'item-' + b.dataset.view);
@@ -778,6 +886,7 @@ function route() {
   if (h.startsWith('item-')) item(h.slice(5));
   else if (HASH_KIND[h]) { if (S.kind !== HASH_KIND[h]) { if (!S.keepCat) S.cat = 'all'; S.kind = HASH_KIND[h]; } listView(HASH_KIND[h]); }
   else if (h === 'categories') categoriesView();
+  else if (h === 'saved') savedView();
   else if (h === 'submit') submit();
   else if (h === 'admin') adminView();
   else if (h === 'admin-new') adminEdit(null);
@@ -787,10 +896,10 @@ function route() {
   window.scrollTo(0, 0);
 }
 // переход из «Категорий» сохраняет выбранную категорию
-document.addEventListener('click', e => { const a = e.target.closest('[data-c]'); if (a) { S.kind = a.dataset.k; } }, true);
+document.addEventListener('click', e => { const a = e.target.closest('[data-c]'); if (a) { S.kind = a.dataset.k; S.cat = a.dataset.c; S.q = ''; haptic(); } }, true);
 
 async function boot() {
-  try { await reloadCatalog(); }
+  try { await Promise.all([reloadCatalog(), loadFav()]); favCount(); }
   catch (e) { app.innerHTML = `<div class="loading">Каталог не загрузился</div>`; return; }
   if (tg) { try { tg.BackButton.onClick(() => history.length > 1 ? history.back() : (location.hash = '')); } catch (e) {} }
   let hasKey = false; try { hasKey = Boolean(localStorage.getItem('boxapps-admin-key')); } catch (e) {}
