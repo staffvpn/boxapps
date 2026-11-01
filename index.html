@@ -172,10 +172,6 @@ img{max-width:100%;display:block}
 .gsearch input{flex:1;min-width:0;border:0;background:none;outline:none;font:800 15px/1 var(--sans);text-transform:uppercase;letter-spacing:.02em}
 .gsearch input::placeholder{color:var(--muted)}
 .gsearch button{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:4px}
-.fav{width:48px;height:48px;flex:none;display:grid;place-items:center;border:var(--b);background:var(--card);cursor:pointer}
-.fav svg{width:20px;height:20px}
-.fav[aria-pressed="true"]{background:var(--lime)}
-.fav[aria-pressed="true"] path{fill:var(--ink)}
 .hits{font:700 11.5px/1.35 var(--mono);white-space:nowrap}
 .hits small{display:block;color:var(--muted);font-weight:500}
 .cats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -199,7 +195,7 @@ img{max-width:100%;display:block}
 .kv b{font:900 16px/1.1 var(--sans);text-transform:uppercase;letter-spacing:-.01em;overflow-wrap:anywhere}
 .note{border-left:4px solid var(--lime);background:var(--ink);color:#fff;padding:12px 14px;font-size:13.5px}
 .note .lbl{color:var(--lime);display:block;margin-bottom:4px}
-.actions{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.4fr);gap:10px}
+.actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:10px}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;height:48px;padding:0 16px;border:var(--b);background:var(--card);font:900 12px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
 .btn.dark{background:var(--ink);color:#fff;justify-content:space-between}
 .btn.dark:hover{background:var(--ink-2)}
@@ -285,7 +281,6 @@ img{max-width:100%;display:block}
       <a href="#games" data-nav="games"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="16" height="9" rx="1"/><path d="M6 9v3M4.5 10.5h3M13 10h.01M15 11.5h.01"/></svg>Игры<span class="cnt" data-cnt="game"></span></a>
       <a href="#bots" data-nav="bots"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="12" height="10"/><path d="M10 3v3M7.5 10.5h.01M12.5 10.5h.01M8 13.5h4"/></svg>Боты<span class="cnt" data-cnt="bot"></span></a>
       <a href="#channels" data-nav="channels"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8v4l9 4V4zM12 7h3a2 2 0 010 4h-3"/></svg>Каналы<span class="cnt" data-cnt="channel"></span></a>
-      <a href="#saved" data-nav="saved"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 16.5S3 12.3 3 7.6A3.6 3.6 0 0110 6a3.6 3.6 0 017 1.6c0 4.7-7 8.9-7 8.9z"/></svg>Избранное<span class="cnt" data-fav-cnt hidden></span></a>
       <a href="#categories" data-nav="categories"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h9"/></svg>Категории</a>
       <a href="#submit" data-nav="submit"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 4v12M4 10h12"/></svg>Предложить</a>
       <div class="sep admin-only" hidden></div>
@@ -307,7 +302,7 @@ img{max-width:100%;display:block}
       <a href="#games" data-nav="games"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="16" height="9" rx="1"/><path d="M6 9v3M4.5 10.5h3M13 10h.01M15 11.5h.01"/></svg>Игры</a>
       <a href="#bots" data-nav="bots"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="6" width="12" height="10"/><path d="M10 3v3M7.5 10.5h.01M12.5 10.5h.01M8 13.5h4"/></svg>Боты</a>
       <a href="#channels" data-nav="channels"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8v4l9 4V4zM12 7h3a2 2 0 010 4h-3"/></svg>Каналы</a>
-      <a href="#saved" data-nav="saved"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 16.5S3 12.3 3 7.6A3.6 3.6 0 0110 6a3.6 3.6 0 017 1.6c0 4.7-7 8.9-7 8.9z"/></svg>Избранное</a>
+      <a href="#categories" data-nav="categories"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h9"/></svg>Категории</a>
     </nav>
   </div>
 </div>
@@ -338,29 +333,6 @@ const coverHTML = x => x.image ? `<img src="${esc(x.image)}" alt="">` : `<b>${gl
 const starsOf = r => { const n = Math.round(r || 0); return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); };
 const byRating = arr => [...arr].sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.createdAt || 0) - (a.createdAt || 0));
 
-/* ---------- избранное: облако Telegram, в браузере — localStorage ---------- */
-const FAV = new Set();
-const HEART = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 16.5S3 12.3 3 7.6A3.6 3.6 0 0110 6a3.6 3.6 0 017 1.6c0 4.7-7 8.9-7 8.9z"/></svg>';
-const cloud = () => tg && tg.CloudStorage && tg.isVersionAtLeast && tg.isVersionAtLeast('6.9') ? tg.CloudStorage : null;
-function loadFav() {
-  return new Promise(res => {
-    const done = v => { try { JSON.parse(v || '[]').forEach(id => FAV.add(id)); } catch (e) {} favCount(); res(); };
-    const c = cloud();
-    if (c) { try { c.getItem('fav', (err, v) => done(err ? null : v)); setTimeout(res, 1500); return; } catch (e) {} }
-    try { done(localStorage.getItem('boxapps-fav')); } catch (e) { res(); }
-  });
-}
-function saveFav() {
-  const v = JSON.stringify([...FAV].slice(-150));
-  const c = cloud();
-  if (c) { try { c.setItem('fav', v); } catch (e) {} }
-  try { localStorage.setItem('boxapps-fav', v); } catch (e) {}
-  favCount();
-}
-function favCount() {
-  const n = S.data ? S.data.items.filter(x => FAV.has(x.id)).length : FAV.size;
-  document.querySelectorAll('[data-fav-cnt]').forEach(el => { el.textContent = n; el.hidden = !n; });
-}
 function track(id, type) {
   try { const body = JSON.stringify({ id, type }); if (!(navigator.sendBeacon && navigator.sendBeacon('/api/hit', new Blob([body], { type: 'application/json' })))) fetch('/api/hit', { method: 'POST', body, headers: { 'content-type': 'application/json' }, keepalive: true }); } catch (e) {}
 }
@@ -513,14 +485,6 @@ function categoriesView() {
   app.querySelectorAll('[data-c]').forEach(a => a.onclick = () => { S.cat = a.dataset.c; S.q = ''; haptic(); });
 }
 
-function savedView() {
-  const list = S.data.items.filter(x => FAV.has(x.id));
-  app.innerHTML = `<section class="hello in"><div><h1>Избранное ${list.length ? `<span class="tag">${list.length}</span>` : ''}</h1><p>${cloud() ? 'Сохраняется в вашем аккаунте Telegram.' : 'Сохраняется в этом браузере.'}</p></div></section>` +
-    (list.length ? `<section class="box"><div style="overflow-x:auto"><table class="tbl">${tableHead}<tbody>${rowsHTML(list)}</tbody></table></div></section>`
-      : `<section class="box blank"><span class="sq lime">${HEART.replace('<svg ', '<svg width="16" height="16" ')}</span><h2>Пока пусто</h2><p class="sub" style="margin:0">Откройте проект и нажмите на сердечко, чтобы сохранить его здесь.</p><a class="chip" href="#">На главную ${ARROW}</a></section>`);
-  bindRows();
-}
-
 /* ---------- страница проекта ---------- */
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 function chartHTML(week) {
@@ -581,7 +545,6 @@ function item(id) {
       ${x.note ? `<div class="note"><span class="lbl">От редакции</span>${esc(x.note)}</div>` : ''}
       <div class="kv">${facts.map(([k, v]) => `<div><span class="lbl" style="color:var(--muted)">${k}</span><b>${esc(v)}</b></div>`).join('')}</div>
       <div class="actions">
-        <button class="fav" id="fav" aria-pressed="${FAV.has(x.id)}" aria-label="В избранное">${HEART}</button>
         <button class="btn" id="share">Поделиться</button>
         ${x.link ? `<a class="btn dark" href="${esc(x.link)}" target="_blank" rel="noopener" id="open">${openLabel(x.kind)} ${RARROW}</a>` : `<span class="btn" aria-disabled="true">Нет ссылки</span>`}
       </div>
@@ -608,8 +571,6 @@ function item(id) {
     if (!S.admin) track(x.id, 'open');
     if (tg && /^https:\/\/t\.me\//.test(x.link)) { e.preventDefault(); try { tg.openTelegramLink(x.link); } catch (er) { location.href = x.link; } }
   };
-  const fav = app.querySelector('#fav');
-  fav.onclick = () => { FAV.has(x.id) ? FAV.delete(x.id) : FAV.add(x.id); fav.setAttribute('aria-pressed', FAV.has(x.id)); saveFav(); try { tg && tg.HapticFeedback.impactOccurred('light'); } catch (e) {} };
   app.querySelector('#share').onclick = async () => {
     const url = shareUrl(x);
     if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — BOX APPS')); return; } catch (e) {} }
@@ -886,7 +847,6 @@ function route() {
   if (h.startsWith('item-')) item(h.slice(5));
   else if (HASH_KIND[h]) { if (S.kind !== HASH_KIND[h]) { if (!S.keepCat) S.cat = 'all'; S.kind = HASH_KIND[h]; } listView(HASH_KIND[h]); }
   else if (h === 'categories') categoriesView();
-  else if (h === 'saved') savedView();
   else if (h === 'submit') submit();
   else if (h === 'admin') adminView();
   else if (h === 'admin-new') adminEdit(null);
@@ -899,7 +859,7 @@ function route() {
 document.addEventListener('click', e => { const a = e.target.closest('[data-c]'); if (a) { S.kind = a.dataset.k; S.cat = a.dataset.c; S.q = ''; haptic(); } }, true);
 
 async function boot() {
-  try { await Promise.all([reloadCatalog(), loadFav()]); favCount(); }
+  try { await reloadCatalog(); }
   catch (e) { app.innerHTML = `<div class="loading">Каталог не загрузился</div>`; return; }
   if (tg) { try { tg.BackButton.onClick(() => history.length > 1 ? history.back() : (location.hash = '')); } catch (e) {} }
   let hasKey = false; try { hasKey = Boolean(localStorage.getItem('boxapps-admin-key')); } catch (e) {}
