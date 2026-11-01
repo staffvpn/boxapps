@@ -4,13 +4,8 @@ import { BRAND } from '../_catalog.js';
 import { admins, json, kvPut, tgApi } from '../_lib.js';
 
 const COMMANDS = [
-  { command: 'start', description: 'Главное меню' },
-  { command: 'games', description: 'Игры' },
-  { command: 'bots', description: 'Боты' },
-  { command: 'channels', description: 'Каналы' },
-  { command: 'categories', description: 'Категории' },
-  { command: 'search', description: 'Поиск по названию' },
-  { command: 'submit', description: 'Предложить проект' },
+  { command: 'start', description: 'Открыть BOX APPS' },
+  { command: 'submit', description: 'Добавить свой проект' },
 ];
 
 export async function onRequestGet({ request, env }) {
