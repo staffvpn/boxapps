@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#0E0E10">
 <meta property="og:title" content="BOX APPS">
 <meta property="og:description" content="Игры, боты и каналы для Telegram в одном каталоге.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='225 440 800 590'%3E%3Cpath d='M237 700L383 605Q389 602 396 604L608 676L472 778Z' fill='%236BDE8F'/%3E%3Cpath d='M640 676L858 604Q866 602 872 606L1014 700L787 778Z' fill='%236BDE8F'/%3E%3Cpath d='M341 768L488 813L631 708V1010L386 917Q372 911 369 896Z' fill='%23F5F0EA'/%3E%3Cpath d='M660 865L916 770L895 896Q892 909 879 915L660 1000Z' fill='%23F5F0EA'/%3E%3Cpath d='M298 530L354 553M363 466L399 508' stroke='%236BDE8F' stroke-width='26' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap">
@@ -44,7 +45,7 @@ img{max-width:100%;display:block}
   padding:calc(12px + var(--top-safe)) var(--side) 14px}
 .head-in{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .logo{display:flex;align-items:center;gap:10px;font:700 18px/1 var(--font);letter-spacing:.02em}
-.logo svg{width:30px;height:30px}
+.logo svg{width:38px;height:auto}
 .head-r{display:flex;gap:8px;align-items:center}
 .circ{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);border:0;position:relative;flex:none}
 .circ svg{width:19px;height:19px}
@@ -390,18 +391,14 @@ const ILL = {
       <g transform="rotate(-18 82 70) translate(30 18) scale(.5)">${ILL.gameInner(s)}</g>
       <g transform="translate(118 10) scale(.36)"><rect x="84" y="46" width="104" height="94" rx="30" fill="${HEX.lilac}" ${st(s, 7)}/><rect x="100" y="68" width="72" height="36" rx="18" fill="${HEX.dark}" ${st(s, 7)}/><circle cx="121" cy="86" r="7" fill="${HEX.green}"/><circle cx="151" cy="86" r="7" fill="${HEX.green}"/><path d="M136 46V26" ${st(s, 7)}/><circle cx="136" cy="20" r="9" fill="${HEX.yellow}" ${st(s, 7)}/></g>
       <g transform="rotate(16 250 70) translate(212 36) scale(.4)"><path d="M72 82h24l64-32v100l-64-32H72a11 11 0 01-11-11V93a11 11 0 0111-11z" fill="${HEX.yellow}" ${st(s, 7)}/><path d="M160 50c11 0 18 22 18 50s-7 50-18 50" fill="${HEX.salmon}" ${st(s, 7)}/></g>
-      <path d="M92 128L56 104h104l10 24z" fill="${HEX.yellow}" ${st(s)}/>
-      <path d="M228 128l36-24H160l10 24z" fill="${HEX.lilac}" ${st(s)}/>
-      <rect x="92" y="128" width="136" height="88" rx="8" fill="${HEX.salmon}" ${st(s)}/>
-      <rect x="126" y="152" width="68" height="30" rx="8" fill="${HEX.ink}" ${st(s)}/>
-      <path d="M138 162h44M138 172h28" stroke="${HEX.dark}" stroke-width="3" stroke-linecap="round"/>
+      <g transform="translate(-8 -56) scale(.27)"><path d="M237 700L383 605Q389 602 396 604L608 676L472 778Z" fill="#6BDE8F"/><path d="M640 676L858 604Q866 602 872 606L1014 700L787 778Z" fill="#6BDE8F"/><path d="M341 768L488 813L631 708V1010L386 917Q372 911 369 896Z" fill="#F5F0EA"/><path d="M660 865L916 770L895 896Q892 909 879 915L660 1000Z" fill="#F5F0EA"/></g>
     </svg>`;
   },
   gameInner(s) {
     return `<path d="M104 76h92c19 0 31 16 29 35l-4 26c-3 19-25 25-38 10l-12-15h-42l-12 15c-13 15-35 9-38-10l-4-26c-2-19 10-35 29-35z" fill="${HEX.green}" ${st(s, 6)}/><path d="M122 99v26M109 112h26" ${st(HEX.dark, 7)}/><circle cx="176" cy="104" r="8" fill="${HEX.yellow}"/><circle cx="193" cy="120" r="8" fill="${HEX.salmon}"/>`;
   },
 };
-const LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 13l5-7h16l5 7z" fill="#E2D96E"/><rect x="3" y="13" width="26" height="16" rx="4" fill="#F4A088"/><rect x="11" y="18" width="10" height="5" rx="2.5" fill="#141414"/></svg>';
+const LOGO = '<svg viewBox="225 440 800 590" aria-hidden="true"><path d="M237 700L383 605Q389 602 396 604L608 676L472 778Z" fill="#6BDE8F"/><path d="M640 676L858 604Q866 602 872 606L1014 700L787 778Z" fill="#6BDE8F"/><path d="M341 768L488 813L631 708V1010L386 917Q372 911 369 896Z" fill="#F5F0EA"/><path d="M660 865L916 770L895 896Q892 909 879 915L660 1000Z" fill="#F5F0EA"/><path d="M298 530L354 553M363 466L399 508" stroke="#6BDE8F" stroke-width="26" stroke-linecap="round"/></svg>';
 document.getElementById('logo-ill').innerHTML = LOGO;
 document.getElementById('boot-ill').innerHTML = LOGO;
 
