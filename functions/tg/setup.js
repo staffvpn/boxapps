@@ -15,7 +15,14 @@ const COMMANDS = [
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
-  if (!env.BOT_TOKEN || !env.WEBHOOK_SECRET) return json({ ok: false, error: 'Добавьте BOT_TOKEN и WEBHOOK_SECRET в переменные проекта' }, 503);
+  const seen = { BOT_TOKEN: Boolean(env.BOT_TOKEN), WEBHOOK_SECRET: Boolean(env.WEBHOOK_SECRET), ADMIN_IDS: Boolean(env.ADMIN_IDS), ADMIN_KEY: Boolean(env.ADMIN_KEY), STORE: Boolean(env.STORE) };
+  if (!env.BOT_TOKEN || !env.WEBHOOK_SECRET) {
+    return json({
+      ok: false,
+      error: 'Сервер не видит BOT_TOKEN или WEBHOOK_SECRET. В Settings → Variables and Secrets они должны быть типа Secret (Encrypt) в окружении Production, затем Deployments → Retry deployment.',
+      seen,
+    }, 503);
+  }
   if (url.searchParams.get('key') !== env.WEBHOOK_SECRET) return json({ ok: false, error: 'Неверный ключ' }, 403);
   const origin = url.origin;
   const me = await tgApi(env, 'getMe', {});
@@ -35,6 +42,6 @@ export async function onRequestGet({ request, env }) {
   return json({
     ok: webhook.ok && menu.ok, bot: me.ok ? '@' + me.result.username : null,
     webhook, menu, commands: cmds.ok, admins: admins(env).length, adminCommands: adminCmds.every(r => r.ok),
-    description: desc.ok && short.ok, store: Boolean(env.STORE), adminKey: Boolean(env.ADMIN_KEY),
+    description: desc.ok && short.ok, seen,
   });
 }
