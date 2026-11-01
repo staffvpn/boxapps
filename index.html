@@ -120,6 +120,8 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 .av.ok{opacity:1}
 .has-av > svg{visibility:hidden}
 .av.fill{inset:0;width:100%;height:100%}
+.cover.sq{aspect-ratio:1/1;width:100%;max-width:480px;margin:0 auto}
+.cover.sq svg{width:86%}
 .cover.has-av{aspect-ratio:1/1;background:var(--surface);width:100%;max-width:480px;margin:0 auto}
 .cover .av.fill{border-radius:inherit}
 .av.round{left:50%;top:50%;width:min(56%,220px);height:auto;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(20,20,20,.12),0 18px 40px rgba(20,20,20,.25)}
@@ -585,7 +587,7 @@ function item(id) {
   <div class="topbar"><button class="circ" id="back" aria-label="Назад">${IC.back}</button>
     <div class="head-r">${S.admin ? `<a class="circ" href="#admin-edit-${x.id}" aria-label="Редактировать">${IC.edit}</a>` : ''}<button class="circ" id="share" aria-label="Поделиться">${IC.share}</button></div></div>
   <div class="in" style="display:flex;flex-direction:column;gap:8px"><span class="muted" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1 class="big">${esc(x.title)}</h1></div>
-  <div class="cover in" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x) + avatarImg(x, 'fill')}</div>
+  <div class="cover in${!x.image && tgName(x) ? ' sq' : ''}" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x) + avatarImg(x, 'fill')}</div>
   <div class="chips">${chips.map(([ic, t]) => `<span class="ichip" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
   <p class="about" id="about" ${x.description ? '' : 'hidden'}>${esc(x.description || '')}</p>
   ${x.note ? `<div class="note"><span class="tag" style="background:${c};color:var(--dark)">От редакции</span><p>${esc(x.note)}</p></div>` : ''}
@@ -600,7 +602,7 @@ function item(id) {
     : `<span class="off">Ссылка появится скоро</span>`}</div></div>`;
   if (st && st.week) bindChart(st.week);
   liveInfo(x);
-  app.querySelector('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '');
+  app.querySelector('#back').onclick = () => goBack();
   if (!S.admin) track(x.id, 'view');
   const tgOpen = (e, link) => { if (tg && /^https:\/\/t\.me\//.test(link)) { e.preventDefault(); try { tg.openTelegramLink(link); } catch (er) { location.href = link; } } };
   const open = app.querySelector('#open');
@@ -953,9 +955,19 @@ async function adminEdit(id) {
 }
 
 /* ---------- маршруты ---------- */
+// служебные параметры Telegram в адресе (#tgWebAppData=…) — не страница
+const pageHash = () => { const h = location.hash.slice(1); return /^tgWebApp|^tgWebAppData|=/.test(h) ? '' : h; };
+const NAV = [];
+function goBack() {
+  NAV.pop();
+  const prev = NAV.length ? NAV[NAV.length - 1] : '';
+  NAV.pop();
+  if (prev) location.hash = prev; else { location.hash = ''; }
+}
 function route() {
   if (!S.data) return;
-  const h = location.hash.slice(1);
+  const h = pageHash();
+  if (!h) NAV.length = 0; else if (NAV[NAV.length - 1] !== h) NAV.push(h);
   const nav = h.startsWith('item-') ? '' : h.startsWith('admin') ? 'admin' : h;
   document.querySelectorAll('[data-nav]').forEach(a => a.dataset.nav === nav ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   document.body.classList.toggle('page-item', h.startsWith('item-'));
@@ -968,6 +980,7 @@ function route() {
   else if (h.startsWith('admin-edit-')) adminEdit(h.slice(11));
   else overview();
   if (tg) { try { h ? tg.BackButton.show() : tg.BackButton.hide(); } catch (e) {} }
+  document.body.classList.toggle('page-home', !h);
   window.scrollTo(0, 0);
 }
 // переход по категории: открываем раздел сразу с выбранной категорией
@@ -996,11 +1009,12 @@ document.addEventListener('keydown', e => {
 async function boot() {
   try { await reloadCatalog(); }
   catch (e) { app.innerHTML = `<section class="hero">${ILL.box()}<h2>Каталог не загрузился</h2><p>Проверьте интернет и обновите страницу.</p></section>`; return; }
-  if (tg) { try { tg.BackButton.onClick(() => history.length > 1 ? history.back() : (location.hash = '')); } catch (e) {} }
+  if (location.hash && !pageHash()) history.replaceState(null, '', location.pathname + location.search);
+  if (tg) { try { tg.BackButton.hide(); tg.BackButton.onClick(goBack); } catch (e) {} }
   let hasKey = false; try { hasKey = Boolean(localStorage.getItem('boxapps-admin-key')); } catch (e) {}
   if (tg || hasKey) { try { const me = await api('/api/admin/me'); setAdmin(Boolean(me.admin)); if (me.admin) loadAdmin().catch(() => {}); } catch (e) {} }
   const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param;
-  if (sp && !location.hash) location.hash = sp.startsWith('item-') ? sp : 'item-' + sp;
+  if (sp && !pageHash()) location.hash = sp.startsWith('item-') ? sp : 'item-' + sp;
   route();
 }
 window.addEventListener('hashchange', route);
