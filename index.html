@@ -5,213 +5,203 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Пульт — игры и боты для Telegram</title>
 <meta name="description" content="Игры и боты для Telegram, отобранные вручную. Без тапалок, казино, «заработка» и обязательных подписок.">
-<meta name="theme-color" content="#0B0B0C">
+<meta name="theme-color" content="#ffffff">
 <meta property="og:title" content="Пульт — игры и боты для Telegram">
 <meta property="og:description" content="Отобранные вручную. Без фарма и мусора.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-/* Строгая тёмная витрина: одна колонка ≤ 760px, тонкие линии, серифный дисплей, золото только для акцентов. */
+/* Белая бумага и чёрные чернила, как у bigunder.ru: Inter Tight капсом для всего крупного,
+   Playfair курсивом для названий и цитат, IBM Plex Mono для мелких подписей. */
 :root{
-  color-scheme:dark;
-  --bg:#0B0B0C; --raise:#121214; --line:#26241F; --line-2:#3A362E;
-  --ink:#EEE9DF; --ink-2:#B9B2A5; --muted:#7E786D;
-  --gold:#C9A86A; --gold-2:#E3CC98;
-  --display:"Cormorant Garamond", "Times New Roman", Georgia, serif;
-  --ui:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg:#ffffff; --surface:#f2f2f0; --surface-2:#e7e7e4; --ink:#121212; --muted:#8e8e89; --pale:#cfcfcb; --line:#e7e7e4; --live:#2ecc40;
+  --sans:"Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --serif:"Playfair Display", Didot, "Bodoni 72", Georgia, serif;
   --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --ease:cubic-bezier(.2,.7,.2,1);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{background:var(--bg);-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--ui);
-  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-font-smoothing:antialiased}
-.wrap{max-width:760px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
-a{color:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.45 var(--sans);-webkit-font-smoothing:antialiased;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+a{color:inherit;text-decoration:none}
 button,input,textarea,select{font:inherit;color:inherit}
-:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
-::selection{background:var(--gold);color:var(--bg)}
-.caps{font:600 10.5px/1.2 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+::selection{background:var(--ink);color:var(--bg)}
+
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:400}
+.muted{color:var(--muted)}
+.serif{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
+.heavy{font-weight:800;text-transform:uppercase;letter-spacing:-.05em;line-height:.86}
 
 /* шапка */
-.head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:22px;border-bottom:1px solid var(--line)}
-.mark{display:flex;align-items:baseline;gap:14px;text-decoration:none}
-.mark b{font:500 26px/1 var(--display);letter-spacing:.32em;text-transform:uppercase;padding-left:.32em}
-.mark span{display:none}
-@media (min-width:560px){.mark span{display:inline}}
-.head nav{display:flex;gap:22px}
-.head nav a{text-decoration:none;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);padding-block:6px;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
-.head nav a:hover,.head nav a[aria-current="page"]{color:var(--ink);border-color:var(--gold)}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:20px 14px}
+.station{font-size:22px;font-weight:800;letter-spacing:-.05em;text-transform:uppercase}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--ink);border-radius:999px;font:500 12px/1 var(--mono);letter-spacing:.04em;white-space:nowrap}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--live);animation:blink 1.4s step-start infinite}
+@keyframes blink{50%{background:var(--bg)}}
+.nav{display:flex;gap:6px;padding-bottom:18px;flex-wrap:wrap}
 
-/* главная */
-.hero{padding-block:56px 40px;display:flex;flex-direction:column;gap:22px}
-.hero h1{margin:0;font:400 clamp(40px,8.4vw,68px)/1.02 var(--display);letter-spacing:-.01em;text-wrap:balance}
-.hero h1 em{font-style:italic;color:var(--gold-2)}
-.hero p{margin:0;max-width:52ch;color:var(--ink-2);font-size:15px}
-.ledger{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.ledger div{padding:16px 0;display:flex;flex-direction:column;gap:6px}
-.ledger div+div{padding-left:18px;border-left:1px solid var(--line)}
-.ledger b{font:400 34px/1 var(--display);font-variant-numeric:lining-nums}
-.ledger b.zero{color:var(--gold)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:none;border:1px solid var(--ink);border-radius:999px;font:400 11px/1.2 var(--mono);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.pill.soft{border-color:var(--line);color:var(--muted)}
+.pill[aria-pressed="true"],.pill[aria-current="page"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pill:active{transform:scale(.97)}
 
-.switch{display:flex;gap:30px;padding-top:40px;border-bottom:1px solid var(--line)}
-.switch button{background:none;border:0;padding:0 0 14px;cursor:pointer;font:400 30px/1 var(--display);color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .25s}
-.switch button[aria-pressed="true"]{color:var(--ink);border-color:var(--gold)}
-.switch button i{font:500 11px/1 var(--mono);font-style:normal;vertical-align:super;margin-left:4px;color:var(--muted)}
+/* герой */
+.hero{padding-block:8px 26px;display:flex;flex-direction:column;gap:12px}
+.hero h1{margin:0;font-size:clamp(46px,15vw,104px)}
+.hero .serif{font-size:clamp(24px,7vw,40px);line-height:1}
+.hero p{margin:0;max-width:44ch;font-size:14px;color:var(--muted);font-weight:500}
 
-.tools{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;padding-block:20px}
-.cats{display:flex;flex-wrap:wrap;gap:6px 18px;flex:1 1 100%;min-width:0}
-.cats button{background:none;border:0;padding:4px 0;cursor:pointer;font:500 13px/1.3 var(--ui);color:var(--muted);border-bottom:1px solid transparent}
-.cats button:hover{color:var(--ink-2)}
-.cats button[aria-pressed="true"]{color:var(--ink);border-color:var(--gold)}
-.find{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-2);padding-block:6px;min-width:0;flex:1 1 180px}
-.find input{background:none;border:0;outline:none;width:100%;min-width:0;font-size:14px}
+/* обложка */
+.cover{position:relative;border-radius:20px;overflow:hidden;background:var(--ink);color:#fff;aspect-ratio:1/1;max-width:100%;display:flex;flex-direction:column}
+.cover.wide{aspect-ratio:4/3}
+@media (min-width:620px){.cover{aspect-ratio:16/10}.cover.wide{aspect-ratio:16/9}}
+.cover .art{position:absolute;inset:0;pointer-events:none}
+.cover .art b{position:absolute;right:.04em;bottom:-.12em;font-weight:900;font-size:clamp(220px,62vw,440px);line-height:1;letter-spacing:-.08em;color:#222;text-transform:uppercase}
+.cover .grain{position:absolute;inset:0;background:radial-gradient(120% 80% at 0% 0%,rgba(255,255,255,.08),transparent 60%)}
+.cover-text{position:relative;z-index:1;padding:18px;display:flex;flex-direction:column;gap:6px}
+.cover-text .mono{color:rgba(255,255,255,.75)}
+.cover-text .heavy{font-size:clamp(34px,11vw,64px);overflow-wrap:anywhere}
+.cover-text .serif{font-size:clamp(18px,5.4vw,28px);line-height:1}
+.cover-foot{position:relative;z-index:1;margin-top:auto;padding:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.cover-foot .mono{color:rgba(255,255,255,.75)}
+.round{width:58px;height:58px;border-radius:50%;background:#fff;color:var(--ink);display:grid;place-items:center;flex:none}
+.round svg{width:18px;height:18px;margin-left:3px}
+
+/* переключатель */
+.kinds{display:flex;gap:16px;align-items:baseline;padding-top:34px}
+.kinds button{background:none;border:0;padding:0;cursor:pointer;font-weight:800;text-transform:uppercase;letter-spacing:-.05em;line-height:.86;font-size:clamp(40px,12vw,72px);color:var(--pale);transition:color .3s}
+.kinds button[aria-pressed="true"]{color:var(--ink)}
+.kinds sup{font:400 11px/1 var(--mono);letter-spacing:.04em;vertical-align:top;margin-left:2px;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;padding-block:16px}
+.find{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:6px 14px;min-width:0;flex:1 1 160px;background:var(--surface)}
+.find input{border:0;background:none;outline:none;width:100%;min-width:0;font:400 12px/1.2 var(--mono);letter-spacing:.04em;text-transform:uppercase}
 .find input::placeholder{color:var(--muted)}
-.find svg{flex:none;width:14px;height:14px;color:var(--muted)}
-.rnd{background:none;border:0;cursor:pointer;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);padding:6px 0}
-.rnd:hover{color:var(--gold-2)}
 
-/* выбор редакции */
-.pick{display:grid;grid-template-columns:minmax(0,1fr);gap:0;border:1px solid var(--line);margin-block:8px 36px;text-decoration:none;color:inherit;cursor:pointer;background:var(--raise);transition:border-color .3s}
-.pick:hover{border-color:var(--line-2)}
-@media (min-width:620px){.pick{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}
-.pick-body{padding:26px 26px 28px;display:flex;flex-direction:column;gap:12px;justify-content:center}
-.pick-body h2{margin:0;font:400 40px/1.05 var(--display)}
-.pick-body p{margin:0;color:var(--ink-2);font:italic 400 19px/1.45 var(--display)}
+/* список, как расписание эфира */
+.slist{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.srow{border-bottom:1px solid var(--line)}
+.sline{display:grid;grid-template-columns:5.4em minmax(0,1fr) auto;align-items:baseline;gap:8px;padding:10px 0;font-size:10px;color:var(--ink);transition:color .3s}
+.slist:hover .sline{color:var(--pale)}
+.slist .sline:hover{color:var(--ink)}
+.sline .d{font:400 10px/1.25 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sline .n{font-weight:800;font-size:min(8.5vw,44px);letter-spacing:-.055em;line-height:.86;text-transform:uppercase;overflow-wrap:anywhere}
+.sline .r{font:500 11px/1 var(--mono);color:var(--muted)}
+.sample{display:inline-block;margin-top:4px;padding:2px 6px;border:1px solid var(--line);border-radius:999px;font:400 9px/1.2 var(--mono);letter-spacing:.04em;color:var(--muted)}
+.empty{padding:28px 0;color:var(--muted);font-size:13px;border-bottom:1px solid var(--line)}
 
-/* табличка-монограмма */
-.plate{position:relative;aspect-ratio:4/3;max-width:100%;background:radial-gradient(120% 90% at 50% 0%,#1A1916 0%,#0E0E0F 70%);overflow:hidden}
-.plate::before{content:"";position:absolute;inset:14px;border:1px solid var(--line-2)}
-.plate::after{content:"";position:absolute;inset:19px;border:1px solid var(--line)}
-.plate .glyph{position:absolute;inset:0;display:grid;place-items:center;font:italic 400 clamp(110px,22vw,170px)/1 var(--display);color:var(--gold);letter-spacing:-.04em}
-.plate .no{position:absolute;left:30px;bottom:26px}
-.plate .kind{position:absolute;right:30px;bottom:26px}
-.plate .no,.plate .kind{font:500 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.sec{display:flex;flex-direction:column;gap:12px;padding-top:30px}
+.sec h2{margin:0;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:-.05em}
 
-/* список */
-.list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:6px 16px;padding:20px 0;border-bottom:1px solid var(--line);text-decoration:none;cursor:pointer;transition:padding .35s var(--ease)}
-.row:hover{padding-left:8px}
-.row:hover .arrow{color:var(--gold);transform:translateX(4px)}
-.row .n{font:500 11px/1 var(--mono);color:var(--muted);letter-spacing:.06em}
-.row .t{display:flex;flex-direction:column;gap:6px;min-width:0}
-.row .t strong{font:400 27px/1.05 var(--display);overflow-wrap:anywhere}
-.row .t span{font-size:12.5px;color:var(--muted)}
-.row .r{display:flex;align-items:center;gap:18px}
-.row .score{font:500 13px/1 var(--mono);color:var(--ink-2)}
-.arrow{color:var(--muted);transition:transform .35s var(--ease),color .2s;font-size:18px}
-.sample{font:600 9px/1 var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line-2);padding:3px 5px;margin-left:8px;vertical-align:middle}
-.none{padding:40px 0;color:var(--muted);text-align:center;font:italic 400 20px/1.4 var(--display);border-bottom:1px solid var(--line)}
-
-/* карточка */
-.back{display:inline-flex;align-items:center;gap:10px;background:none;border:0;cursor:pointer;padding:28px 0 22px;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2)}
-.back:hover{color:var(--ink)}
-.item{display:flex;flex-direction:column;gap:30px;padding-bottom:40px}
-.item .plate{aspect-ratio:16/9}
-.item-h{display:flex;flex-direction:column;gap:10px}
-.item-h h1{margin:0;font:400 clamp(44px,9vw,64px)/1 var(--display);letter-spacing:-.01em}
-.item-h p{margin:0;color:var(--ink-2)}
-.spec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line);margin:0}
-.spec div{padding:14px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px;min-width:0}
-.spec div:nth-child(even){padding-left:18px;border-left:1px solid var(--line)}
-.spec dt{font:600 10px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-.spec dd{margin:0;font-size:15px}
-@media (min-width:620px){.spec{grid-template-columns:repeat(4,minmax(0,1fr))}.spec div:nth-child(n){padding-left:18px;border-left:1px solid var(--line)}.spec div:nth-child(4n+1){padding-left:0;border-left:0}}
-.desc{margin:0;font-size:16.5px;line-height:1.7;max-width:60ch;color:var(--ink)}
-blockquote{margin:0;padding:4px 0 4px 24px;border-left:1px solid var(--gold);display:flex;flex-direction:column;gap:10px}
-blockquote p{margin:0;font:italic 400 24px/1.4 var(--display);color:var(--ink)}
-blockquote cite{font-style:normal}
-.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.figs div{padding:18px 0;display:flex;flex-direction:column;gap:8px}
-.figs div+div{padding-left:18px;border-left:1px solid var(--line)}
-.figs b{font:400 36px/1 var(--display);font-variant-numeric:lining-nums tabular-nums}
-.rules{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-.rules li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14.5px}
-.rules li span{font:italic 400 18px/1.2 var(--display);color:var(--gold)}
-.cta{display:flex;gap:10px;background:var(--bg);padding-top:12px;box-shadow:0 -24px 24px -4px var(--bg);position:sticky;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:3}
-.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:12px;height:54px;padding:0 24px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);text-decoration:none;cursor:pointer;
-  font:700 11px/1 var(--ui);letter-spacing:.24em;text-transform:uppercase;transition:background .25s,color .25s}
-.btn:hover{background:transparent;color:var(--ink)}
-.btn.ghost{background:var(--bg);color:var(--ink);border-color:var(--line-2);flex:0 0 auto}
-.btn.ghost:hover{border-color:var(--ink)}
-.btn[aria-disabled="true"]{background:var(--raise);color:var(--muted);border-color:var(--line);cursor:default}
-.sec-t{font:400 30px/1.1 var(--display);margin:0}
+/* карточка проекта */
+.top{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px}
+.item{display:flex;flex-direction:column;gap:22px;padding-bottom:30px}
+.item-h{display:flex;flex-direction:column;gap:8px}
+.item-h h1{margin:0;font-size:clamp(46px,14vw,92px)}
+.item-h .serif{font-size:clamp(22px,6vw,32px);line-height:1}
+.facts{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.facts li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.facts li span:first-child{font:400 10px/1.25 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.facts li b{font-weight:800;font-size:22px;letter-spacing:-.04em;text-transform:uppercase}
+.desc{margin:0;font-size:16px;line-height:1.5;font-weight:500;max-width:56ch}
+.quote{margin:0;padding:18px;background:var(--surface);border-radius:20px;display:flex;flex-direction:column;gap:10px}
+.quote p{margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(20px,5.4vw,26px);line-height:1.15}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.nums div{background:var(--surface);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.nums b{font-weight:800;font-size:clamp(24px,7vw,36px);letter-spacing:-.05em;line-height:.9}
+.rules{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.rules li{display:grid;grid-template-columns:5.4em minmax(0,1fr);gap:8px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line)}
+.rules li span{font:400 10px/1.25 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rules li b{font-weight:800;text-transform:uppercase;letter-spacing:-.04em;font-size:clamp(18px,5vw,24px);line-height:.95}
+.cta{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:6px;z-index:3;padding-top:10px;background:linear-gradient(transparent,var(--bg) 40%)}
+.btn{flex:1;height:54px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer;font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.btn.ghost{flex:0 0 auto;padding:0 20px;background:var(--bg);color:var(--ink)}
+.btn[aria-disabled="true"]{background:var(--surface);border-color:var(--line);color:var(--muted);cursor:default}
+.btn:active{transform:scale(.98)}
 
 /* страницы */
-.page{padding-block:48px 56px;display:flex;flex-direction:column;gap:26px}
-.page h1{margin:0;font:400 clamp(40px,8vw,58px)/1.02 var(--display)}
-.page h1 em{font-style:italic;color:var(--gold-2)}
-.page .lead{margin:0;color:var(--ink-2);max-width:56ch}
-form{display:flex;flex-direction:column;gap:22px}
-.f{display:flex;flex-direction:column;gap:8px}
-.f label{font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-.f input,.f textarea,.f select{background:transparent;border:0;border-bottom:1px solid var(--line-2);padding:8px 0 10px;outline:none;font-size:16px;border-radius:0}
-.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--gold)}
-.f textarea{min-height:90px;resize:vertical}
-.f select option{background:var(--raise)}
-.seg{display:flex;gap:0;border:1px solid var(--line-2);width:max-content}
-.seg button{background:none;border:0;padding:10px 22px;cursor:pointer;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.agree{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink-2);cursor:pointer}
-.agree input{appearance:none;flex:none;width:18px;height:18px;border:1px solid var(--line-2);margin:2px 0 0;display:grid;place-items:center;cursor:pointer}
-.agree input:checked{background:var(--gold);border-color:var(--gold)}
-.agree input:checked::after{content:"";width:8px;height:4px;border-left:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:rotate(-45deg) translate(1px,-1px)}
-.msg{font-size:14px;color:var(--gold-2)}
-.msg.err{color:#E08A7A}
-.done{border:1px solid var(--line);padding:40px 26px;display:flex;flex-direction:column;gap:14px;align-items:flex-start;background:var(--raise)}
-.done h2{margin:0;font:400 36px/1.05 var(--display)}
-.done p{margin:0;color:var(--ink-2)}
+.page{display:flex;flex-direction:column;gap:18px;padding-bottom:36px}
+.page h1{margin:0;font-size:clamp(46px,14vw,92px)}
+.page .serif{font-size:clamp(22px,6vw,32px);line-height:1}
+.page .lead{margin:0;color:var(--muted);font-size:14px;max-width:46ch}
+form{display:flex;flex-direction:column;gap:16px;border-top:1px solid var(--ink);padding-top:16px}
+.f{display:flex;flex-direction:column;gap:6px}
+.f label{font:400 10px/1.25 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.f input,.f textarea,.f select{border:0;border-bottom:1px solid var(--line);background:none;padding:6px 0 10px;outline:none;border-radius:0;font-weight:700;font-size:20px;letter-spacing:-.03em}
+.f input::placeholder{color:var(--pale)}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--ink)}
+.f textarea{min-height:80px;resize:vertical;font-weight:500;font-size:16px;letter-spacing:0}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink);cursor:pointer}
+.agree input{appearance:none;flex:none;width:20px;height:20px;border:1px solid var(--ink);border-radius:50%;margin:0;display:grid;place-items:center;cursor:pointer}
+.agree input:checked{background:var(--ink)}
+.agree input:checked::after{content:"";width:8px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.msg{font:400 11px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.04em}
+.msg.err{color:#d0342c}
+.done{background:var(--surface);border-radius:20px;padding:26px 18px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.done h2{margin:0;font-size:clamp(34px,10vw,56px)}
 
-.foot{border-top:1px solid var(--line);padding-block:26px 34px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
-.foot a{text-decoration:none}
-.loading{padding:80px 0;text-align:center;font:italic 400 22px/1 var(--display);color:var(--muted)}
-
-/* появление */
-.fade{animation:fade .6s var(--ease) both}
-@keyframes fade{from{opacity:.001;transform:translateY(8px)}to{opacity:1;transform:none}}
+.foot{border-top:1px solid var(--ink);padding-block:16px 30px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:30px}
+.loading{min-height:60vh;display:grid;place-items:center}
+.loading b{font-size:22px;font-weight:800;letter-spacing:-.05em;text-transform:uppercase;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.in{animation:in .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes in{from{opacity:.001;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="head">
-    <a class="mark" href="#"><b>Пульт</b><span class="caps">Игры и боты для Telegram</span></a>
-    <nav aria-label="Разделы">
-      <a href="#rules" data-nav="rules">Правила</a>
-      <a href="#submit" data-nav="submit">Предложить</a>
-    </nav>
+    <a class="station" href="#">Пульт</a>
+    <span class="badge" id="count"><i></i>в каталоге</span>
   </header>
+  <nav class="nav" aria-label="Разделы">
+    <a class="pill" href="#" data-nav="">Каталог</a>
+    <a class="pill" href="#rules" data-nav="rules">Правила</a>
+    <a class="pill" href="#submit" data-nav="submit">Предложить</a>
+  </nav>
 
-  <main id="app"><div class="loading">Загружаем каталог…</div></main>
+  <main id="app"><div class="loading"><b>Пульт</b></div></main>
 
   <footer class="foot">
-    <span class="caps">© Пульт · отобрано вручную</span>
-    <a class="caps" id="botlink" href="#" hidden>Бот в Telegram</a>
+    <span class="mono muted">© Пульт · отобрано вручную</span>
+    <a class="mono" id="botlink" href="#" hidden>Бот в Telegram →</a>
   </footer>
 </div>
 
 <script>
 const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
-if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor('#0B0B0C'); tg.setBackgroundColor('#0B0B0C'); } catch (e) {} }
+if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor('#ffffff'); tg.setBackgroundColor('#ffffff'); } catch (e) {} }
 
 const S = { data: null, kind: 'game', cat: 'all', q: '' };
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 const pad = n => String(n).padStart(2, '0');
-const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : (m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c); };
 const kindName = k => k === 'bot' ? 'Бот' : 'Игра';
 const haptic = () => { try { tg && tg.HapticFeedback.selectionChanged(); } catch (e) {} };
-
-function plate(x, n) {
-  const g = x.title.replace(/[«»"]/g, '').trim()[0] || '·';
-  return `<div class="plate"><span class="glyph">${esc(g)}</span><span class="no">№ ${pad(n)}</span><span class="kind">${kindName(x.kind)}</span></div>`;
-}
+const PLAY = '<svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z" fill="currentColor"/></svg>';
 const indexOf = x => S.data.items.indexOf(x) + 1;
+
+function cover(x, opts = {}) {
+  const g = x.title.replace(/[«»"]/g, '').trim()[0] || '·';
+  return `<div class="cover ${opts.wide ? 'wide' : ''}">
+    <div class="art"><div class="grain"></div><b>${esc(g)}</b></div>
+    <div class="cover-text">
+      <span class="mono">${esc(opts.label || kindName(x.kind) + ' · № ' + pad(indexOf(x)))}</span>
+      ${opts.bare ? '' : `<span class="heavy">${esc(x.title)}</span>`}
+      ${x.author ? `<span class="serif">${esc(x.author)}</span>` : ''}
+    </div>
+    <div class="cover-foot">
+      <span class="mono">${esc(x.categories.join(' · '))}${x.rating ? ' · ' + Number(x.rating).toFixed(1) : ''}</span>
+      ${opts.play ? `<span class="round">${PLAY}</span>` : ''}
+    </div>
+  </div>`;
+}
 
 function home() {
   const all = S.data.items;
@@ -225,50 +215,33 @@ function home() {
   const cats = S.data.categories[S.kind];
 
   app.innerHTML = `
-  <section class="hero fade">
-    <span class="caps">Каталог · ${new Date().toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</span>
-    <h1>Игры и боты, <em>отобранные вручную</em></h1>
-    <p>Мы проверяем каждый проект сами. Тапалки, казино, «заработок» и обязательные подписки сюда не попадают.</p>
-    <div class="ledger">
-      <div><span class="caps">Игр</span><b>${games}</b></div>
-      <div><span class="caps">Ботов</span><b>${bots}</b></div>
-      <div><span class="caps">Тапалок</span><b class="zero">0</b></div>
-    </div>
+  <section class="hero in">
+    <h1 class="heavy">Игры<br>и боты</h1>
+    <span class="serif">отобранные вручную</span>
+    <p>Каждый проект мы открываем сами. Тапалки, казино, «заработок» и обязательные подписки сюда не попадают.</p>
   </section>
 
-  <div class="switch" role="group" aria-label="Раздел">
-    <button data-kind="game" aria-pressed="${S.kind === 'game'}">Игры<i>${games}</i></button>
-    <button data-kind="bot" aria-pressed="${S.kind === 'bot'}">Боты<i>${bots}</i></button>
+  ${pick && !q && S.cat === 'all' ? `<a href="#item-${pick.id}" class="in" style="display:block">${cover(pick, { label: 'Выбор редакции', play: true })}</a>` : ''}
+
+  <div class="kinds" role="group" aria-label="Раздел">
+    <button data-kind="game" aria-pressed="${S.kind === 'game'}">Игры<sup>${games}</sup></button>
+    <button data-kind="bot" aria-pressed="${S.kind === 'bot'}">Боты<sup>${bots}</sup></button>
   </div>
 
-  <div class="tools">
-    <div class="cats" role="group" aria-label="Категории">
-      <button data-cat="all" aria-pressed="${S.cat === 'all'}">Все</button>
-      ${cats.map(c => `<button data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}
-    </div>
-    <label class="find"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>
-      <input id="q" type="search" placeholder="Поиск" value="${esc(S.q)}" autocomplete="off" aria-label="Поиск по названию"></label>
-    <button class="rnd" id="rnd">Случайно →</button>
+  <div class="filters" role="group" aria-label="Категории">
+    <button class="pill" data-cat="all" aria-pressed="${S.cat === 'all'}">Все</button>
+    ${cats.map(c => `<button class="pill" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}
+    <button class="pill soft" id="rnd">Случайно ↻</button>
+    <label class="find"><input id="q" type="search" placeholder="Поиск" value="${esc(S.q)}" autocomplete="off" aria-label="Поиск по названию"></label>
   </div>
 
-  ${pick && !q && S.cat === 'all' ? `
-  <a class="pick fade" href="#item-${pick.id}">
-    ${plate(pick, indexOf(pick))}
-    <div class="pick-body">
-      <span class="caps">Выбор редакции</span>
-      <h2>${esc(pick.title)}</h2>
-      <p>${esc(pick.note || pick.description)}</p>
-      <span class="caps" style="color:var(--gold)">Открыть карточку →</span>
-    </div>
-  </a>` : ''}
-
-  <ul class="list">
+  <ul class="slist">
     ${list.length ? list.map(x => `
-      <li><a class="row" href="#item-${x.id}">
-        <span class="n">№ ${pad(indexOf(x))}</span>
-        <span class="t"><strong>${esc(x.title)}</strong><span>${esc(x.categories.join(' · '))}${x.author ? ' — ' + esc(x.author) : ''}${x.example ? '<span class="sample">образец</span>' : ''}</span></span>
-        <span class="r">${x.rating ? `<span class="score">${Number(x.rating).toFixed(1)}</span>` : ''}<span class="arrow">→</span></span>
-      </a></li>`).join('') : `<li class="none">Здесь пока пусто. <a href="#submit">Предложите проект</a></li>`}
+      <li class="srow"><a class="sline" href="#item-${x.id}">
+        <span class="d">№ ${pad(indexOf(x))}<br>${esc(x.categories[0])}${x.example ? '<br><span class="sample">образец</span>' : ''}</span>
+        <span class="n">${esc(x.title)}</span>
+        <span class="r">${x.rating ? Number(x.rating).toFixed(1) : ''}</span>
+      </a></li>`).join('') : `<li class="empty">Здесь пока пусто. <a href="#submit"><u>Предложите проект</u></a></li>`}
   </ul>`;
 
   app.querySelectorAll('[data-kind]').forEach(b => b.onclick = () => { S.kind = b.dataset.kind; S.cat = 'all'; S.q = ''; haptic(); home(); });
@@ -280,37 +253,36 @@ function home() {
 
 function item(id) {
   const x = S.data.items.find(i => i.id === id);
-  if (!x) { app.innerHTML = `<div class="page"><h1>Проект <em>не найден</em></h1><p class="lead">Возможно, его убрали из каталога.</p><a class="btn" href="#">В каталог</a></div>`; return; }
+  if (!x) { app.innerHTML = `<section class="page"><h1 class="heavy">Нет такого</h1><span class="serif">проект убрали из каталога</span><a class="btn" href="#" style="flex:none">В каталог</a></section>`; return; }
   const st = x.stats;
   app.innerHTML = `
-  <button class="back" onclick="history.length>1?history.back():location.hash=''">← Каталог</button>
-  <article class="item fade">
-    ${plate(x, indexOf(x))}
+  <div class="top"><button class="pill" onclick="history.length>1?history.back():location.hash=''">← Назад</button>${x.example ? '<span class="pill soft">образец</span>' : ''}</div>
+  <article class="item in">
+    ${cover(x, { wide: true, bare: true })}
     <div class="item-h">
-      <span class="caps">${kindName(x.kind)} · ${esc(x.categories.join(' · '))}${x.example ? ' · образец' : ''}</span>
-      <h1>${esc(x.title)}</h1>
-      ${x.author ? `<p>${esc(x.author)}</p>` : ''}
+      <span class="mono muted">${kindName(x.kind)} · ${esc(x.categories.join(' · '))}</span>
+      <h1 class="heavy">${esc(x.title)}</h1>
+      ${x.note ? `<span class="serif">${esc(x.note)}</span>` : ''}
     </div>
-    <dl class="spec">
-      <div><dt>Оценка</dt><dd class="mono">${x.rating ? Number(x.rating).toFixed(1) + (x.votes ? ` <span style="color:var(--muted)">/ ${x.votes}</span>` : '') : '—'}</dd></div>
-      <div><dt>${x.kind === 'bot' ? 'Формат' : 'Сессия'}</dt><dd>${x.kind === 'bot' ? 'Бот' : (x.session ? '~ ' + esc(x.session) : '—')}</dd></div>
-      <div><dt>Цена</dt><dd>Бесплатно</dd></div>
-      <div><dt>Проверка</dt><dd style="color:var(--gold)">Пройдена</dd></div>
-    </dl>
+    <ul class="facts">
+      <li><span>Оценка</span><b>${x.rating ? Number(x.rating).toFixed(1) : '—'}${x.votes ? ` <span class="mono muted">/ ${x.votes}</span>` : ''}</b></li>
+      ${x.kind === 'game' ? `<li><span>Сессия</span><b>${x.session ? '~' + esc(x.session) : '—'}</b></li>` : ''}
+      <li><span>Цена</span><b>Бесплатно</b></li>
+      <li><span>Проверка</span><b>Пройдена ●</b></li>
+    </ul>
     <p class="desc">${esc(x.description)}</p>
-    ${x.note ? `<blockquote><p>«${esc(x.note)}»</p><cite class="caps">Редакция Пульта</cite></blockquote>` : ''}
-    ${st ? `<div><span class="caps">Показатели за 30 дней${x.example ? ' · пример' : ''}</span></div>
-    <div class="figs" style="margin-top:-18px">
-      <div><span class="caps">Игроков</span><b>${esc(st.players)}</b></div>
-      <div><span class="caps">Сессия</span><b>${esc(st.session)}</b></div>
-      <div><span class="caps">Вернулись, 7 дн.</span><b>${esc(st.d7)}</b></div>
-    </div>` : ''}
-    <h2 class="sec-t">Правила отбора</h2>
-    <ul class="rules">${S.data.criteria.map((c, i) => `<li><span>${ROMAN[i]}</span>${esc(c)}</li>`).join('')}</ul>
+    ${st ? `<div class="sec" style="padding-top:0"><span class="mono muted">Показатели за 30 дней${x.example ? ' · пример' : ''}</span>
+      <div class="nums">
+        <div><span class="mono muted">Игроков</span><b>${esc(st.players)}</b></div>
+        <div><span class="mono muted">Сессия</span><b>${esc(st.session)}</b></div>
+        <div><span class="mono muted">Вернулись</span><b>${esc(st.d7)}</b></div>
+      </div></div>` : ''}
+    <div class="sec" style="padding-top:0"><h2>Правила отбора</h2>
+      <ul class="rules">${S.data.criteria.map((c, i) => `<li><span>Правило ${i + 1}</span><b>${esc(c)}</b></li>`).join('')}</ul></div>
     <div class="cta">
       ${x.link ? `<a class="btn" href="${esc(x.link)}" target="_blank" rel="noopener" id="open">${x.kind === 'bot' ? 'Открыть бота' : 'Играть'} →</a>`
-               : `<span class="btn" aria-disabled="true">Ссылка появится скоро</span>`}
-      <button class="btn ghost" id="share" aria-label="Поделиться">Поделиться</button>
+               : `<span class="btn" aria-disabled="true">Ссылка скоро</span>`}
+      <button class="btn ghost" id="share">Поделиться</button>
     </div>
   </article>`;
   const open = app.querySelector('#open');
@@ -323,32 +295,32 @@ function item(id) {
 }
 
 function rules() {
-  app.innerHTML = `<section class="page fade">
-    <span class="caps">Правила отбора</span>
-    <h1>Четыре правила, <em>без исключений</em></h1>
-    <p class="lead">Каждый проект в каталоге мы открываем сами и пользуемся им хотя бы неделю. Платное размещение возможно только для тех, кто уже прошёл отбор, и всегда с пометкой.</p>
-    <ul class="rules">${S.data.criteria.map((c, i) => `<li><span>${ROMAN[i]}</span>${esc(c)}</li>`).join('')}</ul>
-    <a class="btn" href="#submit" style="flex:none">Предложить проект</a>
+  app.innerHTML = `<section class="page in">
+    <h1 class="heavy">Четыре<br>правила</h1>
+    <span class="serif">без исключений</span>
+    <p class="lead">Каждым проектом в каталоге мы пользуемся сами хотя бы неделю. Платное размещение возможно только для тех, кто уже прошёл отбор, и всегда с пометкой.</p>
+    <ul class="rules">${S.data.criteria.map((c, i) => `<li><span>Правило ${i + 1}</span><b>${esc(c)}</b></li>`).join('')}</ul>
+    <a class="btn" href="#submit" style="flex:none">Предложить проект →</a>
   </section>`;
 }
 
 function submit() {
   let kind = 'game';
   const catOpts = k => S.data.categories[k].map(c => `<option>${esc(c)}</option>`).join('');
-  app.innerHTML = `<section class="page fade">
-    <span class="caps">Для разработчиков и всех, кто нашёл что-то стоящее</span>
-    <h1>Предложить <em>проект</em></h1>
+  app.innerHTML = `<section class="page in">
+    <h1 class="heavy">Предложить</h1>
+    <span class="serif">игру или бота</span>
     <p class="lead">Мы посмотрим каждую заявку и сами всё попробуем. Ответ придёт в течение недели.</p>
     <form id="f" novalidate>
-      <div class="f"><label>Что это</label><div class="seg" role="group"><button type="button" data-k="game" aria-pressed="true">Игра</button><button type="button" data-k="bot" aria-pressed="false">Бот</button></div></div>
-      <div class="f"><label for="f-title">Название</label><input id="f-title" maxlength="64" required></div>
+      <div class="row" role="group" aria-label="Что это"><button type="button" class="pill" data-k="game" aria-pressed="true">Игра</button><button type="button" class="pill" data-k="bot" aria-pressed="false">Бот</button></div>
+      <div class="f"><label for="f-title">Название</label><input id="f-title" maxlength="64" placeholder="Тихий маяк" required></div>
       <div class="f"><label for="f-link">Ссылка</label><input id="f-link" placeholder="t.me/имя_бота" required></div>
       <div class="f"><label for="f-cat">Категория</label><select id="f-cat">${catOpts('game')}</select></div>
       <div class="f"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600"></textarea></div>
       <div class="f"><label for="f-contact">Как с вами связаться</label><input id="f-contact" placeholder="@username" maxlength="64"></div>
-      <label class="agree"><input type="checkbox" id="f-ok">Проект соответствует всем четырём правилам: без токенов и «заработка», без казино, без обязательных подписок, интересен дольше пяти минут.</label>
+      <label class="agree"><input type="checkbox" id="f-ok">Проект проходит все четыре правила: без токенов и «заработка», без казино, без обязательных подписок, интересен дольше пяти минут.</label>
       <p class="msg" id="f-msg" hidden></p>
-      <button class="btn" type="submit">Отправить на проверку</button>
+      <button class="btn" type="submit">Отправить на проверку →</button>
     </form>
   </section>`;
   const f = app.querySelector('#f');
@@ -364,10 +336,10 @@ function submit() {
       const r = await fetch('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || 'Не получилось отправить');
-      app.querySelector('.page').innerHTML = `<div class="done fade"><span class="caps">Заявка принята</span><h2>Спасибо. Мы посмотрим.</h2><p>Редакция проверит проект и ответит в течение недели.</p><a class="btn" href="#" style="flex:none">В каталог</a></div>`;
+      app.querySelector('.page').innerHTML = `<div class="done in"><span class="mono muted">Заявка принята</span><h2 class="heavy">Спасибо</h2><span class="serif" style="font-size:22px">редакция ответит в течение недели</span><a class="btn" href="#" style="flex:none;padding:0 22px">В каталог</a></div>`;
     } catch (err) {
       msg.textContent = err.message === 'Failed to fetch' ? 'Нет соединения. Попробуйте ещё раз.' : err.message;
-      msg.classList.add('err'); msg.hidden = false; btn.disabled = false; btn.textContent = 'Отправить на проверку';
+      msg.classList.add('err'); msg.hidden = false; btn.disabled = false; btn.textContent = 'Отправить на проверку →';
     }
   };
 }
@@ -375,7 +347,8 @@ function submit() {
 function route() {
   if (!S.data) return;
   const h = location.hash.slice(1);
-  document.querySelectorAll('[data-nav]').forEach(a => a.dataset.nav === h ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  const navKey = h.startsWith('item-') ? '' : h;
+  document.querySelectorAll('[data-nav]').forEach(a => a.dataset.nav === navKey ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   if (h.startsWith('item-')) item(h.slice(5));
   else if (h === 'rules') rules();
   else if (h === 'submit') submit();
@@ -389,9 +362,10 @@ async function boot() {
     const r = await fetch('/api/catalog');
     S.data = await r.json();
   } catch (e) {
-    app.innerHTML = `<div class="loading">Каталог не загрузился. Обновите страницу.</div>`;
+    app.innerHTML = `<div class="loading"><span class="mono muted">Каталог не загрузился. Обновите страницу.</span></div>`;
     return;
   }
+  document.getElementById('count').innerHTML = `<i></i>${S.data.items.length} в каталоге`;
   if (S.data.bot) { const a = document.getElementById('botlink'); a.href = 'https://t.me/' + S.data.bot; a.hidden = false; }
   if (tg) { try { tg.BackButton.onClick(() => history.length > 1 ? history.back() : (location.hash = '')); } catch (e) {} }
   const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param;
