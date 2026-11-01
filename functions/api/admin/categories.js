@@ -1,6 +1,6 @@
 // /api/admin/categories — категории по разделам. GET текущие, POST { categories: { game: [...], bot: [...], channel: [...] } }.
 // Если категорию переименовали (renames: [{ kind, from, to }]) или удалили, проекты обновляются вместе с ней.
-import { KINDS } from '../../_catalog.js';
+import { CATEGORIES_VERSION, KINDS } from '../../_catalog.js';
 import { getCategories, isAdmin, json, kvPut, saveItems, storedItems } from '../../_lib.js';
 
 export async function onRequest({ request, env }) {
@@ -23,6 +23,6 @@ export async function onRequest({ request, env }) {
     x.categories = [...new Set(x.categories.filter(c => next[x.kind].includes(c)))];
     if (!x.categories.length) x.categories = [next[x.kind][0]];
   });
-  await Promise.all([kvPut(env, 'categories', next), saveItems(env, items)]);
+  await Promise.all([kvPut(env, 'categories', { v: CATEGORIES_VERSION, ...next }), saveItems(env, items)]);
   return json({ ok: true, categories: next });
 }

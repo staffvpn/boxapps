@@ -1,4 +1,4 @@
-import { CATALOG, CATEGORIES, KINDS } from './_catalog.js';
+import { CATALOG, CATEGORIES, CATEGORIES_VERSION, KINDS } from './_catalog.js';
 
 export const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
@@ -28,7 +28,8 @@ export async function kvPut(env, key, value, ttl) {
 
 // Категории: правятся в админке и хранятся в KV, по умолчанию — из _catalog.js.
 export async function getCategories(env) {
-  const c = await kvGet(env, 'categories', null);
+  let c = await kvGet(env, 'categories', null);
+  if (c && c.v !== CATEGORIES_VERSION) c = null; // старый набор — берём новый по умолчанию
   const out = {};
   for (const k of Object.keys(KINDS)) out[k] = c && Array.isArray(c[k]) ? c[k] : CATEGORIES[k];
   return out;

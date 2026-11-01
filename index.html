@@ -121,6 +121,8 @@ img{max-width:100%;display:block}
 .tabs button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .tabs sup{font:700 10px/1 var(--mono);margin-left:4px;vertical-align:top}
 .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chiprow{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 100%;min-width:0}
+@media (max-width:700px){.chiprow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px)));padding:0 max(16px,env(safe-area-inset-right,0px)) 2px}.chiprow::-webkit-scrollbar{display:none}.chiprow .cat{flex:none}}
 .cat{border:var(--b);background:var(--card);padding:8px 11px;font:800 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
 .cat[aria-pressed="true"]{background:var(--lime)}
 .find{display:flex;align-items:center;gap:8px;border:var(--b);background:var(--card);padding:0 12px;flex:1 1 200px;min-width:0;height:35px}
@@ -393,8 +395,8 @@ function listView(kind) {
   <section class="hello in"><div><h1>${kindsName(kind)} <span class="tag">${n(kind)}</span></h1></div></section>
   <div class="tabs" role="group" aria-label="Раздел">${['game', 'bot', 'channel'].map(k => `<button data-k="${k}" aria-pressed="${kind === k}">${kindsName(k)}<sup>${n(k)}</sup></button>`).join('')}</div>
   <div class="tools">
-    <button class="cat" data-cat="all" aria-pressed="${S.cat === 'all'}">Все</button>
-    ${S.data.categories[kind].map(c => `<button class="cat" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}
+    <div class="chiprow" role="group" aria-label="Категории"><button class="cat" data-cat="all" aria-pressed="${S.cat === 'all'}">Все</button>
+    ${S.data.categories[kind].map(c => `<button class="cat" data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}</div>
     <label class="find"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg><input id="q" type="search" placeholder="Поиск по названию" value="${esc(S.q)}" autocomplete="off"></label>
   </div>
   <section class="box">
@@ -402,6 +404,7 @@ function listView(kind) {
     <div style="overflow-x:auto"><table class="tbl">${tableHead}<tbody>${rowsHTML(list)}</tbody></table></div>
   </section>`;
   bindRows();
+  const act = app.querySelector('.chiprow [aria-pressed="true"]'); if (act && S.cat !== 'all') act.scrollIntoView({ inline: 'center', block: 'nearest' });
   app.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { haptic(); S.q = ''; S.cat = 'all'; location.hash = KIND_HASH[b.dataset.k]; });
   app.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { S.cat = b.dataset.cat; haptic(); listView(kind); });
   const qi = app.querySelector('#q');
