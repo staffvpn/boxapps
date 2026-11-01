@@ -154,11 +154,11 @@ async function onMessage(ctx, m) {
   }
   if (st.step === 'title') {
     await setState(ctx, uid, { ...st, title: text.slice(0, 64), step: 'link' });
-    return send(ctx, chat, 'Ссылка: <code>t.me/имя</code> или <code>@имя</code>.');
+    return send(ctx, chat, 'Юзернейм или ссылка: <code>@username</code> или <code>t.me/username</code>.');
   }
   if (st.step === 'link') {
     const link = normalizeLink(text);
-    if (!link) return send(ctx, chat, 'Нужна ссылка на Telegram: <code>t.me/имя</code> или <code>@имя</code>.');
+    if (!link) return send(ctx, chat, 'Не похоже на юзернейм. Пришлите <code>@username</code> или <code>t.me/username</code>.');
     await setState(ctx, uid, { ...st, link, step: 'category' });
     const cats = (await getCategories(ctx.env))[st.kind];
     const rows = [];

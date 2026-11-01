@@ -11,7 +11,7 @@ export async function onRequestPost({ request, env }) {
   const link = normalizeLink(b.link);
   const category = CATEGORIES[kind].includes(b.category) ? b.category : CATEGORIES[kind][0];
   if (!title) return json({ ok: false, error: 'Укажите название' }, 400);
-  if (!link) return json({ ok: false, error: 'Нужна ссылка вида t.me/имя' }, 400);
+  if (!link) return json({ ok: false, error: 'Нужна ссылка: @username или t.me/username' }, 400);
   if (!env.STORE) return json({ ok: false, error: 'Хранилище не подключено' }, 503);
   await createSubmission(env, {
     kind, title, link, category,

@@ -43,11 +43,13 @@ export async function fullCatalog(env) {
   return [...CATALOG.filter(x => !ids.has(x.id)), ...stored];
 }
 
+// Принимает @username, username, t.me/username, https://t.me/... — в любом регистре.
 export function normalizeLink(raw) {
-  let s = String(raw || '').trim();
-  if (s.startsWith('@')) s = 'https://t.me/' + s.slice(1);
-  if (s.startsWith('t.me/')) s = 'https://' + s;
-  return /^https:\/\/t\.me\/[A-Za-z0-9_+]{5,}/.test(s) ? s : '';
+  let s = String(raw || '').trim().replace(/\s+/g, '');
+  s = s.replace(/^(https?:\/\/)?(www\.)?(t|telegram)\.(me|dog)\//i, '').replace(/^@/, '');
+  if (/^[A-Za-z][A-Za-z0-9_]{3,31}(\/[A-Za-z0-9_-]{1,64})?(\?[A-Za-z0-9_=&-]{1,128})?$/.test(s)) return 'https://t.me/' + s;
+  if (/^(\+|joinchat\/)[A-Za-z0-9_-]{6,}$/i.test(s)) return 'https://t.me/' + s;
+  return '';
 }
 
 export function slug(s) {

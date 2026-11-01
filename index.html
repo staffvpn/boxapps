@@ -67,6 +67,11 @@ img{max-width:100%;display:block}
 @media (min-width:980px){.bnav{display:none}}
 .bnav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:9px 2px 10px;color:#9d9d97;font:800 9.5px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;position:relative}
 .bnav a svg{width:21px;height:21px}
+/* пока открыта клавиатура: меню прячем, шапка не липнет и не уезжает под часы */
+body.typing .bnav{display:none}
+body.typing .mhead{position:relative}
+body.typing .main{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+.cell input,.cell textarea,.cell select{font-size:16px}
 .bnav a[aria-current="page"]{color:var(--lime)}
 .bnav a[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--lime)}
 
@@ -217,6 +222,9 @@ img{max-width:100%;display:block}
 .cell:nth-child(even){border-left:var(--b)}
 .cell.full{grid-column:1/-1;border-left:0!important}
 .cell.full:nth-child(-n+2){border-top:0}
+.form > .cells{margin:0;border:0;border-bottom:var(--b)}
+.form > .cells + .msg{margin-top:12px}
+.form > .cells ~ .submit{margin-top:14px}
 .cell label,.cell .lab{font:800 10px/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .cell input,.cell select,.cell textarea{border:0;background:none;outline:none;padding:0;font:900 16px/1.25 var(--sans);letter-spacing:-.01em;width:100%;min-width:0;border-radius:0}
 .cell textarea{font-weight:600;font-size:14px;min-height:72px;resize:vertical}
@@ -589,9 +597,9 @@ function submit() {
     <div class="tabs" style="border:0;border-bottom:var(--b)" role="group">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${k === 'game'}">${kindName(k)}</button>`).join('')}</div>
     <div class="cells">
       <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64"></div>
-      <div class="cell"><label for="f-link">Ссылка</label><input id="f-link" placeholder="t.me/имя"></div>
+      <div class="cell"><label for="f-link">Юзернейм или ссылка</label><input id="f-link" placeholder="@username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" inputmode="email" enterkeyhint="next"></div>
       <div class="cell"><label for="f-cat">Категория</label><select id="f-cat">${catOpts('game')}</select></div>
-      <div class="cell"><label for="f-contact">Контакт</label><input id="f-contact" placeholder="@username" maxlength="64"></div>
+      <div class="cell"><label for="f-contact">Контакт</label><input id="f-contact" placeholder="@username" maxlength="64" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" inputmode="email" enterkeyhint="next"></div>
       <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600"></textarea></div>
     </div>
     <p class="msg" id="f-msg" hidden></p>
@@ -606,14 +614,14 @@ function submit() {
     const btn = f.querySelector('.submit'); btn.disabled = true;
     const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind, title: f.querySelector('#f-title').value, link: f.querySelector('#f-link').value, category: f.querySelector('#f-cat').value, description: f.querySelector('#f-desc').value, contact: f.querySelector('#f-contact').value }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
     if (!j.ok) { msg.textContent = j.error || 'Не получилось отправить'; msg.hidden = false; btn.disabled = false; return; }
-    f.outerHTML = `<section class="box blank in"><span class="sq lime">✓</span><h2>Заявка отправлена</h2><p class="sub" style="margin:0">Ответим в течение недели.</p><a class="btn dark" href="#" style="gap:14px">На главную ${RARROW}</a></section>`;
+    f.outerHTML = `<section class="box blank in"><span class="sq lime">✓</span><h2>Заявка отправлена</h2><p class="sub" style="margin:0">Ответим в течение недели.</p><div class="adm-bar"><a class="btn dark" href="#" style="gap:14px">На главную ${RARROW}</a><a class="btn" href="#submit">Ещё одну</a></div></section>`;
   };
 }
 
 /* ---------- админка ---------- */
 async function adminLogin() {
   app.innerHTML = `<section class="hello in"><div><h1>Админка</h1><p>${tg ? 'Ваш аккаунт Telegram не в списке админов. Можно войти по ключу.' : 'Откройте BOX APPS из Telegram с админского аккаунта или войдите по ключу.'}</p></div></section>
-  <form class="box form" id="lf" novalidate><div class="cells" style="grid-template-columns:minmax(0,1fr)"><div class="cell full"><label for="lk">Ключ администратора (ADMIN_KEY)</label><input id="lk" type="password" autocomplete="current-password"></div></div>
+  <form class="box form" id="lf" novalidate><div class="cells" style="grid-template-columns:minmax(0,1fr)"><div class="cell full"><label for="lk">Ключ администратора (ADMIN_KEY)</label><input id="lk" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false"></div></div>
   <p class="msg" id="lmsg" hidden></p><button class="submit" type="submit">Войти ${RARROW}</button></form>`;
   app.querySelector('#lf').onsubmit = async e => {
     e.preventDefault();
@@ -761,18 +769,18 @@ async function adminEdit(id) {
       <div class="tabs" style="border:0;border-bottom:var(--b)" role="group">${['game', 'bot', 'channel'].map(kk => `<button type="button" data-k="${kk}" aria-pressed="${k === kk}">${kindName(kk)}</button>`).join('')}</div>
       <div class="cells">
         <div class="cell"><label for="e-title">Название *</label><input id="e-title" value="${esc(x.title || '')}" maxlength="64"></div>
-        <div class="cell"><label for="e-link">Ссылка *</label><input id="e-link" value="${esc(x.link || '')}" placeholder="t.me/имя"></div>
+        <div class="cell"><label for="e-link">Юзернейм или ссылка *</label><input id="e-link" value="${esc(x.link || '')}" placeholder="@username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" inputmode="email"></div>
         <div class="cell full"><span class="lab">Категории *</span><div class="checks">${S.data.categories[k].map(c => `<label><input type="checkbox" value="${esc(c)}" ${x.categories.includes(c) ? 'checked' : ''}>${esc(c)}</label>`).join('')}</div><small>Новые категории создаются во вкладке «Категории».</small></div>
         <div class="cell full"><label for="e-desc">Описание</label><textarea id="e-desc" maxlength="1500">${esc(x.description || '')}</textarea></div>
         <div class="cell"><label for="e-author">Автор / студия</label><input id="e-author" value="${esc(x.author || '')}"></div>
         <div class="cell"><label for="e-price">Цена</label><input id="e-price" value="${esc(x.price || '')}" placeholder="Бесплатно"></div>
         ${k === 'game' ? `<div class="cell"><label for="e-session">Средняя сессия</label><input id="e-session" value="${esc(x.session || '')}" placeholder="10 мин"></div>` : ''}
         ${k === 'channel' ? `<div class="cell"><label for="e-subs">Подписчики</label><input id="e-subs" value="${esc(x.subscribers || '')}" placeholder="12 тыс."></div>` : ''}
-        <div class="cell"><label for="e-channel">Канал проекта</label><input id="e-channel" value="${esc(x.channel || '')}" placeholder="t.me/канал"></div>
+        <div class="cell"><label for="e-channel">Канал проекта</label><input id="e-channel" value="${esc(x.channel || '')}" placeholder="@channel" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" inputmode="email"></div>
         <div class="cell"><label for="e-rating">Оценка (0–5)</label><input id="e-rating" inputmode="decimal" value="${x.rating ?? ''}"></div>
         <div class="cell"><label for="e-votes">Голосов</label><input id="e-votes" inputmode="numeric" value="${x.votes ?? ''}"></div>
         <div class="cell full"><label for="e-note">Комментарий редакции</label><input id="e-note" value="${esc(x.note || '')}" maxlength="400"></div>
-        <div class="cell"><label for="e-id">Адрес страницы</label><input id="e-id" value="${esc(x.id || '')}" placeholder="создастся из названия"><small>/#item-адрес · латиница</small></div>
+        <div class="cell"><label for="e-id">Адрес страницы</label><input id="e-id" value="${esc(x.id || '')}" placeholder="создастся из названия" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"><small>/#item-адрес · латиница</small></div>
         <div class="cell"><span class="lab">Показ</span>
           <label class="tog"><input type="checkbox" id="e-feat" ${x.featured ? 'checked' : ''}>Выбор редакции на главной</label>
           <label class="tog"><input type="checkbox" id="e-hid" ${x.hidden ? 'checked' : ''}>Скрыть из каталога</label></div>
@@ -868,6 +876,24 @@ async function boot() {
   if (sp && !location.hash) location.hash = sp.startsWith('item-') ? sp : 'item-' + sp;
   route();
 }
+// повторное нажатие на текущий раздел (например, «+ Проект» после отправки) открывает его заново
+document.addEventListener('click', e => { const a = e.target.closest('a[href^="#"]'); if (a && a.getAttribute('href') === (location.hash || '#')) { e.preventDefault(); route(); } });
+// клавиатура на телефоне: прячем нижнее меню и подкручиваем поле в центр экрана
+const isField = el => el && (el.matches('textarea, select') || (el.matches('input') && !['checkbox', 'radio', 'file', 'button', 'submit'].includes(el.type)));
+document.addEventListener('focusin', e => {
+  if (!isField(e.target)) return;
+  document.body.classList.add('typing');
+  if (window.matchMedia('(max-width: 979px)').matches) setTimeout(() => { try { e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (er) {} }, 300);
+});
+document.addEventListener('focusout', () => setTimeout(() => { if (!isField(document.activeElement)) document.body.classList.remove('typing'); }, 120));
+// «Готово» на клавиатуре в однострочных полях переводит к следующему полю
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || !e.target.matches('.cells input')) return;
+  const all = [...e.target.form.querySelectorAll('.cells input, .cells textarea, .cells select')];
+  const next = all[all.indexOf(e.target) + 1];
+  if (next) { e.preventDefault(); next.focus(); }
+});
+
 window.addEventListener('hashchange', route);
 boot();
 </script>
