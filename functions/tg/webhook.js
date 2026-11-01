@@ -92,9 +92,15 @@ function itemKb(ctx, x) {
   rows.push([btn('← Категории', 'kind:' + x.kind), btn('Меню', 'menu')]);
   return { inline_keyboard: rows };
 }
+// своя обложка, иначе аватарка проекта из Telegram (через /avatar), иначе просто текст
+function photoOf(ctx, x) {
+  if (x.image) return x.image.startsWith('/') ? ctx.origin + x.image : x.image;
+  const m = /^https:\/\/t\.me\/([A-Za-z][A-Za-z0-9_]{3,31})(?:[/?#]|$)/.exec(x.link || '');
+  return m ? `${ctx.origin}/avatar/${m[1]}` : '';
+}
 async function sendItem(ctx, chat, x) {
-  if (x.image) {
-    const photo = x.image.startsWith('/') ? ctx.origin + x.image : x.image;
+  const photo = photoOf(ctx, x);
+  if (photo) {
     const r = await tgApi(ctx.env, 'sendPhoto', { chat_id: chat, photo, caption: itemText(x).slice(0, 1000), parse_mode: 'HTML', reply_markup: itemKb(ctx, x) });
     if (r.ok) return r;
   }

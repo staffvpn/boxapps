@@ -112,7 +112,16 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 @media (hover:hover){.row:hover{background:var(--surface-2)}}
 .thumb{width:58px;height:58px;border-radius:var(--r-m);flex:none;overflow:hidden;background:var(--c,var(--green));display:grid;place-items:center}
 .thumb svg{width:110%;height:110%}
+.thumb{position:relative}
 .thumb img{width:100%;height:100%;object-fit:cover}
+/* аватарка из Telegram поверх иллюстрации */
+.av{position:absolute;opacity:0;transition:opacity .25s;object-fit:cover}
+.av.ok{opacity:1}
+.has-av > svg{visibility:hidden}
+.av.fill{inset:0;width:100%;height:100%}
+.av.round{left:50%;top:50%;width:min(56%,220px);height:auto;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(20,20,20,.12),0 18px 40px rgba(20,20,20,.25)}
+.fcard .art{aspect-ratio:240/180}
+.fcard .art .av.round{width:72%}
 .row-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .row-t b{font:600 16px/1.25 var(--font);display:flex;align-items:center;gap:8px;min-width:0}
 .row-t b span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -376,6 +385,11 @@ function artOf(x) {
   return (ILL[x.kind] || ILL.game)(HEX.dark, a1, a2, HEX.ink);
 }
 const cssColor = x => `var(--${colorOf(x)})`;
+// юзернейм проекта из ссылки t.me/<username>[/...]
+function tgName(x) { const m = /^https:\/\/t\.me\/([A-Za-z][A-Za-z0-9_]{3,31})(?:[/?#]|$)/.exec(x.link || ''); return m ? m[1] : ''; }
+// аватарка из Telegram: появляется поверх нашей иллюстрации, если загрузилась; если нет — иллюстрация остаётся
+function avatarImg(x, cls = '') { const n = tgName(x); return n ? `<img class="av ${cls}" src="/avatar/${n}" alt="" loading="lazy" onload="this.classList.add('ok');this.parentNode.classList.add('has-av')" onerror="this.remove()">` : ''; }
+function pic(x, cls) { return x.image ? `<img src="${esc(x.image)}" alt="" loading="lazy">` : artOf(x) + avatarImg(x, cls); }
 
 /* ---------- счётчики и ссылки ---------- */
 function track(id, type) {
@@ -400,7 +414,7 @@ async function reloadCatalog() { S.data = await (await fetch('/api/catalog', { c
 
 /* ---------- общие куски ---------- */
 const countIn = (k, c) => S.data.items.filter(x => x.kind === k && (!c || x.categories.includes(c))).length;
-function thumb(x) { return `<span class="thumb" style="--c:${cssColor(x)}">${x.image ? `<img src="${esc(x.image)}" alt="" loading="lazy">` : artOf(x)}</span>`; }
+function thumb(x) { return `<span class="thumb" style="--c:${cssColor(x)}">${pic(x, 'fill')}</span>`; }
 function rowHTML(x) {
   const meta = [kindName(x.kind), x.categories[0], x.rating ? '★ ' + Number(x.rating).toFixed(1) : '', x.subscribers ? x.subscribers : ''].filter(Boolean).join(' · ');
   return `<a class="row" href="#item-${x.id}">${thumb(x)}<span class="row-t"><b><span>${esc(x.title)}</span>${x.featured ? `<span class="mini" style="--c:${cssColor(x)}">выбор</span>` : ''}</b><small>${esc(meta)}</small></span><span class="play">${PLAY}</span></a>`;
@@ -410,7 +424,7 @@ function cardHTML(x) {
   const sub = x.author ? 'от ' + x.author : `${kindName(x.kind)} · ${x.categories[0]}`;
   return `<a class="fcard in${x.image ? ' img' : ''}" href="#item-${x.id}" style="--c:${cssColor(x)}">
     <div class="fc-t">${x.featured ? '<span class="tag dark">★ Выбор редакции</span>' : ''}<h3>${esc(x.title)}</h3><span>${esc(sub)}</span></div>
-    <div class="art">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x)}</div>
+    <div class="art">${pic(x, 'round')}</div>
     <span class="go">${openLabel(x.kind)}<span class="play">${PLAY}</span></span></a>`;
 }
 const searchHTML = (id, val, ph) => `<label class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="${id}" type="search" placeholder="${ph}" value="${esc(val)}" autocomplete="off" enterkeyhint="search">${val ? `<button type="button" data-clear="${id}" aria-label="Очистить">×</button>` : ''}</label>`;
@@ -549,7 +563,7 @@ function item(id) {
   <div class="topbar"><button class="circ" id="back" aria-label="Назад">${IC.back}</button>
     <div class="head-r">${S.admin ? `<a class="circ" href="#admin-edit-${x.id}" aria-label="Редактировать">${IC.edit}</a>` : ''}<button class="circ" id="share" aria-label="Поделиться">${IC.share}</button></div></div>
   <div class="in" style="display:flex;flex-direction:column;gap:8px"><span class="muted">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1 class="big">${esc(x.title)}</h1></div>
-  <div class="cover in" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x)}</div>
+  <div class="cover in" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x) + avatarImg(x, 'round')}</div>
   <div class="chips">${chips.map(([ic, t]) => `<span class="ichip" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
   ${x.description ? `<p class="about">${esc(x.description)}</p>` : ''}
   ${x.note ? `<div class="note"><span class="tag" style="background:${c};color:var(--dark)">От редакции</span><p>${esc(x.note)}</p></div>` : ''}
