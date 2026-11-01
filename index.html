@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Пульт — игры и боты для Telegram</title>
+<meta name="description" content="Игры и боты для Telegram, отобранные вручную. Без тапалок, казино, «заработка» и обязательных подписок.">
+<meta name="theme-color" content="#0B0B0C">
+<meta property="og:title" content="Пульт — игры и боты для Telegram">
+<meta property="og:description" content="Отобранные вручную. Без фарма и мусора.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+/* Строгая тёмная витрина: одна колонка ≤ 760px, тонкие линии, серифный дисплей, золото только для акцентов. */
+:root{
+  color-scheme:dark;
+  --bg:#0B0B0C; --raise:#121214; --line:#26241F; --line-2:#3A362E;
+  --ink:#EEE9DF; --ink-2:#B9B2A5; --muted:#7E786D;
+  --gold:#C9A86A; --gold-2:#E3CC98;
+  --display:"Cormorant Garamond", "Times New Roman", Georgia, serif;
+  --ui:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--ui);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
+::selection{background:var(--gold);color:var(--bg)}
+.caps{font:600 10.5px/1.2 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* шапка */
+.head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:22px;border-bottom:1px solid var(--line)}
+.mark{display:flex;align-items:baseline;gap:14px;text-decoration:none}
+.mark b{font:500 26px/1 var(--display);letter-spacing:.32em;text-transform:uppercase;padding-left:.32em}
+.mark span{display:none}
+@media (min-width:560px){.mark span{display:inline}}
+.head nav{display:flex;gap:22px}
+.head nav a{text-decoration:none;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);padding-block:6px;border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+.head nav a:hover,.head nav a[aria-current="page"]{color:var(--ink);border-color:var(--gold)}
+
+/* главная */
+.hero{padding-block:56px 40px;display:flex;flex-direction:column;gap:22px}
+.hero h1{margin:0;font:400 clamp(40px,8.4vw,68px)/1.02 var(--display);letter-spacing:-.01em;text-wrap:balance}
+.hero h1 em{font-style:italic;color:var(--gold-2)}
+.hero p{margin:0;max-width:52ch;color:var(--ink-2);font-size:15px}
+.ledger{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ledger div{padding:16px 0;display:flex;flex-direction:column;gap:6px}
+.ledger div+div{padding-left:18px;border-left:1px solid var(--line)}
+.ledger b{font:400 34px/1 var(--display);font-variant-numeric:lining-nums}
+.ledger b.zero{color:var(--gold)}
+
+.switch{display:flex;gap:30px;padding-top:40px;border-bottom:1px solid var(--line)}
+.switch button{background:none;border:0;padding:0 0 14px;cursor:pointer;font:400 30px/1 var(--display);color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .25s}
+.switch button[aria-pressed="true"]{color:var(--ink);border-color:var(--gold)}
+.switch button i{font:500 11px/1 var(--mono);font-style:normal;vertical-align:super;margin-left:4px;color:var(--muted)}
+
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;padding-block:20px}
+.cats{display:flex;flex-wrap:wrap;gap:6px 18px;flex:1 1 100%;min-width:0}
+.cats button{background:none;border:0;padding:4px 0;cursor:pointer;font:500 13px/1.3 var(--ui);color:var(--muted);border-bottom:1px solid transparent}
+.cats button:hover{color:var(--ink-2)}
+.cats button[aria-pressed="true"]{color:var(--ink);border-color:var(--gold)}
+.find{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-2);padding-block:6px;min-width:0;flex:1 1 180px}
+.find input{background:none;border:0;outline:none;width:100%;min-width:0;font-size:14px}
+.find input::placeholder{color:var(--muted)}
+.find svg{flex:none;width:14px;height:14px;color:var(--muted)}
+.rnd{background:none;border:0;cursor:pointer;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);padding:6px 0}
+.rnd:hover{color:var(--gold-2)}
+
+/* выбор редакции */
+.pick{display:grid;grid-template-columns:minmax(0,1fr);gap:0;border:1px solid var(--line);margin-block:8px 36px;text-decoration:none;color:inherit;cursor:pointer;background:var(--raise);transition:border-color .3s}
+.pick:hover{border-color:var(--line-2)}
+@media (min-width:620px){.pick{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}
+.pick-body{padding:26px 26px 28px;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.pick-body h2{margin:0;font:400 40px/1.05 var(--display)}
+.pick-body p{margin:0;color:var(--ink-2);font:italic 400 19px/1.45 var(--display)}
+
+/* табличка-монограмма */
+.plate{position:relative;aspect-ratio:4/3;max-width:100%;background:radial-gradient(120% 90% at 50% 0%,#1A1916 0%,#0E0E0F 70%);overflow:hidden}
+.plate::before{content:"";position:absolute;inset:14px;border:1px solid var(--line-2)}
+.plate::after{content:"";position:absolute;inset:19px;border:1px solid var(--line)}
+.plate .glyph{position:absolute;inset:0;display:grid;place-items:center;font:italic 400 clamp(110px,22vw,170px)/1 var(--display);color:var(--gold);letter-spacing:-.04em}
+.plate .no{position:absolute;left:30px;bottom:26px}
+.plate .kind{position:absolute;right:30px;bottom:26px}
+.plate .no,.plate .kind{font:500 10px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+/* список */
+.list{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:6px 16px;padding:20px 0;border-bottom:1px solid var(--line);text-decoration:none;cursor:pointer;transition:padding .35s var(--ease)}
+.row:hover{padding-left:8px}
+.row:hover .arrow{color:var(--gold);transform:translateX(4px)}
+.row .n{font:500 11px/1 var(--mono);color:var(--muted);letter-spacing:.06em}
+.row .t{display:flex;flex-direction:column;gap:6px;min-width:0}
+.row .t strong{font:400 27px/1.05 var(--display);overflow-wrap:anywhere}
+.row .t span{font-size:12.5px;color:var(--muted)}
+.row .r{display:flex;align-items:center;gap:18px}
+.row .score{font:500 13px/1 var(--mono);color:var(--ink-2)}
+.arrow{color:var(--muted);transition:transform .35s var(--ease),color .2s;font-size:18px}
+.sample{font:600 9px/1 var(--ui);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line-2);padding:3px 5px;margin-left:8px;vertical-align:middle}
+.none{padding:40px 0;color:var(--muted);text-align:center;font:italic 400 20px/1.4 var(--display);border-bottom:1px solid var(--line)}
+
+/* карточка */
+.back{display:inline-flex;align-items:center;gap:10px;background:none;border:0;cursor:pointer;padding:28px 0 22px;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2)}
+.back:hover{color:var(--ink)}
+.item{display:flex;flex-direction:column;gap:30px;padding-bottom:40px}
+.item .plate{aspect-ratio:16/9}
+.item-h{display:flex;flex-direction:column;gap:10px}
+.item-h h1{margin:0;font:400 clamp(44px,9vw,64px)/1 var(--display);letter-spacing:-.01em}
+.item-h p{margin:0;color:var(--ink-2)}
+.spec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line);margin:0}
+.spec div{padding:14px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px;min-width:0}
+.spec div:nth-child(even){padding-left:18px;border-left:1px solid var(--line)}
+.spec dt{font:600 10px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.spec dd{margin:0;font-size:15px}
+@media (min-width:620px){.spec{grid-template-columns:repeat(4,minmax(0,1fr))}.spec div:nth-child(n){padding-left:18px;border-left:1px solid var(--line)}.spec div:nth-child(4n+1){padding-left:0;border-left:0}}
+.desc{margin:0;font-size:16.5px;line-height:1.7;max-width:60ch;color:var(--ink)}
+blockquote{margin:0;padding:4px 0 4px 24px;border-left:1px solid var(--gold);display:flex;flex-direction:column;gap:10px}
+blockquote p{margin:0;font:italic 400 24px/1.4 var(--display);color:var(--ink)}
+blockquote cite{font-style:normal}
+.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.figs div{padding:18px 0;display:flex;flex-direction:column;gap:8px}
+.figs div+div{padding-left:18px;border-left:1px solid var(--line)}
+.figs b{font:400 36px/1 var(--display);font-variant-numeric:lining-nums tabular-nums}
+.rules{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.rules li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.rules li span{font:italic 400 18px/1.2 var(--display);color:var(--gold)}
+.cta{display:flex;gap:10px;background:var(--bg);padding-top:12px;box-shadow:0 -24px 24px -4px var(--bg);position:sticky;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:3}
+.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:12px;height:54px;padding:0 24px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);text-decoration:none;cursor:pointer;
+  font:700 11px/1 var(--ui);letter-spacing:.24em;text-transform:uppercase;transition:background .25s,color .25s}
+.btn:hover{background:transparent;color:var(--ink)}
+.btn.ghost{background:var(--bg);color:var(--ink);border-color:var(--line-2);flex:0 0 auto}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn[aria-disabled="true"]{background:var(--raise);color:var(--muted);border-color:var(--line);cursor:default}
+.sec-t{font:400 30px/1.1 var(--display);margin:0}
+
+/* страницы */
+.page{padding-block:48px 56px;display:flex;flex-direction:column;gap:26px}
+.page h1{margin:0;font:400 clamp(40px,8vw,58px)/1.02 var(--display)}
+.page h1 em{font-style:italic;color:var(--gold-2)}
+.page .lead{margin:0;color:var(--ink-2);max-width:56ch}
+form{display:flex;flex-direction:column;gap:22px}
+.f{display:flex;flex-direction:column;gap:8px}
+.f label{font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.f input,.f textarea,.f select{background:transparent;border:0;border-bottom:1px solid var(--line-2);padding:8px 0 10px;outline:none;font-size:16px;border-radius:0}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--gold)}
+.f textarea{min-height:90px;resize:vertical}
+.f select option{background:var(--raise)}
+.seg{display:flex;gap:0;border:1px solid var(--line-2);width:max-content}
+.seg button{background:none;border:0;padding:10px 22px;cursor:pointer;font:600 10.5px/1 var(--ui);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.agree{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink-2);cursor:pointer}
+.agree input{appearance:none;flex:none;width:18px;height:18px;border:1px solid var(--line-2);margin:2px 0 0;display:grid;place-items:center;cursor:pointer}
+.agree input:checked{background:var(--gold);border-color:var(--gold)}
+.agree input:checked::after{content:"";width:8px;height:4px;border-left:1.5px solid var(--bg);border-bottom:1.5px solid var(--bg);transform:rotate(-45deg) translate(1px,-1px)}
+.msg{font-size:14px;color:var(--gold-2)}
+.msg.err{color:#E08A7A}
+.done{border:1px solid var(--line);padding:40px 26px;display:flex;flex-direction:column;gap:14px;align-items:flex-start;background:var(--raise)}
+.done h2{margin:0;font:400 36px/1.05 var(--display)}
+.done p{margin:0;color:var(--ink-2)}
+
+.foot{border-top:1px solid var(--line);padding-block:26px 34px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+.foot a{text-decoration:none}
+.loading{padding:80px 0;text-align:center;font:italic 400 22px/1 var(--display);color:var(--muted)}
+
+/* появление */
+.fade{animation:fade .6s var(--ease) both}
+@keyframes fade{from{opacity:.001;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <a class="mark" href="#"><b>Пульт</b><span class="caps">Игры и боты для Telegram</span></a>
+    <nav aria-label="Разделы">
+      <a href="#rules" data-nav="rules">Правила</a>
+      <a href="#submit" data-nav="submit">Предложить</a>
+    </nav>
+  </header>
+
+  <main id="app"><div class="loading">Загружаем каталог…</div></main>
+
+  <footer class="foot">
+    <span class="caps">© Пульт · отобрано вручную</span>
+    <a class="caps" id="botlink" href="#" hidden>Бот в Telegram</a>
+  </footer>
+</div>
+
+<script>
+const tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
+if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor('#0B0B0C'); tg.setBackgroundColor('#0B0B0C'); } catch (e) {} }
+
+const S = { data: null, kind: 'game', cat: 'all', q: '' };
+const app = document.getElementById('app');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+const pad = n => String(n).padStart(2, '0');
+const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : (m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c); };
+const kindName = k => k === 'bot' ? 'Бот' : 'Игра';
+const haptic = () => { try { tg && tg.HapticFeedback.selectionChanged(); } catch (e) {} };
+
+function plate(x, n) {
+  const g = x.title.replace(/[«»"]/g, '').trim()[0] || '·';
+  return `<div class="plate"><span class="glyph">${esc(g)}</span><span class="no">№ ${pad(n)}</span><span class="kind">${kindName(x.kind)}</span></div>`;
+}
+const indexOf = x => S.data.items.indexOf(x) + 1;
+
+function home() {
+  const all = S.data.items;
+  const games = all.filter(x => x.kind === 'game').length, bots = all.length - games;
+  const pick = all.find(x => x.featured && x.kind === S.kind) || all.find(x => x.kind === S.kind);
+  const q = S.q.trim().toLowerCase();
+  let list = all.filter(x => x.kind === S.kind);
+  if (S.cat !== 'all') list = list.filter(x => x.categories.includes(S.cat));
+  if (q) list = all.filter(x => (x.title + ' ' + (x.description || '')).toLowerCase().includes(q));
+  list = [...list].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  const cats = S.data.categories[S.kind];
+
+  app.innerHTML = `
+  <section class="hero fade">
+    <span class="caps">Каталог · ${new Date().toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}</span>
+    <h1>Игры и боты, <em>отобранные вручную</em></h1>
+    <p>Мы проверяем каждый проект сами. Тапалки, казино, «заработок» и обязательные подписки сюда не попадают.</p>
+    <div class="ledger">
+      <div><span class="caps">Игр</span><b>${games}</b></div>
+      <div><span class="caps">Ботов</span><b>${bots}</b></div>
+      <div><span class="caps">Тапалок</span><b class="zero">0</b></div>
+    </div>
+  </section>
+
+  <div class="switch" role="group" aria-label="Раздел">
+    <button data-kind="game" aria-pressed="${S.kind === 'game'}">Игры<i>${games}</i></button>
+    <button data-kind="bot" aria-pressed="${S.kind === 'bot'}">Боты<i>${bots}</i></button>
+  </div>
+
+  <div class="tools">
+    <div class="cats" role="group" aria-label="Категории">
+      <button data-cat="all" aria-pressed="${S.cat === 'all'}">Все</button>
+      ${cats.map(c => `<button data-cat="${esc(c)}" aria-pressed="${S.cat === c}">${esc(c)}</button>`).join('')}
+    </div>
+    <label class="find"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>
+      <input id="q" type="search" placeholder="Поиск" value="${esc(S.q)}" autocomplete="off" aria-label="Поиск по названию"></label>
+    <button class="rnd" id="rnd">Случайно →</button>
+  </div>
+
+  ${pick && !q && S.cat === 'all' ? `
+  <a class="pick fade" href="#item-${pick.id}">
+    ${plate(pick, indexOf(pick))}
+    <div class="pick-body">
+      <span class="caps">Выбор редакции</span>
+      <h2>${esc(pick.title)}</h2>
+      <p>${esc(pick.note || pick.description)}</p>
+      <span class="caps" style="color:var(--gold)">Открыть карточку →</span>
+    </div>
+  </a>` : ''}
+
+  <ul class="list">
+    ${list.length ? list.map(x => `
+      <li><a class="row" href="#item-${x.id}">
+        <span class="n">№ ${pad(indexOf(x))}</span>
+        <span class="t"><strong>${esc(x.title)}</strong><span>${esc(x.categories.join(' · '))}${x.author ? ' — ' + esc(x.author) : ''}${x.example ? '<span class="sample">образец</span>' : ''}</span></span>
+        <span class="r">${x.rating ? `<span class="score">${Number(x.rating).toFixed(1)}</span>` : ''}<span class="arrow">→</span></span>
+      </a></li>`).join('') : `<li class="none">Здесь пока пусто. <a href="#submit">Предложите проект</a></li>`}
+  </ul>`;
+
+  app.querySelectorAll('[data-kind]').forEach(b => b.onclick = () => { S.kind = b.dataset.kind; S.cat = 'all'; S.q = ''; haptic(); home(); });
+  app.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { S.cat = b.dataset.cat; haptic(); home(); });
+  app.querySelector('#rnd').onclick = () => { const pool = all.filter(x => x.kind === S.kind); haptic(); location.hash = 'item-' + pool[Math.floor(Math.random() * pool.length)].id; };
+  const qi = app.querySelector('#q');
+  qi.oninput = () => { S.q = qi.value; const pos = qi.selectionStart; home(); const n = app.querySelector('#q'); n.focus(); n.setSelectionRange(pos, pos); };
+}
+
+function item(id) {
+  const x = S.data.items.find(i => i.id === id);
+  if (!x) { app.innerHTML = `<div class="page"><h1>Проект <em>не найден</em></h1><p class="lead">Возможно, его убрали из каталога.</p><a class="btn" href="#">В каталог</a></div>`; return; }
+  const st = x.stats;
+  app.innerHTML = `
+  <button class="back" onclick="history.length>1?history.back():location.hash=''">← Каталог</button>
+  <article class="item fade">
+    ${plate(x, indexOf(x))}
+    <div class="item-h">
+      <span class="caps">${kindName(x.kind)} · ${esc(x.categories.join(' · '))}${x.example ? ' · образец' : ''}</span>
+      <h1>${esc(x.title)}</h1>
+      ${x.author ? `<p>${esc(x.author)}</p>` : ''}
+    </div>
+    <dl class="spec">
+      <div><dt>Оценка</dt><dd class="mono">${x.rating ? Number(x.rating).toFixed(1) + (x.votes ? ` <span style="color:var(--muted)">/ ${x.votes}</span>` : '') : '—'}</dd></div>
+      <div><dt>${x.kind === 'bot' ? 'Формат' : 'Сессия'}</dt><dd>${x.kind === 'bot' ? 'Бот' : (x.session ? '~ ' + esc(x.session) : '—')}</dd></div>
+      <div><dt>Цена</dt><dd>Бесплатно</dd></div>
+      <div><dt>Проверка</dt><dd style="color:var(--gold)">Пройдена</dd></div>
+    </dl>
+    <p class="desc">${esc(x.description)}</p>
+    ${x.note ? `<blockquote><p>«${esc(x.note)}»</p><cite class="caps">Редакция Пульта</cite></blockquote>` : ''}
+    ${st ? `<div><span class="caps">Показатели за 30 дней${x.example ? ' · пример' : ''}</span></div>
+    <div class="figs" style="margin-top:-18px">
+      <div><span class="caps">Игроков</span><b>${esc(st.players)}</b></div>
+      <div><span class="caps">Сессия</span><b>${esc(st.session)}</b></div>
+      <div><span class="caps">Вернулись, 7 дн.</span><b>${esc(st.d7)}</b></div>
+    </div>` : ''}
+    <h2 class="sec-t">Правила отбора</h2>
+    <ul class="rules">${S.data.criteria.map((c, i) => `<li><span>${ROMAN[i]}</span>${esc(c)}</li>`).join('')}</ul>
+    <div class="cta">
+      ${x.link ? `<a class="btn" href="${esc(x.link)}" target="_blank" rel="noopener" id="open">${x.kind === 'bot' ? 'Открыть бота' : 'Играть'} →</a>`
+               : `<span class="btn" aria-disabled="true">Ссылка появится скоро</span>`}
+      <button class="btn ghost" id="share" aria-label="Поделиться">Поделиться</button>
+    </div>
+  </article>`;
+  const open = app.querySelector('#open');
+  if (open && tg) open.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(x.link); } catch (er) { location.href = x.link; } };
+  app.querySelector('#share').onclick = async () => {
+    const url = location.origin + '/#item-' + x.id;
+    if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — в каталоге Пульт')); return; } catch (e) {} }
+    try { await navigator.clipboard.writeText(url); app.querySelector('#share').textContent = 'Скопировано'; } catch (e) {}
+  };
+}
+
+function rules() {
+  app.innerHTML = `<section class="page fade">
+    <span class="caps">Правила отбора</span>
+    <h1>Четыре правила, <em>без исключений</em></h1>
+    <p class="lead">Каждый проект в каталоге мы открываем сами и пользуемся им хотя бы неделю. Платное размещение возможно только для тех, кто уже прошёл отбор, и всегда с пометкой.</p>
+    <ul class="rules">${S.data.criteria.map((c, i) => `<li><span>${ROMAN[i]}</span>${esc(c)}</li>`).join('')}</ul>
+    <a class="btn" href="#submit" style="flex:none">Предложить проект</a>
+  </section>`;
+}
+
+function submit() {
+  let kind = 'game';
+  const catOpts = k => S.data.categories[k].map(c => `<option>${esc(c)}</option>`).join('');
+  app.innerHTML = `<section class="page fade">
+    <span class="caps">Для разработчиков и всех, кто нашёл что-то стоящее</span>
+    <h1>Предложить <em>проект</em></h1>
+    <p class="lead">Мы посмотрим каждую заявку и сами всё попробуем. Ответ придёт в течение недели.</p>
+    <form id="f" novalidate>
+      <div class="f"><label>Что это</label><div class="seg" role="group"><button type="button" data-k="game" aria-pressed="true">Игра</button><button type="button" data-k="bot" aria-pressed="false">Бот</button></div></div>
+      <div class="f"><label for="f-title">Название</label><input id="f-title" maxlength="64" required></div>
+      <div class="f"><label for="f-link">Ссылка</label><input id="f-link" placeholder="t.me/имя_бота" required></div>
+      <div class="f"><label for="f-cat">Категория</label><select id="f-cat">${catOpts('game')}</select></div>
+      <div class="f"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600"></textarea></div>
+      <div class="f"><label for="f-contact">Как с вами связаться</label><input id="f-contact" placeholder="@username" maxlength="64"></div>
+      <label class="agree"><input type="checkbox" id="f-ok">Проект соответствует всем четырём правилам: без токенов и «заработка», без казино, без обязательных подписок, интересен дольше пяти минут.</label>
+      <p class="msg" id="f-msg" hidden></p>
+      <button class="btn" type="submit">Отправить на проверку</button>
+    </form>
+  </section>`;
+  const f = app.querySelector('#f');
+  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) f.querySelector('#f-contact').value = '@' + tg.initDataUnsafe.user.username;
+  f.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { kind = b.dataset.k; f.querySelectorAll('[data-k]').forEach(x => x.setAttribute('aria-pressed', x === b)); f.querySelector('#f-cat').innerHTML = catOpts(kind); });
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const msg = f.querySelector('#f-msg'); msg.hidden = true; msg.className = 'msg';
+    const body = { kind, title: f.querySelector('#f-title').value, link: f.querySelector('#f-link').value, category: f.querySelector('#f-cat').value,
+      description: f.querySelector('#f-desc').value, contact: f.querySelector('#f-contact').value, criteria: f.querySelector('#f-ok').checked };
+    const btn = f.querySelector('[type=submit]'); btn.disabled = true; btn.textContent = 'Отправляем…';
+    try {
+      const r = await fetch('/api/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || 'Не получилось отправить');
+      app.querySelector('.page').innerHTML = `<div class="done fade"><span class="caps">Заявка принята</span><h2>Спасибо. Мы посмотрим.</h2><p>Редакция проверит проект и ответит в течение недели.</p><a class="btn" href="#" style="flex:none">В каталог</a></div>`;
+    } catch (err) {
+      msg.textContent = err.message === 'Failed to fetch' ? 'Нет соединения. Попробуйте ещё раз.' : err.message;
+      msg.classList.add('err'); msg.hidden = false; btn.disabled = false; btn.textContent = 'Отправить на проверку';
+    }
+  };
+}
+
+function route() {
+  if (!S.data) return;
+  const h = location.hash.slice(1);
+  document.querySelectorAll('[data-nav]').forEach(a => a.dataset.nav === h ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  if (h.startsWith('item-')) item(h.slice(5));
+  else if (h === 'rules') rules();
+  else if (h === 'submit') submit();
+  else home();
+  if (tg) { try { h ? tg.BackButton.show() : tg.BackButton.hide(); } catch (e) {} }
+  window.scrollTo(0, 0);
+}
+
+async function boot() {
+  try {
+    const r = await fetch('/api/catalog');
+    S.data = await r.json();
+  } catch (e) {
+    app.innerHTML = `<div class="loading">Каталог не загрузился. Обновите страницу.</div>`;
+    return;
+  }
+  if (S.data.bot) { const a = document.getElementById('botlink'); a.href = 'https://t.me/' + S.data.bot; a.hidden = false; }
+  if (tg) { try { tg.BackButton.onClick(() => history.length > 1 ? history.back() : (location.hash = '')); } catch (e) {} }
+  const sp = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param;
+  if (sp && !location.hash) location.hash = sp.startsWith('item-') ? sp : 'item-' + sp;
+  route();
+}
+window.addEventListener('hashchange', route);
+boot();
+</script>
+</body>
+</html>
