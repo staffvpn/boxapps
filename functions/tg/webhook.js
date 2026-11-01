@@ -1,8 +1,10 @@
 // POST /tg/webhook — бот BOX APPS. Каталог — только в мини-приложении; в чате: открыть приложение и добавить свой проект.
 // Для админов из ADMIN_IDS: /admin (открывает админку), кнопки «Добавить / Отклонить» на заявках.
 import { BRAND, KINDS } from '../_catalog.js';
-import { admins, getCategories, approveSubmission, createSubmission, esc, fullCatalog, json, kvGet, kvPut, normalizeLink, rejectSubmission, setOwner, tgApi } from '../_lib.js';
-import { ownerCode, tgInfo, tgName } from '../_tg.js';
+import { admins, getCategories, approveSubmission, createSubmission, esc, fullCatalog, json, kvGet, kvPut, rejectSubmission, setOwner, tgApi } from '../_lib.js';
+import { tgInfo } from '../_tg.js';
+
+const BOTFATHER_ID = 93372553; // @BotFather
 
 const ok = () => json({ ok: true });
 
@@ -60,11 +62,27 @@ async function askCategory(ctx, chat, kind) {
   for (let i = 0; i < cats.length; i += 2) rows.push(cats.slice(i, i + 2).map((c, j) => btn(c, 'sc:' + (i + j))));
   return send(ctx, chat, 'Выберите категорию:', { inline_keyboard: rows });
 }
-// Бот или игра: владелец ставит код в описание бота, мы проверяем страницу t.me
-async function askCode(ctx, chat, name) {
-  const code = await ownerCode(ctx.env, name);
-  return send(ctx, chat, `Подтвердите, что @${esc(name)} ваш.\n\n1. Откройте @BotFather → /setabouttext → выберите @${esc(name)}.\n2. Добавьте в текст код: <code>${code}</code>\n3. Нажмите «Проверить».\n\nПосле проверки код можно убрать.`,
-    { inline_keyboard: [[btn('Проверить', 'vchk')], [btn('Отмена', 'cancel')]] });
+// Бот или игра: владелец пересылает сообщение от @BotFather про своего бота.
+// /mybots показывает только свои боты, а метку «переслано от @BotFather» подделать нельзя.
+async function startBot(ctx, chat, uid, kind) {
+  await setState(ctx, uid, { step: 'fwd', kind });
+  return send(ctx, chat, `<b>Добавить ${kind === 'bot' ? 'бота' : 'игру'}</b>\n\nОткройте @BotFather → /mybots → выберите ${kind === 'bot' ? 'бота' : 'бота с игрой'} и <b>перешлите</b> ответ сюда.\n\nТак мы видим, что бот ваш. Токен не нужен.`,
+    { inline_keyboard: [[{ text: 'Открыть @BotFather', url: 'https://t.me/BotFather' }], [btn('Отмена', 'cancel')]] });
+}
+const fromBotFather = m => (m.forward_origin && m.forward_origin.type === 'user' && m.forward_origin.sender_user && m.forward_origin.sender_user.id === BOTFATHER_ID)
+  || (m.forward_from && m.forward_from.id === BOTFATHER_ID);
+function botNames(m) {
+  const txt = (m.text || m.caption || '') + ' ' + JSON.stringify((m.reply_markup && m.reply_markup.inline_keyboard) || []);
+  const set = new Set();
+  for (const r of txt.matchAll(/(?:@|t\.me\/)([A-Za-z][A-Za-z0-9_]{2,30}bot)\b/gi)) if (r[1].toLowerCase() !== 'botfather') set.add(r[1]);
+  return [...set];
+}
+async function acceptBot(ctx, chat, uid, st, name) {
+  await setOwner(ctx.env, name, uid, 'botfather');
+  const info = await tgInfo(new Request(ctx.origin), name).catch(() => null);
+  await setState(ctx, uid, { ...st, step: 'category', name, link: 'https://t.me/' + name, title: ((info && info.title) || name).slice(0, 64), verified: true });
+  await send(ctx, chat, `✅ @${esc(name)} подтверждён.`);
+  return askCategory(ctx, chat, st.kind);
 }
 
 async function onMessage(ctx, m) {
@@ -79,11 +97,25 @@ async function onMessage(ctx, m) {
     await send(ctx, chat, `✅ Канал «${esc(c.title || c.username)}» подтверждён.`, { remove_keyboard: true });
     return askCategory(ctx, chat, 'channel');
   }
+  if (m.forward_origin || m.forward_from) {
+    const st0 = await getState(ctx, uid);
+    if (!st0 || st0.step !== 'fwd') return send(ctx, chat, 'Чтобы добавить бота, нажмите «Добавить свой проект».', menuKb(ctx, uid));
+    if (!fromBotFather(m)) return send(ctx, chat, 'Это сообщение не от @BotFather. Откройте @BotFather → /mybots → выберите бота и перешлите его ответ.');
+    const names = botNames(m);
+    if (!names.length) return send(ctx, chat, 'Не нашли в сообщении юзернейм бота. Перешлите ответ @BotFather после выбора бота в /mybots — там есть @имя_бота.');
+    if (names.length > 1) {
+      await setState(ctx, uid, { ...st0, cands: names.slice(0, 10) });
+      return send(ctx, chat, 'Какого бота добавить?', { inline_keyboard: names.slice(0, 10).map((n, i) => [btn('@' + n, 'fb:' + i)]) });
+    }
+    return acceptBot(ctx, chat, uid, st0, names[0]);
+  }
   if (!text) return;
   const cmd = text.startsWith('/') ? text.split(/[\s@]/)[0].toLowerCase() : null;
   if (cmd) await clearState(ctx, uid);
 
   if (cmd === '/start' && /\baddchannel\b/.test(text)) return startChannel(ctx, chat, uid);
+  if (cmd === '/start' && /\baddbot\b/.test(text)) return startBot(ctx, chat, uid, 'bot');
+  if (cmd === '/start' && /\baddgame\b/.test(text)) return startBot(ctx, chat, uid, 'game');
   if (cmd === '/start' && /\badd\b/.test(text)) return startSubmit(ctx, chat, uid);
   if (cmd === '/start' || cmd === '/menu') return send(ctx, chat, welcome(), menuKb(ctx, uid));
   if (cmd === '/submit') return startSubmit(ctx, chat, uid);
@@ -105,12 +137,7 @@ async function onMessage(ctx, m) {
     await send(ctx, chat, 'Отменено.', { remove_keyboard: true });
     return send(ctx, chat, welcome(), menuKb(ctx, uid));
   }
-  if (st.step === 'link') {
-    const link = normalizeLink(text), name = tgName(link);
-    if (!name) return send(ctx, chat, 'Не похоже на юзернейм. Пришлите <code>@username</code> или <code>t.me/username</code>.');
-    await setState(ctx, uid, { ...st, link: 'https://t.me/' + name, name, step: 'verify' });
-    return askCode(ctx, chat, name);
-  }
+  if (st.step === 'fwd') return send(ctx, chat, 'Нужно именно <b>переслать</b> сообщение от @BotFather: /mybots → выберите бота → удерживайте ответ → «Переслать» → сюда.', { inline_keyboard: [[{ text: 'Открыть @BotFather', url: 'https://t.me/BotFather' }], [btn('Отмена', 'cancel')]] });
   if (st.step === 'desc') {
     await clearState(ctx, uid);
     await createSubmission(ctx.env, { kind: st.kind, title: st.title, link: st.link, category: st.category, description: text === '-' ? '' : text.slice(0, 600), user_id: uid, username: m.from.username || '', source: 'bot', verified: Boolean(st.verified) });
@@ -134,19 +161,15 @@ async function onCallback(ctx, q) {
   if (data.startsWith('sk:')) {
     const k = KINDS[data.slice(3)] ? data.slice(3) : 'game';
     if (k === 'channel') { await edit(ctx, m, '<b>Добавить канал</b>'); await startChannel(ctx, chat, uid); return answer(); }
-    await setState(ctx, uid, { step: 'link', kind: k });
-    await edit(ctx, m, `Пришлите юзернейм ${k === 'bot' ? 'бота' : 'бота с игрой'}: <code>@username</code>`); return answer();
+    await edit(ctx, m, `<b>Добавить ${k === 'bot' ? 'бота' : 'игру'}</b>`); await startBot(ctx, chat, uid, k); return answer();
   }
-  if (data === 'vchk') {
+  if (data.startsWith('fb:')) {
     const st = await getState(ctx, uid);
-    if (!st || st.step !== 'verify') return answer('Начните заново: /submit', true);
-    const [code, info] = await Promise.all([ownerCode(ctx.env, st.name), tgInfo(new Request(ctx.origin), st.name, { fresh: true }).catch(() => null)]);
-    if (!info || !String(info.description || '').toUpperCase().includes(code)) return answer(`Код ${code} пока не виден в описании @${st.name}. Сохраните описание в @BotFather и проверьте ещё раз через минуту.`, true);
-    await setOwner(ctx.env, st.name, uid, 'code');
-    await setState(ctx, uid, { ...st, step: 'category', title: (info.title || st.name).slice(0, 64), verified: true });
-    await edit(ctx, m, `✅ @${esc(st.name)} подтверждён. Код из описания теперь можно убрать.`);
-    await askCategory(ctx, chat, st.kind);
-    return answer('Подтверждено');
+    const name = st && st.cands && st.cands[Number(data.slice(3))];
+    if (!name) return answer('Начните заново: /submit', true);
+    await edit(ctx, m, '@' + esc(name));
+    await acceptBot(ctx, chat, uid, st, name);
+    return answer();
   }
   if (data.startsWith('sc:')) {
     const st = await getState(ctx, uid);

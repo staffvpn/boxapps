@@ -69,11 +69,3 @@ export async function tgInfo(request, name, { posts = false, fresh = false } = {
   if (fresh) return make();
   return cached(request, `/__tg/${name.toLowerCase()}${posts ? '/posts' : ''}`, 6 * 3600, make);
 }
-
-// Код подтверждения владения: зависит только от юзернейма и секрета сервера
-export async function ownerCode(env, name) {
-  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode('owner:' + (env.WEBHOOK_SECRET || env.BOT_TOKEN || 'box')), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(name.toLowerCase())));
-  const abc = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  return 'BOX-' + [...sig.slice(0, 6)].map(b => abc[b % abc.length]).join('');
-}

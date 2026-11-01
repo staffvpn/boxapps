@@ -144,9 +144,3 @@ export async function currentUser(request, env) {
 // Подтверждённые владельцы: own:<username> → { user_id, at }
 export async function setOwner(env, name, uid, via) { await kvPut(env, 'own:' + name.toLowerCase(), { user_id: uid || 0, via, at: Date.now() }); }
 export async function getOwner(env, name) { return kvGet(env, 'own:' + String(name).toLowerCase(), null); }
-// Владелец ли этот пользователь: в Telegram — по ID; без Telegram — только свежая (до часа) проверка кодом
-export function ownsIt(own, user) {
-  if (!own) return false;
-  if (user && own.user_id === user.id) return true;
-  return !own.user_id && own.via === 'code' && Date.now() - own.at < 3600000;
-}

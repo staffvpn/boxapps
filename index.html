@@ -691,86 +691,22 @@ function submit() {
 
 function addProject() {
   const box = app.querySelector('#sub');
-  const F = S.form = S.form || { kind: 'game' };
-  const catOpts = k => S.data.categories[k].map(c => `<option ${F.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
-  const kindSeg = `<div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${F.kind === k}">${kindName(k)}</button>`).join('')}</div>`;
-  const what = F.kind === 'channel' ? 'канала' : F.kind === 'bot' ? 'бота' : 'бота с игрой';
-
-  // шаг 1 — подтверждение владения
-  let step1;
-  if (F.verified) {
-    step1 = `<div class="note"><span class="tag" style="background:var(--green);color:var(--dark)">✓ Подтверждено</span><p>@${esc(F.name)} ваш. Код из описания можно убрать.</p></div>`;
-  } else if (F.kind === 'channel' && !F.codeMode) {
-    step1 = `<div class="hero" style="gap:12px">${ILL.channel(HEX.ink, HEX.salmon, HEX.lilac, HEX.surface || '#222226')}
-      <h2 style="font-size:24px">Выберите свой канал</h2>
-      <p>Telegram покажет только каналы, которые создали вы. Так мы понимаем, что канал ваш.</p>
-      ${S.data.bot ? `<a class="btn" id="pick" href="https://t.me/${esc(S.data.bot)}?start=addchannel">Выбрать мой канал<span class="play">${PLAY}</span></a>` : `<p class="msg">Бот ещё не подключён.</p>`}
-      <button type="button" class="btn ghost" id="codeMode">Подтвердить кодом в описании</button></div>`;
-  } else {
-    step1 = `<div class="cells" style="grid-template-columns:minmax(0,1fr)">
-        <div class="cell"><label for="v-link">Юзернейм ${what}</label><input id="v-link" placeholder="@username" value="${esc(F.link || '')}" ${NOAUTO} inputmode="email" enterkeyhint="go"></div></div>
-      ${F.code ? `<div class="note">
-        <span class="tag" style="background:var(--yellow);color:var(--dark)">Шаг 1 из 2</span>
-        <p>Добавьте код в описание @${esc(F.name)}:</p>
-        <button type="button" class="pill solo" id="copy" style="align-self:flex-start;font-weight:700;letter-spacing:.06em">${esc(F.code)} · копировать</button>
-        <p class="muted" style="font-size:14px">${F.kind === 'channel' ? 'Канал → Изменить → Описание.' : '@BotFather → /setabouttext → выберите бота.'} После проверки код можно убрать.</p>
-        <button type="button" class="btn" id="check">Проверить<span class="play">${PLAY}</span></button></div>`
-      : `<button type="button" class="btn" id="getCode">Подтвердить владение<span class="play">${PLAY}</span></button>`}
-      ${F.kind === 'channel' ? `<button type="button" class="btn ghost" id="pickMode">Выбрать канал из списка</button>` : ''}`;
-  }
-
-  // шаг 2 — детали, после подтверждения
-  const step2 = F.verified ? `<form class="form" id="f" novalidate>
-    <div class="cells">
-      <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64" value="${esc(F.title || '')}" enterkeyhint="next"></div>
-      <div class="cell"><label for="f-cat">Категория</label><select id="f-cat">${catOpts(F.kind)}</select></div>
-      <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600">${esc(F.description || '')}</textarea></div>
-      ${tg ? '' : `<div class="cell full"><label for="f-contact">Ваш контакт</label><input id="f-contact" placeholder="@username" maxlength="64" ${NOAUTO} inputmode="email"></div>`}
-    </div>
-    <p class="msg" id="f-msg" hidden></p>
-    <button class="submit" type="submit">Отправить на проверку<span class="play">${PLAY}</span></button>
-  </form>` : '';
-
-  box.innerHTML = kindSeg + `<p class="muted" style="margin:0">Добавлять проект в каталог может только владелец.</p>` + step1 + (F.error ? `<p class="msg">${esc(F.error)}</p>` : '') + step2;
-
-  const redraw = () => addProject();
-  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.form = { kind: b.dataset.k }; haptic(); redraw(); });
-  const pick = box.querySelector('#pick');
-  if (pick && tg) pick.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(pick.href); tg.close(); } catch (er) { location.href = pick.href; } };
-  const cm = box.querySelector('#codeMode'); if (cm) cm.onclick = () => { F.codeMode = true; redraw(); };
-  const pm = box.querySelector('#pickMode'); if (pm) pm.onclick = () => { F.codeMode = false; F.code = ''; F.error = ''; redraw(); };
-  const linkInp = box.querySelector('#v-link');
-  if (linkInp) linkInp.oninput = () => { F.link = linkInp.value; if (F.code) { F.code = ''; F.error = ''; } };
-  const ask = async check => {
-    F.link = linkInp ? linkInp.value : F.link; F.error = '';
-    const j = await api('/api/verify', { method: 'POST', body: JSON.stringify({ link: F.link, check }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
-    if (j.name) { F.name = j.name; F.code = j.code; }
-    if (j.ok && j.verified) {
-      F.verified = true; F.link = 'https://t.me/' + j.name;
-      if (j.info) { F.title = F.title || j.info.title; F.description = F.description || j.info.description; }
-      try { tg && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-    } else if (!j.ok) { F.error = j.error || 'Не получилось'; try { tg && tg.HapticFeedback.notificationOccurred('error'); } catch (e) {} }
-    redraw();
-  };
-  const gc = box.querySelector('#getCode'); if (gc) gc.onclick = () => ask(false);
-  const ch = box.querySelector('#check'); if (ch) ch.onclick = () => { ch.disabled = true; ask(true); };
-  const cp = box.querySelector('#copy');
-  if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText(F.code); cp.textContent = F.code + ' · скопировано'; } catch (e) { cp.textContent = F.code; } };
-
-  const f = box.querySelector('#f');
-  if (f) f.onsubmit = async e => {
-    e.preventDefault();
-    const msg = f.querySelector('#f-msg'); msg.hidden = true;
-    const btn = f.querySelector('.submit'); btn.disabled = true;
-    F.title = f.querySelector('#f-title').value; F.category = f.querySelector('#f-cat').value; F.description = f.querySelector('#f-desc').value;
-    const contact = f.querySelector('#f-contact');
-    const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind: F.kind, title: F.title, link: F.link, category: F.category, description: F.description, contact: contact ? contact.value : '' }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
-    if (!j.ok) { msg.textContent = j.error || 'Не получилось отправить'; msg.hidden = false; btn.disabled = false; return; }
-    try { tg && tg.HapticFeedback.notificationOccurred('success'); } catch (er) {}
-    S.form = null;
-    box.innerHTML = `<section class="hero in">${ILL.box()}<h2>Заявка отправлена</h2><p>Мы проверим проект и ответим в течение недели.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a>${tg ? '<button class="btn ghost" id="toMine">Мои проекты</button>' : ''}</div></section>`;
-    const tm = box.querySelector('#toMine'); if (tm) tm.onclick = () => { S.subTab = 'mine'; submit(); };
-  };
+  const k = S.addKind || 'game';
+  const how = {
+    game: ['Перешлите боту сообщение от @BotFather про вашего бота с игрой', 'В @BotFather: /mybots → выберите бота → перешлите ответ в BOX APPS.'],
+    bot: ['Перешлите боту сообщение от @BotFather про вашего бота', 'В @BotFather: /mybots → выберите бота → перешлите ответ в BOX APPS.'],
+    channel: ['Выберите свой канал из списка', 'Telegram покажет только каналы, которые создали вы.'],
+  }[k];
+  const link = S.data.bot ? `https://t.me/${S.data.bot}?start=add${k === 'channel' ? 'channel' : k}` : '';
+  box.innerHTML = `<div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(kk => `<button type="button" data-k="${kk}" aria-pressed="${k === kk}">${kindName(kk)}</button>`).join('')}</div>
+    <section class="hero in" style="gap:12px">${(ILL[k] || ILL.game)(HEX.ink, HEX.salmon, HEX.yellow, '#222226')}
+      <h2 style="font-size:24px">${how[0]}</h2>
+      <p>${how[1]} Так мы видим, что проект ваш: добавлять может только владелец.</p>
+      ${link ? `<a class="btn" id="go" href="${esc(link)}">Продолжить в боте<span class="play">${PLAY}</span></a>` : '<p class="msg">Бот ещё не подключён.</p>'}
+    </section>`;
+  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.addKind = b.dataset.k; haptic(); addProject(); });
+  const go = box.querySelector('#go');
+  if (go && tg) go.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(go.href); tg.close(); } catch (er) { location.href = go.href; } };
 }
 
 async function myProjects() {
