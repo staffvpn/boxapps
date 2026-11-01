@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Пульт — игры и боты для Telegram</title>
+<title>BOX APPS — игры и боты для Telegram</title>
 <meta name="description" content="Игры и боты для Telegram, отобранные вручную. Без тапалок, казино, «заработка» и обязательных подписок.">
 <meta name="theme-color" content="#ffffff">
-<meta property="og:title" content="Пульт — игры и боты для Telegram">
+<meta property="og:title" content="BOX APPS — игры и боты для Telegram">
 <meta property="og:description" content="Отобранные вручную. Без фарма и мусора.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -157,7 +157,7 @@ form{display:flex;flex-direction:column;gap:16px;border-top:1px solid var(--ink)
 <body>
 <div class="wrap">
   <header class="head">
-    <a class="station" href="#">Пульт</a>
+    <a class="station" href="#">BOX APPS</a>
     <span class="badge" id="count"><i></i>в каталоге</span>
   </header>
   <nav class="nav" aria-label="Разделы">
@@ -166,10 +166,10 @@ form{display:flex;flex-direction:column;gap:16px;border-top:1px solid var(--ink)
     <a class="pill" href="#submit" data-nav="submit">Предложить</a>
   </nav>
 
-  <main id="app"><div class="loading"><b>Пульт</b></div></main>
+  <main id="app"><div class="loading"><b>BOX APPS</b></div></main>
 
   <footer class="foot">
-    <span class="mono muted">© Пульт · отобрано вручную</span>
+    <span class="mono muted">© BOX APPS · отобрано вручную</span>
     <a class="mono" id="botlink" href="#" hidden>Бот в Telegram →</a>
   </footer>
 </div>
@@ -289,7 +289,7 @@ function item(id) {
   if (open && tg) open.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(x.link); } catch (er) { location.href = x.link; } };
   app.querySelector('#share').onclick = async () => {
     const url = location.origin + '/#item-' + x.id;
-    if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — в каталоге Пульт')); return; } catch (e) {} }
+    if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — в каталоге BOX APPS')); return; } catch (e) {} }
     try { await navigator.clipboard.writeText(url); app.querySelector('#share').textContent = 'Скопировано'; } catch (e) {}
   };
 }
