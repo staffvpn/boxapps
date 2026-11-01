@@ -185,6 +185,9 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 .chart .gl{stroke:var(--line);stroke-width:1}
 .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--dark);border-radius:12px;padding:7px 10px;font:600 12.5px/1.25 var(--font);transform:translate(-50%,calc(-100% - 12px));white-space:nowrap;opacity:0}
 .tip small{display:block;font-weight:500;font-size:11px;opacity:.65}
+.post{display:flex;flex-direction:column;gap:8px;padding:16px 18px;border-radius:var(--r-l);background:var(--surface)}
+.post p{margin:0;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;color:#DAD6CD}
+.post small{color:var(--muted);font-size:12.5px}
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .kpi{border-radius:var(--r-m);background:var(--surface-2);padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .kpi b{font:600 22px/1 var(--font)}
@@ -193,6 +196,7 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 /* пустой каталог / герой */
 .hero{position:relative;border-radius:var(--r-xl);background:var(--surface);padding:22px;overflow:hidden;display:flex;flex-direction:column;gap:14px}
 .hero svg.ill{width:100%;max-width:420px;height:auto;align-self:center}
+.hero > svg:not(.ill){width:62%;max-width:240px;height:auto;align-self:center}
 .hero h2{margin:0;font:500 30px/1.1 var(--font);letter-spacing:-.01em}
 .hero p{margin:0;color:var(--muted)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;height:56px;padding:0 8px 0 22px;border-radius:999px;border:0;background:var(--green);color:var(--dark);font:600 15.5px/1 var(--font);align-self:flex-start}
@@ -578,20 +582,22 @@ function item(id) {
   app.innerHTML = `
   <div class="topbar"><button class="circ" id="back" aria-label="Назад">${IC.back}</button>
     <div class="head-r">${S.admin ? `<a class="circ" href="#admin-edit-${x.id}" aria-label="Редактировать">${IC.edit}</a>` : ''}<button class="circ" id="share" aria-label="Поделиться">${IC.share}</button></div></div>
-  <div class="in" style="display:flex;flex-direction:column;gap:8px"><span class="muted">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1 class="big">${esc(x.title)}</h1></div>
+  <div class="in" style="display:flex;flex-direction:column;gap:8px"><span class="muted" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1 class="big">${esc(x.title)}</h1></div>
   <div class="cover in" style="--c:${c}">${x.image ? `<img src="${esc(x.image)}" alt="">` : artOf(x) + avatarImg(x, 'fill')}</div>
   <div class="chips">${chips.map(([ic, t]) => `<span class="ichip" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
-  ${x.description ? `<p class="about">${esc(x.description)}</p>` : ''}
+  <p class="about" id="about" ${x.description ? '' : 'hidden'}>${esc(x.description || '')}</p>
   ${x.note ? `<div class="note"><span class="tag" style="background:${c};color:var(--dark)">От редакции</span><p>${esc(x.note)}</p></div>` : ''}
   ${x.channel ? `<a class="row" href="${esc(x.channel)}" target="_blank" rel="noopener" id="chan"><span class="thumb" style="--c:var(--yellow)">${ILL.channel()}</span><span class="row-t"><b><span>Канал проекта</span></b><small>${esc(x.channel.replace('https://', ''))}</small></span><span class="play">${PLAY}</span></a>` : ''}
   ${st ? `<section class="panel"><div class="sec-h"><h2 class="sec">${st.week ? 'Игроки за неделю' : 'Показатели'}</h2><span class="muted" style="font-size:13px">30 дней</span></div>
     ${st.week ? chartHTML(st.week) : ''}
     <div class="kpis">${st.players ? `<div class="kpi"><b>${esc(st.players)}</b><span>игроков</span></div>` : ''}${st.session ? `<div class="kpi"><b>${esc(st.session)}</b><span>сессия</span></div>` : ''}${st.d7 ? `<div class="kpi"><b>${esc(st.d7)}</b><span>вернулись на 7 день</span></div>` : ''}</div></section>` : ''}
+  <div id="posts"></div>
   ${similar.length ? `<div class="sec-h"><h2 class="sec">Похожие</h2></div>${rowsHTML(similar)}` : ''}
   <div class="cta"><div class="cta-in">${x.link
     ? `<div class="swipe idle" id="open" role="button" tabindex="0" aria-label="${openLabel(x.kind)}: перетащите или нажмите"><span class="sw-fill"></span><span class="sw-text">${openLabel(x.kind)}</span><span class="sw-arr"><i>›</i><i>›</i><i>›</i></span><span class="sw-knob">${PLAY}</span></div>`
     : `<span class="off">Ссылка появится скоро</span>`}</div></div>`;
   if (st && st.week) bindChart(st.week);
+  liveInfo(x);
   app.querySelector('#back').onclick = () => history.length > 1 ? history.back() : (location.hash = '');
   if (!S.admin) track(x.id, 'view');
   const tgOpen = (e, link) => { if (tg && /^https:\/\/t\.me\//.test(link)) { e.preventDefault(); try { tg.openTelegramLink(link); } catch (er) { location.href = link; } } };
@@ -608,6 +614,25 @@ function item(id) {
     if (navigator.share) { try { await navigator.share({ title: x.title, url }); return; } catch (e) {} }
     try { await navigator.clipboard.writeText(url); } catch (e) {}
   };
+}
+
+/* ---------- живые данные из Telegram ---------- */
+const fmtN = n => n >= 1e6 ? (n / 1e6).toFixed(1).replace('.0', '') + ' млн' : n >= 1e4 ? Math.round(n / 1e3) + ' тыс.' : n.toLocaleString('ru-RU');
+async function liveInfo(x) {
+  const n = tgName(x); if (!n) return;
+  const j = await fetch(`/api/tg/${n}${x.kind === 'channel' ? '?posts=1' : ''}`).then(r => r.json()).catch(() => null);
+  if (!j || !j.ok || location.hash !== '#item-' + x.id) return;
+  const chips = app.querySelector('.chips'), c = cssColor(x);
+  const add = (ic, t) => chips && chips.insertAdjacentHTML('afterbegin', `<span class="ichip in" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`);
+  if (j.monthly) add(IC.users, `${fmtN(j.monthly)} в месяц`);
+  if (j.subscribers && !x.subscribers) add(IC.users, `${fmtN(j.subscribers)} ${plural(j.subscribers, 'подписчик', 'подписчика', 'подписчиков')}`);
+  const about = app.querySelector('#about');
+  if (about && about.hidden && j.description) { about.textContent = j.description; about.hidden = false; }
+  if (j.posts && j.posts.length) {
+    app.querySelector('#posts').innerHTML = `<div class="sec-h"><h2 class="sec">Последние посты</h2><a href="https://t.me/${n}" target="_blank" rel="noopener" data-tg>Все →</a></div>
+      <div class="rows">${j.posts.map(p => `<a class="post in" href="${esc(p.url)}" target="_blank" rel="noopener" data-tg><p>${esc(p.text)}</p><small>${p.date ? new Date(p.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : ''}${p.views ? ' · ' + esc(p.views) + ' просмотров' : ''}</small></a>`).join('')}</div>`;
+    app.querySelectorAll('#posts [data-tg]').forEach(a => a.onclick = e => { if (tg) { e.preventDefault(); try { tg.openTelegramLink(a.href); } catch (er) { location.href = a.href; } } });
+  }
 }
 
 /* ---------- кнопка-свайп ---------- */
@@ -649,35 +674,113 @@ function swipeButton(el, onDone) {
 /* ---------- заявка ---------- */
 const NOAUTO = 'autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off"';
 function submit() {
-  let kind = 'game';
-  const catOpts = k => S.data.categories[k].map(c => `<option>${esc(c)}</option>`).join('');
+  const inTg = Boolean(tg);
+  const tab = S.subTab || 'add';
   app.innerHTML = `
-  <h1 class="big in">Предложить <em>проект</em></h1>
-  <p class="muted" style="margin:-8px 0 0">Игра, бот или канал. Ответ придёт в течение недели.</p>
-  <form class="form" id="f" novalidate>
-    <div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${k === 'game'}">${kindName(k)}</button>`).join('')}</div>
+  <h1 class="big in">${tab === 'mine' ? 'Мои <em>проекты</em>' : 'Добавить <em>свой</em> проект'}</h1>
+  ${inTg ? `<div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))" role="group"><button data-st="add" aria-pressed="${tab === 'add'}">Добавить</button><button data-st="mine" aria-pressed="${tab === 'mine'}">Мои проекты</button></div>` : ''}
+  <div id="sub" style="display:flex;flex-direction:column;gap:16px"></div>`;
+  app.querySelectorAll('[data-st]').forEach(b => b.onclick = () => { S.subTab = b.dataset.st; haptic(); submit(); });
+  if (tab === 'mine' && inTg) myProjects(); else addProject();
+}
+
+function addProject() {
+  const box = app.querySelector('#sub');
+  const F = S.form = S.form || { kind: 'game' };
+  const catOpts = k => S.data.categories[k].map(c => `<option ${F.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
+  const kindSeg = `<div class="seg" role="group" aria-label="Что это">${['game', 'bot', 'channel'].map(k => `<button type="button" data-k="${k}" aria-pressed="${F.kind === k}">${kindName(k)}</button>`).join('')}</div>`;
+  const what = F.kind === 'channel' ? 'канала' : F.kind === 'bot' ? 'бота' : 'бота с игрой';
+
+  // шаг 1 — подтверждение владения
+  let step1;
+  if (F.verified) {
+    step1 = `<div class="note"><span class="tag" style="background:var(--green);color:var(--dark)">✓ Подтверждено</span><p>@${esc(F.name)} ваш. Код из описания можно убрать.</p></div>`;
+  } else if (F.kind === 'channel' && !F.codeMode) {
+    step1 = `<div class="hero" style="gap:12px">${ILL.channel(HEX.ink, HEX.salmon, HEX.lilac, HEX.surface || '#222226')}
+      <h2 style="font-size:24px">Выберите свой канал</h2>
+      <p>Telegram покажет только каналы, которые создали вы. Так мы понимаем, что канал ваш.</p>
+      ${S.data.bot ? `<a class="btn" id="pick" href="https://t.me/${esc(S.data.bot)}?start=addchannel">Выбрать мой канал<span class="play">${PLAY}</span></a>` : `<p class="msg">Бот ещё не подключён.</p>`}
+      <button type="button" class="btn ghost" id="codeMode">Подтвердить кодом в описании</button></div>`;
+  } else {
+    step1 = `<div class="cells" style="grid-template-columns:minmax(0,1fr)">
+        <div class="cell"><label for="v-link">Юзернейм ${what}</label><input id="v-link" placeholder="@username" value="${esc(F.link || '')}" ${NOAUTO} inputmode="email" enterkeyhint="go"></div></div>
+      ${F.code ? `<div class="note">
+        <span class="tag" style="background:var(--yellow);color:var(--dark)">Шаг 1 из 2</span>
+        <p>Добавьте код в описание @${esc(F.name)}:</p>
+        <button type="button" class="pill solo" id="copy" style="align-self:flex-start;font-weight:700;letter-spacing:.06em">${esc(F.code)} · копировать</button>
+        <p class="muted" style="font-size:14px">${F.kind === 'channel' ? 'Канал → Изменить → Описание.' : '@BotFather → /setabouttext → выберите бота.'} После проверки код можно убрать.</p>
+        <button type="button" class="btn" id="check">Проверить<span class="play">${PLAY}</span></button></div>`
+      : `<button type="button" class="btn" id="getCode">Подтвердить владение<span class="play">${PLAY}</span></button>`}
+      ${F.kind === 'channel' ? `<button type="button" class="btn ghost" id="pickMode">Выбрать канал из списка</button>` : ''}`;
+  }
+
+  // шаг 2 — детали, после подтверждения
+  const step2 = F.verified ? `<form class="form" id="f" novalidate>
     <div class="cells">
-      <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64" placeholder="Как называется" enterkeyhint="next"></div>
-      <div class="cell"><label for="f-link">Юзернейм или ссылка</label><input id="f-link" placeholder="@username" ${NOAUTO} inputmode="email" enterkeyhint="next"></div>
-      <div class="cell"><label for="f-cat">Категория</label><select id="f-cat">${catOpts('game')}</select></div>
-      <div class="cell"><label for="f-contact">Ваш контакт</label><input id="f-contact" placeholder="@username" maxlength="64" ${NOAUTO} inputmode="email" enterkeyhint="next"></div>
-      <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600" placeholder="Что это и чем хорошо"></textarea></div>
+      <div class="cell"><label for="f-title">Название</label><input id="f-title" maxlength="64" value="${esc(F.title || '')}" enterkeyhint="next"></div>
+      <div class="cell"><label for="f-cat">Категория</label><select id="f-cat">${catOpts(F.kind)}</select></div>
+      <div class="cell full"><label for="f-desc">Пара строк о проекте</label><textarea id="f-desc" maxlength="600">${esc(F.description || '')}</textarea></div>
+      ${tg ? '' : `<div class="cell full"><label for="f-contact">Ваш контакт</label><input id="f-contact" placeholder="@username" maxlength="64" ${NOAUTO} inputmode="email"></div>`}
     </div>
     <p class="msg" id="f-msg" hidden></p>
-    <button class="submit" type="submit">Отправить заявку<span class="play">${PLAY}</span></button>
-  </form>`;
-  const f = app.querySelector('#f');
-  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) f.querySelector('#f-contact').value = '@' + tg.initDataUnsafe.user.username;
-  f.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { kind = b.dataset.k; haptic(); f.querySelectorAll('[data-k]').forEach(x => x.setAttribute('aria-pressed', x === b)); f.querySelector('#f-cat').innerHTML = catOpts(kind); });
-  f.onsubmit = async e => {
+    <button class="submit" type="submit">Отправить на проверку<span class="play">${PLAY}</span></button>
+  </form>` : '';
+
+  box.innerHTML = kindSeg + `<p class="muted" style="margin:0">Добавлять проект в каталог может только владелец.</p>` + step1 + (F.error ? `<p class="msg">${esc(F.error)}</p>` : '') + step2;
+
+  const redraw = () => addProject();
+  box.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { S.form = { kind: b.dataset.k }; haptic(); redraw(); });
+  const pick = box.querySelector('#pick');
+  if (pick && tg) pick.onclick = e => { e.preventDefault(); try { tg.openTelegramLink(pick.href); tg.close(); } catch (er) { location.href = pick.href; } };
+  const cm = box.querySelector('#codeMode'); if (cm) cm.onclick = () => { F.codeMode = true; redraw(); };
+  const pm = box.querySelector('#pickMode'); if (pm) pm.onclick = () => { F.codeMode = false; F.code = ''; F.error = ''; redraw(); };
+  const linkInp = box.querySelector('#v-link');
+  if (linkInp) linkInp.oninput = () => { F.link = linkInp.value; if (F.code) { F.code = ''; F.error = ''; } };
+  const ask = async check => {
+    F.link = linkInp ? linkInp.value : F.link; F.error = '';
+    const j = await api('/api/verify', { method: 'POST', body: JSON.stringify({ link: F.link, check }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
+    if (j.name) { F.name = j.name; F.code = j.code; }
+    if (j.ok && j.verified) {
+      F.verified = true; F.link = 'https://t.me/' + j.name;
+      if (j.info) { F.title = F.title || j.info.title; F.description = F.description || j.info.description; }
+      try { tg && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    } else if (!j.ok) { F.error = j.error || 'Не получилось'; try { tg && tg.HapticFeedback.notificationOccurred('error'); } catch (e) {} }
+    redraw();
+  };
+  const gc = box.querySelector('#getCode'); if (gc) gc.onclick = () => ask(false);
+  const ch = box.querySelector('#check'); if (ch) ch.onclick = () => { ch.disabled = true; ask(true); };
+  const cp = box.querySelector('#copy');
+  if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText(F.code); cp.textContent = F.code + ' · скопировано'; } catch (e) { cp.textContent = F.code; } };
+
+  const f = box.querySelector('#f');
+  if (f) f.onsubmit = async e => {
     e.preventDefault();
     const msg = f.querySelector('#f-msg'); msg.hidden = true;
     const btn = f.querySelector('.submit'); btn.disabled = true;
-    const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind, title: f.querySelector('#f-title').value, link: f.querySelector('#f-link').value, category: f.querySelector('#f-cat').value, description: f.querySelector('#f-desc').value, contact: f.querySelector('#f-contact').value }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
+    F.title = f.querySelector('#f-title').value; F.category = f.querySelector('#f-cat').value; F.description = f.querySelector('#f-desc').value;
+    const contact = f.querySelector('#f-contact');
+    const j = await api('/api/submit', { method: 'POST', body: JSON.stringify({ kind: F.kind, title: F.title, link: F.link, category: F.category, description: F.description, contact: contact ? contact.value : '' }) }).catch(() => ({ ok: false, error: 'Нет соединения' }));
     if (!j.ok) { msg.textContent = j.error || 'Не получилось отправить'; msg.hidden = false; btn.disabled = false; return; }
     try { tg && tg.HapticFeedback.notificationOccurred('success'); } catch (er) {}
-    f.outerHTML = `<section class="hero in">${ILL.box()}<h2>Заявка отправлена</h2><p>Ответим в течение недели.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a><a class="btn ghost" href="#submit">Ещё одну</a></div></section>`;
+    S.form = null;
+    box.innerHTML = `<section class="hero in">${ILL.box()}<h2>Заявка отправлена</h2><p>Мы проверим проект и ответим в течение недели.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a>${tg ? '<button class="btn ghost" id="toMine">Мои проекты</button>' : ''}</div></section>`;
+    const tm = box.querySelector('#toMine'); if (tm) tm.onclick = () => { S.subTab = 'mine'; submit(); };
   };
+}
+
+async function myProjects() {
+  const box = app.querySelector('#sub');
+  box.innerHTML = `<div class="loading">${LOGO}</div>`;
+  const j = await api('/api/my').catch(() => ({ ok: false }));
+  if (!j.ok) { box.innerHTML = `<div class="empty">${esc(j.error || 'Не удалось загрузить')}</div>`; return; }
+  const STATUS = { pending: ['На проверке', 'var(--yellow)'], approved: ['В каталоге', 'var(--green)'], rejected: ['Не добавлен', 'var(--surface-2)'] };
+  const items = j.items || [];
+  const subs = (j.subs || []).filter(s => s.status !== 'approved');
+  box.innerHTML = (items.length ? `<div class="sec-h"><h2 class="sec">В каталоге</h2></div><div class="adm-list">${items.map(x => `<div class="adm-row">${rowHTML(x)}
+      <div class="adm-meta"><span class="stat-chip">Просмотры <b>${x.hits.v || 0}</b> · 7 дн ${x.hits.v7 || 0}</span><span class="stat-chip">Переходы <b>${x.hits.o || 0}</b> · 7 дн ${x.hits.o7 || 0}</span></div></div>`).join('')}</div>` : '') +
+    (subs.length ? `<div class="sec-h"><h2 class="sec">Заявки</h2></div><div class="rows">${subs.map(s => `<div class="row">${thumb({ id: s.sid, kind: s.kind, title: s.title, link: s.link })}<span class="row-t"><b><span>${esc(s.title)}</span></b><small>${kindName(s.kind)} · ${new Date(s.at).toLocaleDateString('ru-RU')}</small></span><span class="mini" style="--c:${STATUS[s.status][1]};${s.status === 'rejected' ? 'color:var(--muted)' : ''}">${STATUS[s.status][0]}</span></div>`).join('')}</div>` : '') +
+    (!items.length && !subs.length ? `<section class="hero">${ILL.box()}<h2>Пока пусто</h2><p>Добавьте свою игру, бота или канал.</p><button class="btn" id="toAdd">Добавить проект<span class="play">${PLAY}</span></button></section>` : '');
+  const ta = box.querySelector('#toAdd'); if (ta) ta.onclick = () => { S.subTab = 'add'; submit(); };
 }
 
 /* ---------- админка ---------- */

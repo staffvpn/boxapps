@@ -1,7 +1,8 @@
 // POST /tg/webhook — бот BOX APPS: разделы, категории, случайный выбор, поиск, заявки.
 // Для админов из ADMIN_IDS: /admin (открывает админку), кнопки «Добавить / Отклонить» на заявках.
 import { BRAND, KINDS } from '../_catalog.js';
-import { admins, getCategories, approveSubmission, createSubmission, esc, fullCatalog, json, kindLabel, kvGet, kvPut, normalizeLink, rejectSubmission, tgApi } from '../_lib.js';
+import { admins, getCategories, approveSubmission, createSubmission, esc, fullCatalog, json, kindLabel, kvGet, kvPut, normalizeLink, rejectSubmission, setOwner, tgApi } from '../_lib.js';
+import { ownerCode, tgInfo, tgName } from '../_tg.js';
 
 const PAGE = 6;
 const ok = () => json({ ok: true });
@@ -120,16 +121,47 @@ async function allCategoriesView(ctx) {
 
 async function startSubmit(ctx, chat, uid) {
   await setState(ctx, uid, { step: 'kind' });
-  return send(ctx, chat, '<b>Предложить проект</b>\nЧто это?', { inline_keyboard: [[btn('Игра', 'sk:game'), btn('Бот', 'sk:bot'), btn('Канал', 'sk:channel')], [btn('Отмена', 'cancel')]] });
+  return send(ctx, chat, '<b>Добавить свой проект</b>\nДобавлять может только владелец. Что это?', { inline_keyboard: [[btn('Игра', 'sk:game'), btn('Бот', 'sk:bot'), btn('Канал', 'sk:channel')], [btn('Отмена', 'cancel')]] });
+}
+// Канал: Telegram сам показывает список каналов, которые создал пользователь
+async function startChannel(ctx, chat, uid) {
+  await setState(ctx, uid, { step: 'pickchan', kind: 'channel' });
+  return send(ctx, chat, 'Нажмите кнопку внизу и выберите свой канал. Telegram покажет только каналы, которые создали вы.', {
+    keyboard: [[{ text: 'Выбрать мой канал', request_chat: { request_id: 1, chat_is_channel: true, chat_is_created: true, request_title: true, request_username: true } }], [{ text: 'Отмена' }]],
+    resize_keyboard: true, one_time_keyboard: true,
+  });
+}
+async function askCategory(ctx, chat, kind) {
+  const cats = (await getCategories(ctx.env))[kind];
+  const rows = [];
+  for (let i = 0; i < cats.length; i += 2) rows.push(cats.slice(i, i + 2).map((c, j) => btn(c, 'sc:' + (i + j))));
+  return send(ctx, chat, 'Выберите категорию:', { inline_keyboard: rows });
+}
+// Бот или игра: владелец ставит код в описание бота, мы проверяем страницу t.me
+async function askCode(ctx, chat, name) {
+  const code = await ownerCode(ctx.env, name);
+  return send(ctx, chat, `Подтвердите, что @${esc(name)} ваш.\n\n1. Откройте @BotFather → /setabouttext → выберите @${esc(name)}.\n2. Добавьте в текст код: <code>${code}</code>\n3. Нажмите «Проверить».\n\nПосле проверки код можно убрать.`,
+    { inline_keyboard: [[btn('Проверить', 'vchk')], [btn('Отмена', 'cancel')]] });
 }
 
 async function onMessage(ctx, m) {
   const chat = m.chat.id, uid = m.from.id;
   const text = (m.text || '').trim();
+  if (m.chat_shared) {
+    const st0 = await getState(ctx, uid);
+    const c = m.chat_shared;
+    if (!c.username) return send(ctx, chat, 'У канала нет публичного @юзернейма. Сделайте канал публичным и выберите его снова.');
+    await setOwner(ctx.env, c.username, uid, 'picker');
+    await setState(ctx, uid, { ...(st0 || {}), step: 'category', kind: 'channel', title: (c.title || c.username).slice(0, 64), link: 'https://t.me/' + c.username, verified: true });
+    await send(ctx, chat, `✅ Канал «${esc(c.title || c.username)}» подтверждён.`, { remove_keyboard: true });
+    return askCategory(ctx, chat, 'channel');
+  }
   if (!text) return;
   const cmd = text.startsWith('/') ? text.split(/[\s@]/)[0].toLowerCase() : null;
   if (cmd) await clearState(ctx, uid);
 
+  if (cmd === '/start' && /\baddchannel\b/.test(text)) return startChannel(ctx, chat, uid);
+  if (cmd === '/start' && /\badd\b/.test(text)) return startSubmit(ctx, chat, uid);
   if (cmd === '/start' || cmd === '/menu') return send(ctx, chat, welcome(), menuKb(ctx, uid));
   if (cmd === '/games' || cmd === '/bots' || cmd === '/channels') {
     const v = await categoriesView(ctx, { '/games': 'game', '/bots': 'bot', '/channels': 'channel' }[cmd]);
@@ -158,22 +190,20 @@ async function onMessage(ctx, m) {
     if (!res.length) return send(ctx, chat, 'Ничего не нашлось.', { inline_keyboard: [[btn('Поиск', 'search'), btn('Меню', 'menu')]] });
     return send(ctx, chat, `Найдено: ${res.length}`, { inline_keyboard: res.slice(0, 10).map(x => [btn(x.title, 'item:' + x.id)]) });
   }
-  if (st.step === 'title') {
-    await setState(ctx, uid, { ...st, title: text.slice(0, 64), step: 'link' });
-    return send(ctx, chat, 'Юзернейм или ссылка: <code>@username</code> или <code>t.me/username</code>.');
+  if (st.step === 'pickchan' && text === 'Отмена') {
+    await clearState(ctx, uid);
+    await send(ctx, chat, 'Отменено.', { remove_keyboard: true });
+    return send(ctx, chat, welcome(), menuKb(ctx, uid));
   }
   if (st.step === 'link') {
-    const link = normalizeLink(text);
-    if (!link) return send(ctx, chat, 'Не похоже на юзернейм. Пришлите <code>@username</code> или <code>t.me/username</code>.');
-    await setState(ctx, uid, { ...st, link, step: 'category' });
-    const cats = (await getCategories(ctx.env))[st.kind];
-    const rows = [];
-    for (let i = 0; i < cats.length; i += 2) rows.push(cats.slice(i, i + 2).map((c, j) => btn(c, 'sc:' + (i + j))));
-    return send(ctx, chat, 'Категория:', { inline_keyboard: rows });
+    const link = normalizeLink(text), name = tgName(link);
+    if (!name) return send(ctx, chat, 'Не похоже на юзернейм. Пришлите <code>@username</code> или <code>t.me/username</code>.');
+    await setState(ctx, uid, { ...st, link: 'https://t.me/' + name, name, step: 'verify' });
+    return askCode(ctx, chat, name);
   }
   if (st.step === 'desc') {
     await clearState(ctx, uid);
-    await createSubmission(ctx.env, { kind: st.kind, title: st.title, link: st.link, category: st.category, description: text.slice(0, 600), user_id: uid, username: m.from.username || '', source: 'bot' });
+    await createSubmission(ctx.env, { kind: st.kind, title: st.title, link: st.link, category: st.category, description: text === '-' ? '' : text.slice(0, 600), user_id: uid, username: m.from.username || '', source: 'bot', verified: Boolean(st.verified) });
     return send(ctx, chat, 'Спасибо, заявка отправлена. Ответим здесь.', menuKb(ctx, uid));
   }
   return send(ctx, chat, welcome(), menuKb(ctx, uid));
@@ -199,15 +229,27 @@ async function onCallback(ctx, q) {
   if (data === 'cancel') { await clearState(ctx, uid); await edit(ctx, m, 'Отменено.', menuKb(ctx, uid)); return answer(); }
 
   if (data.startsWith('sk:')) {
-    const k = data.slice(3);
-    await setState(ctx, uid, { step: 'title', kind: KINDS[k] ? k : 'game' });
-    await edit(ctx, m, 'Как называется?'); return answer();
+    const k = KINDS[data.slice(3)] ? data.slice(3) : 'game';
+    if (k === 'channel') { await edit(ctx, m, '<b>Добавить канал</b>'); await startChannel(ctx, chat, uid); return answer(); }
+    await setState(ctx, uid, { step: 'link', kind: k });
+    await edit(ctx, m, `Пришлите юзернейм ${k === 'bot' ? 'бота' : 'бота с игрой'}: <code>@username</code>`); return answer();
+  }
+  if (data === 'vchk') {
+    const st = await getState(ctx, uid);
+    if (!st || st.step !== 'verify') return answer('Начните заново: /submit', true);
+    const [code, info] = await Promise.all([ownerCode(ctx.env, st.name), tgInfo(new Request(ctx.origin), st.name, { fresh: true }).catch(() => null)]);
+    if (!info || !String(info.description || '').toUpperCase().includes(code)) return answer(`Код ${code} пока не виден в описании @${st.name}. Сохраните описание в @BotFather и проверьте ещё раз через минуту.`, true);
+    await setOwner(ctx.env, st.name, uid, 'code');
+    await setState(ctx, uid, { ...st, step: 'category', title: (info.title || st.name).slice(0, 64), verified: true });
+    await edit(ctx, m, `✅ @${esc(st.name)} подтверждён. Код из описания теперь можно убрать.`);
+    await askCategory(ctx, chat, st.kind);
+    return answer('Подтверждено');
   }
   if (data.startsWith('sc:')) {
     const st = await getState(ctx, uid);
     if (!st || st.step !== 'category') return answer('Начните заново: /submit', true);
     await setState(ctx, uid, { ...st, category: (await getCategories(ctx.env))[st.kind][Number(data.slice(3))], step: 'desc' });
-    await edit(ctx, m, 'Пара строк о проекте:'); return answer();
+    await edit(ctx, m, 'Пара строк о проекте (или «-», чтобы пропустить):'); return answer();
   }
 
   if (data.startsWith('mod:')) {

@@ -93,8 +93,9 @@ export async function createSubmission(env, sub) {
   const pending = await kvGet(env, 'pending', []);
   pending.push(sub);
   await kvPut(env, 'pending', pending.slice(-200));
+  if (sub.user_id) await trackMine(env, sub.user_id, { sid: sub.sid, title: sub.title, kind: sub.kind, link: sub.link, status: 'pending', at: sub.at });
   const who = sub.username ? '@' + sub.username : sub.user_id ? String(sub.user_id) : (sub.contact || 'с сайта');
-  const text = `Новая заявка от ${esc(who)}\n\n<b>${esc(sub.title)}</b> · ${kindLabel(sub.kind)} · ${esc(sub.category)}\n${esc(sub.link)}\n\n${esc(sub.description)}`;
+  const text = `Новая заявка от ${esc(who)}\n${sub.verified ? '✅ Владелец подтверждён' : '⚠️ Владение не подтверждено'}\n\n<b>${esc(sub.title)}</b> · ${kindLabel(sub.kind)} · ${esc(sub.category)}\n${esc(sub.link)}\n\n${esc(sub.description)}`;
   await Promise.all(admins(env).map(id => tgApi(env, 'sendMessage', {
     chat_id: id, text, parse_mode: 'HTML', disable_web_page_preview: true,
     reply_markup: { inline_keyboard: [[{ text: 'Добавить', callback_data: `mod:ok:${sub.sid}` }, { text: 'Отклонить', callback_data: `mod:no:${sub.sid}` }]] },
@@ -111,9 +112,11 @@ export async function approveSubmission(env, sid) {
   const items = await storedItems(env);
   let id = slug(sub.title);
   while (items.some(x => x.id === id)) id += '-' + Math.floor(Math.random() * 90 + 10);
-  const item = { id, kind: KINDS[sub.kind] ? sub.kind : 'game', title: sub.title, categories: [sub.category], link: sub.link, description: sub.description || '', author: sub.username ? '@' + sub.username : '', createdAt: Date.now() };
+  const item = { id, kind: KINDS[sub.kind] ? sub.kind : 'game', title: sub.title, categories: [sub.category], link: sub.link, description: sub.description || '', createdAt: Date.now() };
+  if (sub.verified) { item.verified = true; if (sub.user_id) item.owner = sub.user_id; }
   items.push(item);
   await saveItems(env, items);
+  if (sub.user_id) await trackMine(env, sub.user_id, { sid, status: 'approved', item: id });
   return { sub, item };
 }
 export async function rejectSubmission(env, sid) {
@@ -121,5 +124,29 @@ export async function rejectSubmission(env, sid) {
   const sub = pending.find(s => s.sid === sid);
   if (!sub) return null;
   await kvPut(env, 'pending', pending.filter(s => s.sid !== sid));
+  if (sub.user_id) await trackMine(env, sub.user_id, { sid, status: 'rejected' });
   return { sub };
+}
+
+// «Мои проекты»: история заявок пользователя
+export async function trackMine(env, uid, patch) {
+  const list = await kvGet(env, 'mine:' + uid, []);
+  const i = list.findIndex(x => x.sid === patch.sid);
+  if (i >= 0) list[i] = { ...list[i], ...patch }; else list.unshift(patch);
+  await kvPut(env, 'mine:' + uid, list.slice(0, 50));
+}
+
+// Пользователь мини-приложения по подписи Telegram
+export async function currentUser(request, env) {
+  return verifyInitData(request.headers.get('x-tg-init-data'), env.BOT_TOKEN);
+}
+
+// Подтверждённые владельцы: own:<username> → { user_id, at }
+export async function setOwner(env, name, uid, via) { await kvPut(env, 'own:' + name.toLowerCase(), { user_id: uid || 0, via, at: Date.now() }); }
+export async function getOwner(env, name) { return kvGet(env, 'own:' + String(name).toLowerCase(), null); }
+// Владелец ли этот пользователь: в Telegram — по ID; без Telegram — только свежая (до часа) проверка кодом
+export function ownsIt(own, user) {
+  if (!own) return false;
+  if (user && own.user_id === user.id) return true;
+  return !own.user_id && own.via === 'code' && Date.now() - own.at < 3600000;
 }

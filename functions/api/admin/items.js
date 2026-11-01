@@ -24,6 +24,7 @@ function clean(b, CATEGORIES) {
     image: str(b.image, 300),
     featured: Boolean(b.featured),
     hidden: Boolean(b.hidden),
+    verified: Boolean(b.verified),
     rating: num(b.rating),
     votes: num(b.votes),
   };
@@ -66,7 +67,7 @@ export async function onRequest({ request, env }) {
     const at = items.findIndex(x => x.id === (prevId || it.id));
     if (!prevId && at >= 0) return json({ ok: false, error: `Адрес «${it.id}» уже занят, задайте другой` }, 409);
     if (prevId && prevId !== it.id && items.some(x => x.id === it.id)) return json({ ok: false, error: `Адрес «${it.id}» уже занят` }, 409);
-    if (at >= 0) { it.createdAt = items[at].createdAt; items[at] = it; } else { it.createdAt = Date.now(); items.push(it); }
+    if (at >= 0) { it.createdAt = items[at].createdAt; if (items[at].owner) it.owner = items[at].owner; items[at] = it; } else { it.createdAt = Date.now(); items.push(it); }
     if (it.featured) items.forEach(x => { if (x.id !== it.id) delete x.featured; });
     await saveItems(env, items);
     return json({ ok: true, item: it });

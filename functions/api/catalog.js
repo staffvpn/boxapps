@@ -4,6 +4,8 @@ import { fullCatalog, getCategories, json, kvGet } from '../_lib.js';
 
 export async function onRequestGet({ env }) {
   const [all, bot, categories] = await Promise.all([fullCatalog(env), kvGet(env, "bot_username", ""), getCategories(env)]);
-  const items = all.filter(x => !x.hidden);
+  // публично: без ID владельца
+  const items = all.filter(x => !x.hidden).map(({ owner, ...x }) => x);
   return json({ brand: BRAND, bot, kinds: KINDS, categories, items });
 }
+
