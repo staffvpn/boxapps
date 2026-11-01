@@ -195,6 +195,12 @@ h2.sec{margin:0;font:600 19px/1.2 var(--font)}
 .post{display:flex;flex-direction:column;gap:8px;padding:16px 18px;border-radius:var(--r-l);background:var(--surface)}
 .post p{margin:0;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;color:#DAD6CD}
 .post small{color:var(--muted);font-size:12.5px}
+.info dl{margin:0;display:flex;flex-direction:column}
+.info dl div{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.info dl div:first-child{border-top:0;padding-top:4px}
+.info dt{color:var(--muted);font-size:14.5px;flex:none}
+.info dd{margin:0;font-weight:500;text-align:right;min-width:0;overflow-wrap:anywhere}
+.copy{border:0;background:var(--surface-2);border-radius:999px;padding:6px 12px;font:500 14.5px/1 var(--font);color:var(--salmon)}
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .kpi{border-radius:var(--r-m);background:var(--surface-2);padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .kpi b{font:600 22px/1 var(--font)}
@@ -513,18 +519,24 @@ function item(id) {
   if (!x) { app.innerHTML = `<section class="hero"><div class="hero-logo">${LOGO}</div><h2>Не найдено</h2><p>Такого проекта нет в каталоге.</p><a class="btn" href="#">На главную<span class="play">${PLAY}</span></a></section>`; document.body.classList.remove('page-item'); return; }
   const st = x.stats;
   const c = cssColor(x);
-  const chips = [];
-  if (x.rating) chips.push([IC.star, `${Number(x.rating).toFixed(1)}${x.votes ? ` · ${x.votes}` : ''}`]);
-  if (x.session) chips.push([IC.clock, '~' + x.session]);
-  if (x.subscribers) chips.push([IC.users, x.subscribers]);
-  chips.push([IC.tag, x.categories.join(', ')]);
-  if (x.price) chips.push([IC.coin, x.price]);
+  const uname = tgName(x);
+  const info = [];
+  if (uname) info.push(['Юзернейм', `<button type="button" class="copy" data-copy="@${esc(uname)}">@${esc(uname)}</button>`]);
+  info.push(['Тип', kindName(x.kind)]);
+  info.push([x.categories.length > 1 ? 'Категории' : 'Категория', esc(x.categories.join(', '))]);
+  info.push(['Аудитория', `<span id="aud">${x.subscribers ? esc(x.subscribers) : '—'}</span>`, 'aud-row']);
+  if (x.author) info.push(['Автор', esc(x.author)]);
+  if (x.session) info.push(['Сессия', '~' + esc(x.session)]);
+  if (x.rating) info.push(['Оценка', `★ ${Number(x.rating).toFixed(1)}${x.votes ? ` · ${x.votes}` : ''}`]);
+  if (x.price) info.push(['Цена', esc(x.price)]);
+  if (x.createdAt) info.push(['В каталоге с', new Date(x.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })]);
+  if (x.views) info.push(['Смотрели в BOX APPS', `${x.views.toLocaleString('ru-RU')} ${plural(x.views, 'раз', 'раза', 'раз')}`]);
+  if (x.opens) info.push(['Открывали', `${x.opens.toLocaleString('ru-RU')} ${plural(x.opens, 'раз', 'раза', 'раз')}`]);
   const similar = byRating(S.data.items.filter(y => y.id !== x.id && y.kind === x.kind)).slice(0, 4);
   app.innerHTML = `
   <div class="topbar">${tg ? '<span></span>' : `<button class="circ" id="back" aria-label="Назад">${IC.back}</button>`}
     <div class="head-r">${S.admin ? `<a class="circ" href="#admin-edit-${x.id}" aria-label="Редактировать">${IC.edit}</a>` : ''}<button class="circ" id="share" aria-label="Поделиться">${IC.share}</button></div></div>
-  <div class="app-head in">${iconHTML(x, 'aic')}<div class="ah-t"><span class="muted">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1>${esc(x.title)}</h1><small id="live-sub" class="muted"></small></div></div>
-  <div class="chips">${chips.map(([ic, t]) => `<span class="ichip" style="--c:${c}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
+  <div class="app-head in">${iconHTML(x, 'aic')}<div class="ah-t"><span class="muted">${kindName(x.kind)}${x.author ? ' · ' + esc(x.author) : ''}</span><h1>${esc(x.title)}</h1><small id="live-sub" class="muted">${uname ? '@' + esc(uname) : ''}</small></div></div>
   <p class="about" id="about" ${x.description ? '' : 'hidden'}>${esc(x.description || '')}</p>
   ${x.note ? `<div class="note"><span class="tag" style="background:${c};color:var(--dark)">От редакции</span><p>${esc(x.note)}</p></div>` : ''}
   ${x.channel ? `<a class="row" href="${esc(x.channel)}" target="_blank" rel="noopener" id="chan">${thumb({ id: 'chan-' + x.id, kind: 'channel', title: x.title, link: x.channel })}<span class="row-t"><b><span>Канал проекта</span></b><small>${esc(x.channel.replace('https://', ''))}</small></span><span class="play">${PLAY}</span></a>` : ''}
@@ -532,6 +544,7 @@ function item(id) {
     ${st.week ? chartHTML(st.week) : ''}
     <div class="kpis">${st.players ? `<div class="kpi"><b>${esc(st.players)}</b><span>игроков</span></div>` : ''}${st.session ? `<div class="kpi"><b>${esc(st.session)}</b><span>сессия</span></div>` : ''}${st.d7 ? `<div class="kpi"><b>${esc(st.d7)}</b><span>вернулись на 7 день</span></div>` : ''}</div></section>` : ''}
   <div id="posts"></div>
+  <section class="panel info"><h2 class="sec">Информация</h2><dl>${info.map(([k, v, cls]) => `<div${cls ? ` class="${cls}"${x.subscribers ? '' : ' hidden'}` : ''}><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl></section>
   ${similar.length ? `<div class="sec-h"><h2 class="sec">Похожие</h2></div>${rowsHTML(similar)}` : ''}
   <div class="cta"><div class="cta-in">${x.link
     ? `<div class="swipe idle" id="open" role="button" tabindex="0" aria-label="${openLabel(x.kind)}: перетащите или нажмите"><span class="sw-fill"></span><span class="sw-text">${openLabel(x.kind)}</span><span class="sw-arr"><i>›</i><i>›</i><i>›</i></span><span class="sw-knob">${PLAY}</span></div>`
@@ -548,6 +561,7 @@ function item(id) {
     location.href = x.link;
   });
   const chan = app.querySelector('#chan'); if (chan) chan.onclick = e => tgOpen(e, x.channel);
+  app.querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => { const t = b.dataset.copy; try { await navigator.clipboard.writeText(t); b.textContent = 'Скопировано'; haptic(); setTimeout(() => b.textContent = t, 1200); } catch (e) {} });
   app.querySelector('#share').onclick = async () => {
     const url = shareUrl(x);
     if (tg) { try { tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(x.title + ' — BOX APPS')); return; } catch (e) {} }
@@ -562,10 +576,12 @@ async function liveInfo(x) {
   const n = tgName(x); if (!n) return;
   const j = await fetch(`/api/tg/${n}${x.kind === 'channel' ? '?posts=1' : ''}`).then(r => r.json()).catch(() => null);
   if (!j || !j.ok || location.hash !== '#item-' + x.id) return;
-  const chips = app.querySelector('.chips'), c = cssColor(x);
   const sub = app.querySelector('#live-sub');
   const t = j.subscribers ? `${fmtN(j.subscribers)} ${plural(j.subscribers, 'подписчик', 'подписчика', 'подписчиков')}` : j.monthly ? `${fmtN(j.monthly)} пользователей в месяц` : '';
-  if (sub && t) sub.textContent = t;
+  if (t) {
+    if (sub) sub.textContent = '@' + n + ' · ' + t;
+    const aud = app.querySelector('#aud'); if (aud) { aud.textContent = t; aud.closest('.aud-row').hidden = false; }
+  }
   const about = app.querySelector('#about');
   if (about && about.hidden && j.description) { about.textContent = j.description; about.hidden = false; }
   if (j.posts && j.posts.length) {
